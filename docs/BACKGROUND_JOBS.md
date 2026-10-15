@@ -27,7 +27,8 @@ Vercel-compatible workflow/queue service without changing business code.
 | Maintenance reminders (date / mileage) (same `/api/cron/operations` job)         | hourly                    | 5         |
 | Owner statement generation + ledger catch-up (`/api/cron/statements`, built)     | monthly, 1st 03:00 UTC    | 6         |
 | Location-data retention purge (`/api/cron/tracking-retention`, built)            | daily 04:00 UTC           | 7         |
-| Notification retry                                                               | every 10 min              | 2         |
+| Housekeeping: retention purges, notification retry, due account anonymisations   | daily 02:30 UTC           | 8         |
+| (`/api/cron/housekeeping`, built)                                                |                           |           |
 
 ## Local development
 

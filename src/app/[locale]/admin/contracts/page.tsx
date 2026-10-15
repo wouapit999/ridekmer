@@ -67,7 +67,7 @@ export default async function AdminContractsPage({
         <h2 className="text-lg font-semibold">
           {t("generated")} ({generated.total})
         </h2>
-        <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white" tabIndex={0}>
           <table className="min-w-full text-sm">
             <thead className="bg-sand-100 text-left text-xs tracking-wide text-sand-600 uppercase">
               <tr>

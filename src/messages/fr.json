@@ -70,7 +70,13 @@
     "perDay": "par jour",
     "from": "à partir de",
     "seats": "{count, plural, one {# place} other {# places}}",
-    "demoBanner": "Environnement de démonstration : toutes les données sont fictives et les prestataires de paiement sont simulés."
+    "demoBanner": "Environnement de démonstration : toutes les données sont fictives et les prestataires de paiement sont simulés.",
+    "pwa": {
+      "updateAvailable": "Une nouvelle version de RideKmer est disponible.",
+      "reload": "Mettre à jour",
+      "dismiss": "Plus tard",
+      "offlineBanner": "Vous êtes hors ligne. Certaines pages peuvent être indisponibles."
+    }
   },
   "home": {
     "metaTitle": "RideKmer — Location de voitures à Douala et Yaoundé",
@@ -530,7 +536,8 @@
       "security": "Sécurité",
       "bookings": "Mes réservations",
       "documents": "Mes documents",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "privacy": "Confidentialité"
     },
     "overview": {
       "roles": "Vos rôles",
@@ -594,6 +601,29 @@
       "file": "Fichier (PDF, JPEG ou PNG)",
       "upload": "Téléverser",
       "uploaded": "Document téléversé."
+    },
+    "privacy": {
+      "title": "Confidentialité et vos données",
+      "intro": "Vous pouvez télécharger une copie des données personnelles que RideKmer détient à votre sujet, ou demander la suppression de votre compte.",
+      "exportTitle": "Télécharger mes données",
+      "exportBody": "Un fichier JSON avec votre profil, vos réservations, paiements, contrats, documents et notifications. Les identifiants chiffrés (numéros de pièce d'identité, de permis, comptes bancaires) ne sont pas inclus ; contactez le support pour les consulter.",
+      "exportButton": "Télécharger mes données (JSON)",
+      "deleteTitle": "Supprimer mon compte",
+      "deleteBody": "Votre compte est gelé immédiatement et anonymisé après {days} jours. Vous pouvez annuler pendant ce délai en vous connectant. Les réservations en cours, les sommes dues et les véhicules actifs doivent d'abord être réglés. Les pièces financières et contractuelles sont conservées sans votre identité, comme l'exige la loi.",
+      "deleteReason": "Motif (facultatif)",
+      "deleteConfirm": "Je comprends que cette action est irréversible après le délai de grâce",
+      "deleteButton": "Demander la suppression",
+      "pendingTitle": "Suppression demandée",
+      "pendingBody": "Demande du {date}. Votre compte sera anonymisé après le délai de grâce, sauf annulation.",
+      "cancelButton": "Annuler la demande de suppression",
+      "cancelled": "Demande de suppression annulée. Votre compte est de nouveau actif.",
+      "requested": "Suppression demandée. Votre compte a été gelé.",
+      "errorActiveBookings": "Vous avez encore une réservation en cours ou un véhicule actif. Terminez-la ou annulez-la d'abord.",
+      "errorBalance": "Des sommes sont encore dues sur votre compte propriétaire. Contactez la finance avant de supprimer.",
+      "errorStaff": "Les comptes du personnel sont supprimés par un administrateur, pas depuis cette page.",
+      "errorRateLimited": "Trop de demandes. Réessayez plus tard.",
+      "errorGeneric": "Une erreur est survenue. Réessayez.",
+      "legalNote": "Les durées de conservation sont provisoires, en attente de revue juridique (docs/PRIVACY.md)."
     }
   },
   "owner": {
@@ -896,7 +926,8 @@
       "contracts": "Contrats",
       "payouts": "Versements",
       "expenses": "Dépenses",
-      "fleet": "Carte de la flotte"
+      "fleet": "Carte de la flotte",
+      "dataRequests": "Demandes RGPD"
     },
     "dashboard": {
       "bookingsToday": "Réservations du jour",
@@ -1196,6 +1227,22 @@
         "INSPECTION_REQUIRED": "Une inspection soumise est requise (prise en charge avant le début, retour avant la clôture)."
       },
       "overrideGates": "Passer outre les contrôles contrat/inspection (enregistré dans le journal d'audit)"
+    },
+    "dataRequests": {
+      "title": "Demandes des personnes concernées",
+      "intro": "Les demandes d'export sont servies immédiatement à la personne. Les demandes de suppression sont anonymisées automatiquement après le délai de grâce ; ne traitez une demande en avance qu'après avoir vérifié qu'il ne reste rien en suspens.",
+      "user": "Utilisateur",
+      "type": "Type",
+      "status": "Statut",
+      "requested": "Demandée",
+      "processed": "Traitée",
+      "reason": "Motif",
+      "anonymiseNow": "Anonymiser maintenant",
+      "reject": "Rejeter",
+      "rejectReason": "Motif du rejet",
+      "none": "Aucune demande.",
+      "done": "Demande traitée.",
+      "blocked": "Bloquée : {code}"
     }
   },
   "errors": {
@@ -1205,7 +1252,9 @@
     "genericTitle": "Une erreur est survenue",
     "genericBody": "Une erreur inattendue s'est produite. Notre équipe a été prévenue.",
     "offlineTitle": "Vous êtes hors ligne",
-    "offlineBody": "Certaines pages sont indisponibles sans connexion. Reconnectez-vous pour continuer."
+    "offlineBody": "Certaines pages sont indisponibles sans connexion. Reconnectez-vous pour continuer.",
+    "offlineRetry": "Réessayer",
+    "rateLimited": "Trop de demandes. Patientez un instant puis réessayez."
   },
   "validation": {
     "required": "Ce champ est obligatoire.",
@@ -1313,7 +1362,8 @@
     "errors": {
       "INVALID_STATUS": "Cette action n'est pas possible dans le statut actuel.",
       "UNAVAILABLE": "Le véhicule n'est pas disponible à ces dates.",
-      "EXTENSION_INVALID": "Choisissez une date postérieure au retour actuel."
+      "EXTENSION_INVALID": "Choisissez une date postérieure au retour actuel.",
+      "RATE_LIMITED": "Trop de tentatives. Patientez un instant puis réessayez."
     }
   },
   "payments": {
@@ -1390,7 +1440,8 @@
       "PHONE_INVALID": "Saisissez un numéro mobile camerounais valide.",
       "ALREADY_PAID": "Cette réservation est déjà payée.",
       "PROVIDER_ERROR": "Le fournisseur de paiement n'a pas répondu. Réessayez.",
-      "NOT_MOCK": "La simulation n'est disponible qu'avec le fournisseur simulé."
+      "NOT_MOCK": "La simulation n'est disponible qu'avec le fournisseur simulé.",
+      "RATE_LIMITED": "Trop de tentatives de paiement. Patientez un instant puis réessayez."
     },
     "admin": {
       "title": "Paiements",
@@ -1755,7 +1806,8 @@
       "RESPONSIBILITY_REVIEW": "Examen des responsabilités.",
       "DISPUTED": "Marqué comme contesté.",
       "RESOLVED": "Résolu.",
-      "CLOSED": "Clôturé."
+      "CLOSED": "Clôturé.",
+      "RATE_LIMITED": "Trop de signalements. Patientez un instant puis réessayez."
     },
     "admin": {
       "title": "Incidents",

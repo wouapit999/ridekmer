@@ -115,7 +115,7 @@ export default async function AdminFinancePage({
       {access.permissions.has("payment.reconcile") ? <LedgerCatchUpForm /> : null}
       <section className="space-y-2">
         <h2 className="text-lg font-semibold">{t("ownerBalances")}</h2>
-        <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white" tabIndex={0}>
           <table className="min-w-full text-sm">
             <thead className="bg-sand-100 text-left text-xs tracking-wide text-sand-600 uppercase">
               <tr>

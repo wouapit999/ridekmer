@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { getCurrentSession, requirePermissionOrThrow } from "@/server/auth/session";
+import { enforceRateLimit, RateLimitedError } from "@/server/security/rate-limit";
 
 import { RefundError, completeRefund, decideRefund, requestRefund } from "./refunds";
 import {
@@ -33,6 +34,7 @@ export interface PaymentActionResult {
 function fail(error: unknown): PaymentActionResult {
   if (error instanceof PaymentError || error instanceof RefundError)
     return { ok: false, message: error.code };
+  if (error instanceof RateLimitedError) return { ok: false, message: "RATE_LIMITED" };
   throw error;
 }
 
@@ -52,6 +54,7 @@ export async function initiatePaymentAction(
   const parsed = initiatePaymentSchema.safeParse(Object.fromEntries(formData.entries()));
   if (!parsed.success) return { ok: false, message: "INVALID" };
   try {
+    await enforceRateLimit("payment.initiate", current.user.id);
     const payment = await initiatePaymentForBooking({
       bookingId: parsed.data.bookingId,
       userId: current.user.id,

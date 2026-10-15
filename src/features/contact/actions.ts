@@ -7,6 +7,7 @@ import { humanReference } from "@/lib/ids";
 import { logger } from "@/lib/logger";
 import { parsePhone } from "@/lib/phone";
 import { getCurrentSession } from "@/server/auth/session";
+import { enforceRateLimit, RateLimitedError } from "@/server/security/rate-limit";
 import { db } from "@/server/db";
 
 const schema = z.object({
@@ -23,6 +24,7 @@ export interface ContactState {
   reference?: string;
   errors?: Partial<Record<keyof z.infer<typeof schema>, string>>;
   failed?: boolean;
+  rateLimited?: boolean;
 }
 
 export async function submitContact(
@@ -45,6 +47,7 @@ export async function submitContact(
   const locale = await getLocale();
   const session = await getCurrentSession();
   try {
+    await enforceRateLimit("contact.submit", session?.user.id);
     const supportCase = await db.supportCase.create({
       data: {
         reference: humanReference("SC"),
@@ -59,6 +62,7 @@ export async function submitContact(
     });
     return { ok: true, reference: supportCase.reference };
   } catch (error) {
+    if (error instanceof RateLimitedError) return { ok: false, failed: true, rateLimited: true };
     logger.error("contact.submit_failed", { error });
     return { ok: false, failed: true };
   }

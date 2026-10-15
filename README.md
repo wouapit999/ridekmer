@@ -5,8 +5,10 @@ fleet-management platform for Cameroon. It connects customers with vehicles owne
 vehicles entrusted by private or corporate owners, marketplace vehicles managed by their
 owners, chauffeur-driven vehicles and long-term rentals.
 
-> Status: **Milestone 1 (foundation) complete** — see `docs/IMPLEMENTATION_PLAN.md` for the
-> roadmap and `docs/OPEN_ITEMS.md` for everything that still needs a decision or credentials.
+> Status: **Milestones 1–8 complete (feature-complete v1, mock integrations)** — see
+> `docs/IMPLEMENTATION_PLAN.md` for what each milestone delivered,
+> `docs/PRODUCTION_READINESS_CHECKLIST.md` for what still separates this code from a launch,
+> and `docs/OPEN_ITEMS.md` for everything that needs a decision, a contract or credentials.
 
 ## Stack
 

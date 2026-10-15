@@ -2174,6 +2174,7 @@ model Notification {
   entityType        String?
   entityId          String?
   dedupeKey         String?             @unique
+  attempts          Int                 @default(1)
   sentAt            DateTime?
   readAt            DateTime?
   createdAt         DateTime            @default(now())

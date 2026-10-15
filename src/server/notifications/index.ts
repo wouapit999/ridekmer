@@ -57,6 +57,10 @@ interface SendTemplatedInput {
   dedupeKey?: string;
   /** When true (OTP), the rendered body is not persisted. */
   sensitive?: boolean;
+  /** Already-rendered content (housekeeping retries); skips template resolution. */
+  prerendered?: { subject?: string; body: string };
+  /** Set to false to send without creating a Notification row (retries update the original). */
+  persist?: boolean;
 }
 
 async function resolveTemplate(
@@ -80,9 +84,16 @@ async function resolveTemplate(
 }
 
 export async function sendTemplatedNotification(input: SendTemplatedInput) {
-  const template = await resolveTemplate(input.templateKey, input.channel, input.locale);
-  const subject = template.subject ? renderTemplate(template.subject, input.variables) : undefined;
-  const body = renderTemplate(template.body, input.variables);
+  const template =
+    input.prerendered ?? (await resolveTemplate(input.templateKey, input.channel, input.locale));
+  const subject = input.prerendered
+    ? input.prerendered.subject
+    : template.subject
+      ? renderTemplate(template.subject, input.variables)
+      : undefined;
+  const body = input.prerendered
+    ? input.prerendered.body
+    : renderTemplate(template.body, input.variables);
 
   let result: { ok: boolean; provider: string; providerMessageId?: string; error?: string } = {
     ok: true,
@@ -100,6 +111,7 @@ export async function sendTemplatedNotification(input: SendTemplatedInput) {
     result = await getWhatsAppProvider().sendWhatsApp({ to: input.to, text: body });
   }
 
+  if (input.persist === false) return result;
   try {
     await db.notification.create({
       data: {

@@ -286,3 +286,68 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
 - Consequences: no pan/zoom interaction (a link opens the area on OpenStreetMap); a paid tile
   provider must be chosen before launch (OPEN_ITEMS) because the OSM public tiles are for
   light use only.
+
+## ADR-031 Deep health check, boot validation and application rate limits
+
+- Decision: `/api/health` stays anonymous for uptime monitors (status + database latency) and
+  returns readiness details (pending migrations, storage reachability, payment provider
+  modes, cron freshness, production-only warnings) only with the `CRON_SECRET` bearer
+  token. `src/instrumentation.ts` validates the environment once per server instance and
+  routes every unhandled request error through the redacting logger (`onRequestError`).
+  Sensitive customer actions (contact form, payment initiation, booking confirmation,
+  incident reports, data export and deletion) go through `src/server/security/rate-limit.ts`:
+  Upstash sliding windows in production, an in-memory window elsewhere, failing open on a
+  Redis outage.
+- Consequences: no configuration detail leaks to anonymous callers; Upstash is mandatory in
+  production (already enforced by `getEnv()`); limits are generous because many users share
+  carrier-grade NAT addresses, and per-account keys are used whenever the user is signed in.
+
+## ADR-032 Housekeeping job and account deletion by anonymisation
+
+- Decision: a daily `/api/cron/housekeeping` job deletes expired sessions, verification
+  tokens, idempotency keys, stale rate-limit rows, old holds, processed webhook payloads and
+  old notifications according to `privacy.*` settings, retries failed SMS/e-mail
+  notifications (max 3 attempts), and anonymises accounts whose deletion request has passed
+  the grace period (`privacy.account_deletion_grace_days`, 30 by default). Deletion replaces
+  name, e-mail and phone, clears identity numbers and payout details, deletes identity
+  documents from storage, sessions, credentials, push subscriptions and addresses, and sets
+  the user to `DELETED`. Bookings, payments, ledger, contracts, inspections and audit rows
+  are kept, detached from any identity.
+- Consequences: statutory retention is honoured without keeping personal data; a request is
+  refused while bookings are in flight, an owner balance is non-zero or vehicles are still
+  listed; the grace period lets people change their minds; staff accounts are handled by an
+  administrator. Retention periods remain placeholders pending legal review.
+
+## ADR-033 Static public pages with a client-side viewer descriptor
+
+- Decision: the public site layout no longer reads the session. The header fetches
+  `/api/account/viewer` (name + staff flag, `private, no-store`) from the browser, so the
+  marketing and legal pages are prerendered per locale (`force-static` +
+  `generateStaticParams`) and served from the CDN. The home page keeps a database read for
+  the city list and is rendered on demand; account, owner, admin and checkout pages stay
+  dynamic by design.
+- Consequences: faster first paint and far fewer function invocations on the pages that
+  receive most traffic; the signed-in state in the header appears a few hundred
+  milliseconds after the page, which the tests tolerate; admin and owner layouts still pass
+  an explicit viewer so no extra request is made there.
+
+## ADR-034 Service worker strategy
+
+- Decision: a hand-written `public/sw.js` (no Workbox, no build plugin) precaches the two
+  offline pages and the manifest, serves hashed static assets cache-first, answers
+  navigations network-first with the locale's offline page as fallback, and never touches
+  `/api`, authentication, account, owner, admin or checkout routes. A client component
+  registers it in production, shows an "update available" prompt (SKIP_WAITING) and an
+  offline banner.
+- Consequences: no private data is ever written to the cache; no background sync or push
+  (deferred); the worker file must have its `CACHE_VERSION` bumped when the offline page
+  changes.
+
+## ADR-035 Dependency overrides for unused transitive packages
+
+- Decision: `pnpm.overrides` pins `mysql2` and `deepmerge-ts` to patched versions. Both are
+  pulled in by the Prisma CLI only (RideKmer uses the PostgreSQL adapter) and are never
+  executed at runtime; the override keeps `pnpm audit --prod --audit-level=high` green in CI
+  without forking Prisma. The CI job fails on any new high-severity advisory.
+- Consequences: the overrides are reviewed at every Prisma upgrade and removed once Prisma
+  ships the patched versions itself.

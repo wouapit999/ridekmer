@@ -23,7 +23,7 @@ export default async function AdminAuditPage({ params, searchParams }: Props) {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-sand-900">{t("title")}</h1>
-      <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-sand-200 bg-white" tabIndex={0}>
         <table className="min-w-full text-sm">
           <thead className="bg-sand-100 text-left text-xs tracking-wide text-sand-600 uppercase">
             <tr>

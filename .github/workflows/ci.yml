@@ -73,6 +73,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Dependency audit (production, high and above)
+        run: pnpm audit --prod --audit-level=high
+
       - name: Unit tests
         run: pnpm test
 
@@ -81,6 +84,17 @@ jobs:
 
       - name: Integration tests
         run: pnpm test:integration
+
+      - name: Coverage (unit + integration)
+        run: pnpm test:coverage
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 7
 
       - name: Production build
         run: pnpm build
@@ -106,6 +120,7 @@ jobs:
     env:
       ALLOW_DEMO_SEED: "true"
       AUTH_RATE_LIMIT_MULTIPLIER: "20"
+      CRON_SECRET: ci-only-cron-secret-0123456789
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -54,9 +54,35 @@ Upstash; add the payment and GPS provider hosts when they are configured.
 | Internal     | bookings, payments metadata, audit logs                                                | staff access by permission                                               |
 | Public       | approved vehicle listings, prices, public pages                                        | cacheable                                                                |
 
+## Application rate limits (Milestone 8)
+
+Better Auth limits its own endpoints (database-backed). Other sensitive operations use
+`src/server/security/rate-limit.ts` (ADR-031): Upstash sliding windows in production, an
+in-memory window in development and tests, keyed per user id when signed in, otherwise per
+client IP. Rules live in `RATE_LIMIT_RULES` (contact form, payment initiation, booking
+confirmation, incident reports, data export, deletion requests). A Redis outage fails open
+and is logged so that a cache incident never blocks payments.
+
+## Health, boot checks and error reporting
+
+- `/api/health`: anonymous liveness; readiness details only with the `CRON_SECRET` bearer.
+- `src/instrumentation.ts`: validates the environment at boot (fail fast) and logs every
+  unhandled request error through the redacting logger. `MONITORING_PROVIDER=sentry` is a
+  hook for the SDK the account owner installs; nothing is sent anywhere by default.
+- CI runs `pnpm audit --prod --audit-level=high`; transitive advisories in packages that
+  never run (Prisma CLI's MySQL driver) are pinned through `pnpm.overrides` (ADR-035).
+
+## Field-encryption key rotation
+
+`APP_ENCRYPTION_KEY_PREVIOUS` + `APP_ENCRYPTION_KEY_PREVIOUS_ID` keep the previous key
+readable while `pnpm db:rotate-key` (`scripts/rotate-encryption-key.ts`) re-encrypts every
+`*Enc` column and recomputes lookup hashes, in batches and idempotently. Remove the previous
+key once the script reports zero remaining rows. Procedure in `docs/OPERATIONS_RUNBOOK.md`.
+
 ## Known gaps (tracked in OPEN_ITEMS)
 
 - CSP nonces instead of `'unsafe-inline'` for scripts.
-- External error monitoring (Sentry) not wired.
+- External error monitoring SDK not installed (hook only).
 - Malware scanning provider not selected.
 - Production WAF / bot protection (Vercel Firewall) to be enabled by the account owner.
+- Independent penetration test before launch.

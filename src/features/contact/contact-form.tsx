@@ -14,6 +14,7 @@ const initial: ContactState = { ok: false };
 export function ContactForm({ defaultCategory }: { defaultCategory?: string }) {
   const t = useTranslations("contact.form");
   const tv = useTranslations("validation");
+  const tErrors = useTranslations("errors");
   const [state, action, pending] = useActionState(submitContact, initial);
 
   if (state.ok && state.reference) {
@@ -25,7 +26,9 @@ export function ContactForm({ defaultCategory }: { defaultCategory?: string }) {
 
   return (
     <form action={action} className="space-y-5" noValidate>
-      {state.failed ? <Alert tone="danger">{t("error")}</Alert> : null}
+      {state.failed ? (
+        <Alert tone="danger">{state.rateLimited ? tErrors("rateLimited") : t("error")}</Alert>
+      ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <Field id="name" label={t("name")} required error={err("name")}>
           <Input

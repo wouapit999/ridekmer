@@ -24,6 +24,10 @@
     {
       "path": "/api/cron/tracking-retention",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/housekeeping",
+      "schedule": "30 2 * * *"
     }
   ]
 }

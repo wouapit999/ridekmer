@@ -34,6 +34,9 @@ const serverSchema = z.object({
 
   APP_ENCRYPTION_KEY: z.string().min(32, "APP_ENCRYPTION_KEY must be a 32-byte base64 key"),
   APP_ENCRYPTION_KEY_ID: z.string().default("v1"),
+  /** Previous key kept readable during a rotation (see scripts/rotate-encryption-key.ts). */
+  APP_ENCRYPTION_KEY_PREVIOUS: optionalString,
+  APP_ENCRYPTION_KEY_PREVIOUS_ID: optionalString,
 
   UPSTASH_REDIS_REST_URL: optionalString,
   UPSTASH_REDIS_REST_TOKEN: optionalString,

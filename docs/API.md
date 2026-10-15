@@ -7,11 +7,11 @@ future native apps is planned (see "Mobile readiness").
 
 ## Route handlers (Milestone 1)
 
-| Method   | Path                                                   | Auth        | Purpose                                                                           |
-| -------- | ------------------------------------------------------ | ----------- | --------------------------------------------------------------------------------- |
-| GET/POST | `/api/auth/*`                                          | Better Auth | Sign-in/up, sessions, phone OTP, TOTP, password reset. Rate limited per endpoint. |
-| GET      | `/api/health`                                          | none        | Liveness + database probe (`{ status, database, latencyMs }`).                    |
-| GET      | `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml` | none        | PWA / SEO metadata.                                                               |
+| Method   | Path                                                   | Auth                                        | Purpose                                                                                   |
+| -------- | ------------------------------------------------------ | ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| GET/POST | `/api/auth/*`                                          | Better Auth                                 | Sign-in/up, sessions, phone OTP, TOTP, password reset. Rate limited per endpoint.         |
+| GET      | `/api/health`                                          | none / `Authorization: Bearer $CRON_SECRET` | Liveness + database probe; with the bearer, readiness details (`checks.*`) (Milestone 8). |
+| GET      | `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml` | none                                        | PWA / SEO metadata.                                                                       |
 
 | GET | `/api/cron/document-expiry` | `Authorization: Bearer $CRON_SECRET` | Daily document-expiry job (Milestone 2). |
 | GET | `/api/cron/expire-holds` | `Authorization: Bearer $CRON_SECRET` | Every 5 minutes: expire checkout holds and unpaid bookings (Milestone 3). |
@@ -19,6 +19,9 @@ future native apps is planned (see "Mobile readiness").
 | GET | `/api/cron/operations` | `Authorization: Bearer $CRON_SECRET` | Hourly: pickup/return reminders, late-return detection, maintenance reminders (Milestone 5). |
 | GET | `/api/cron/statements` | `Authorization: Bearer $CRON_SECRET` | Monthly: ledger catch-up, then last month's owner statements (Milestone 6). |
 | GET | `/api/cron/tracking-retention` | `Authorization: Bearer $CRON_SECRET` | Daily: purge location history beyond the retention period (Milestone 7). |
+| GET | `/api/cron/housekeeping` | `Authorization: Bearer $CRON_SECRET` | Daily: retention purges, notification retries, due account anonymisations (Milestone 8). |
+| GET | `/api/account/viewer` | Session (optional) | `{ viewer: { name, isStaff } | null }` for the client-rendered header; `private, no-store` (Milestone 8). |
+| GET | `/api/account/export` | Session | Personal-data export as a JSON attachment; rate limited (3/hour), audited (Milestone 8). |
 | POST | `/api/webhooks/gps/generic` | HMAC-SHA256 of the raw body (`x-ridekmer-signature`, `x-mock-gps-signature` for the mock) | Telematics push: JSON array of events in the RideKmer format. 200 processed, 400 malformed, 401 bad signature (Milestone 7). |
 | GET | `/api/admin/tracking/{vehicleId}/export?from&to&reason` | Session + `tracking.export` | Location history CSV; the reason is mandatory and logged (Milestone 7). |
 | GET | `/api/admin/reports/{bookings\|payments\|refunds\|payouts\|expenses\|ledger\|statements}?from&to` | Session + `report.export` | CSV export, audited, formula-injection safe (Milestone 6). |
@@ -30,15 +33,17 @@ Planned: `/api/v1/*` (mobile), post-v1.
 
 ## Server actions (Milestone 1)
 
-| Action                  | File                              | Permission                     | Audit                             |
-| ----------------------- | --------------------------------- | ------------------------------ | --------------------------------- |
-| `submitContact`         | `src/features/contact/actions.ts` | public (honeypot + validation) | —                                 |
-| `updateProfile`         | `src/features/account/actions.ts` | signed-in user                 | `user.profile.update`             |
-| `activateOwnerSpace`    | `src/features/account/actions.ts` | signed-in user                 | `owner.space.activate`            |
-| `saveUserRoles`         | `src/features/admin/actions.ts`   | `user.manage_roles`            | `user.roles.update`               |
-| `setUserStatus`         | `src/features/admin/actions.ts`   | `user.suspend`                 | `user.suspend` / `user.reinstate` |
-| `addCity`, `toggleCity` | `src/features/admin/actions.ts`   | `settings.manage`              | `city.create` / `city.toggle`     |
-| `updateSetting`         | `src/features/admin/actions.ts`   | `settings.manage`              | `setting.update`                  |
+| Action                                          | File                                         | Permission                     | Audit                                                       |
+| ----------------------------------------------- | -------------------------------------------- | ------------------------------ | ----------------------------------------------------------- |
+| `submitContact`                                 | `src/features/contact/actions.ts`            | public (honeypot + validation) | —                                                           |
+| `updateProfile`                                 | `src/features/account/actions.ts`            | signed-in user                 | `user.profile.update`                                       |
+| `activateOwnerSpace`                            | `src/features/account/actions.ts`            | signed-in user                 | `owner.space.activate`                                      |
+| `saveUserRoles`                                 | `src/features/admin/actions.ts`              | `user.manage_roles`            | `user.roles.update`                                         |
+| `setUserStatus`                                 | `src/features/admin/actions.ts`              | `user.suspend`                 | `user.suspend` / `user.reinstate`                           |
+| `addCity`, `toggleCity`                         | `src/features/admin/actions.ts`              | `settings.manage`              | `city.create` / `city.toggle`                               |
+| `updateSetting`                                 | `src/features/admin/actions.ts`              | `settings.manage`              | `setting.update`                                            |
+| `requestDeletionAction`, `cancelDeletionAction` | `src/features/account/privacy-actions.ts`    | signed-in user (rate limited)  | `privacy.deletion.requested` / `privacy.deletion.cancelled` |
+| `anonymiseNowAction`, `rejectDataRequestAction` | `src/features/admin/data-request-actions.ts` | `user.suspend`                 | `privacy.deletion.completed` / `privacy.request.rejected`   |
 
 Conventions for new actions:
 

@@ -3,7 +3,10 @@
 ## Daily checks
 
 - Vercel → Observability: error rate, function duration, 5xx.
-- `/api/health` responds `ok`.
+- `/api/health` responds `ok`; with `Authorization: Bearer $CRON_SECRET` it also reports
+  migrations, storage, payment provider modes and cron freshness (`degraded` means a
+  production warning such as a log-only e-mail provider or a housekeeping run older than a
+  day).
 - Admin dashboard tiles: vehicles awaiting approval, expiring documents, payments to
   reconcile, pending refunds/payouts, open incidents.
 
@@ -30,8 +33,11 @@ the action is audited. Vehicle suspension arrives with Milestone 2.
 ## Rotate secrets
 
 - `BETTER_AUTH_SECRET`: set the new value, redeploy; all users are signed out.
-- `APP_ENCRYPTION_KEY`: add the new key as `v2`, run the re-encryption script (M8), switch
-  `APP_ENCRYPTION_KEY_ID`, remove the old key after verification.
+- `APP_ENCRYPTION_KEY`: (1) generate a new key (`openssl rand -base64 32`); (2) set
+  `APP_ENCRYPTION_KEY=<new>`, `APP_ENCRYPTION_KEY_ID=v2`, `APP_ENCRYPTION_KEY_PREVIOUS=<old>`,
+  `APP_ENCRYPTION_KEY_PREVIOUS_ID=v1`, redeploy; (3) run `pnpm db:rotate-key` with the
+  production `DIRECT_DATABASE_URL` until it prints "Rotation complete."; (4) remove the
+  `*_PREVIOUS*` variables and redeploy. The script is idempotent and batched.
 - Provider credentials: update in the provider portal and Vercel, redeploy.
 
 ## Incident response (security)
@@ -54,4 +60,15 @@ the action is audited. Vehicle suspension arrives with Milestone 2.
 
 ## Scheduled jobs
 
-See `docs/BACKGROUND_JOBS.md`; failures appear in Vercel → Cron Jobs → logs.
+See `docs/BACKGROUND_JOBS.md`; failures appear in Vercel → Cron Jobs → logs. The daily
+housekeeping job writes an audit row (`cron.housekeeping`) that the deep health check uses
+to detect a stalled scheduler.
+
+## Data-subject requests
+
+- Export: served instantly to the signed-in person (Account → Privacy); nothing to do.
+- Deletion: the account is frozen (`PENDING_DELETION`) and anonymised automatically after
+  the grace period. Administration → Data requests lists them; "Anonymise now" processes one
+  early (refused while bookings, balances or vehicles are outstanding), "Reject" restores the
+  account with a reason. Both actions are audited. Staff accounts: remove roles first, then
+  the person can request deletion like any customer.

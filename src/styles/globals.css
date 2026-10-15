@@ -36,7 +36,7 @@
   --color-sand-200: #e8e2d6;
   --color-sand-300: #d4cbbb;
   --color-sand-400: #b3a894;
-  --color-sand-500: #8e8470;
+  --color-sand-500: #716855; /* 5.5:1 on white, 4.9:1 on sand-100 (WCAG AA) */
   --color-sand-600: #6b6355;
   --color-sand-700: #4d4740;
   --color-sand-800: #322e2a;

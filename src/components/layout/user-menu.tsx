@@ -6,14 +6,22 @@ import { buttonClasses } from "@/components/ui/button";
 import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
+import { useViewer } from "./viewer-provider";
+
 export interface Viewer {
   name: string;
   isStaff: boolean;
 }
 
-export function UserMenu({ viewer }: { viewer: Viewer | null }) {
+/**
+ * Pass `viewer` when the layout already knows the session (admin, owner); omit it on the
+ * public site, where the state comes from `ViewerProvider` so pages can be static.
+ */
+export function UserMenu({ viewer: explicit }: { viewer?: Viewer | null }) {
   const t = useTranslations("common.nav");
   const router = useRouter();
+  const context = useViewer();
+  const viewer = explicit === undefined ? context.viewer : explicit;
 
   if (!viewer) {
     return (
@@ -43,6 +51,7 @@ export function UserMenu({ viewer }: { viewer: Viewer | null }) {
         className={buttonClasses("ghost", "sm")}
         onClick={async () => {
           await authClient.signOut();
+          context.refresh();
           router.push("/");
           router.refresh();
         }}

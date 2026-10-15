@@ -4,8 +4,16 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { Container, PageHeader } from "@/components/ui/container";
 import { ContactForm } from "@/features/contact/contact-form";
 import { db } from "@/server/db";
+import { routing } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ category?: string }> };
+
+/** Static marketing/legal page (ADR-033): prerendered per locale, served from the CDN. */
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;

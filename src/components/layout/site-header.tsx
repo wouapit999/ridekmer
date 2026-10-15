@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 
 import { LanguageSwitcher } from "./language-switcher";
 import { Logo } from "./logo";
-import { UserMenu, type Viewer } from "./user-menu";
+import { UserMenu } from "./user-menu";
 
 const NAV: Array<{
   href: string;
@@ -22,7 +22,7 @@ const NAV: Array<{
   { href: "/long-term", key: "longTerm" },
 ];
 
-export function SiteHeader({ viewer }: { viewer: Viewer | null }) {
+export function SiteHeader() {
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
 
@@ -45,7 +45,7 @@ export function SiteHeader({ viewer }: { viewer: Viewer | null }) {
         </nav>
         <div className="hidden items-center gap-3 lg:flex">
           <LanguageSwitcher />
-          <UserMenu viewer={viewer} />
+          <UserMenu />
         </div>
         <button
           type="button"
@@ -87,7 +87,7 @@ export function SiteHeader({ viewer }: { viewer: Viewer | null }) {
             </Link>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-sand-200 px-3 pt-4">
               <LanguageSwitcher />
-              <UserMenu viewer={viewer} />
+              <UserMenu />
             </div>
           </nav>
         </div>

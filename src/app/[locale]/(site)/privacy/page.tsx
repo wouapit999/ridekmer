@@ -3,8 +3,16 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 
 import { Alert } from "@/components/ui/alert";
 import { Container, PageHeader } from "@/components/ui/container";
+import { routing } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
+
+/** Static marketing/legal page (ADR-033): prerendered per locale, served from the CDN. */
+export const dynamic = "force-static";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;

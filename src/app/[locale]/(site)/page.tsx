@@ -6,6 +6,14 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { SearchForm } from "@/features/vehicles/search-form";
 import { listActiveCities } from "@/features/vehicles/search";
+import { routing } from "@/i18n/routing";
+
+/** Prerendered per locale and refreshed hourly (city list); see ADR-033. */
+export const revalidate = 3600;
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

@@ -16,11 +16,19 @@ see `docs/LEGAL_REVIEW_CHECKLIST.md`.
    every location access is written to `TrackingAccessLog`; document access events are
    audited (M2).
 5. **Retention** — configurable via `SystemSetting` (`tracking.location_retention_days`,
-   `privacy.customer_document_retention_days`); purge jobs run from Vercel Cron (M7/M8).
-6. **Rights** — `DataRequest` records export and deletion requests; a self-service form is
-   delivered in M8. Deletion is implemented as anonymisation of the `User` row (name, email,
-   phone replaced, documents purged) rather than physical deletion: audit, ledger and
-   contract rows are append-only and must keep their references for statutory retention.
+   `privacy.customer_document_retention_days`, `privacy.notification_retention_days`,
+   `privacy.webhook_event_retention_days`, `privacy.hold_retention_days`); the
+   `tracking-retention` and `housekeeping` cron jobs enforce them (ADR-032).
+6. **Rights** — self-service under Account → Privacy: a JSON export of the person's data
+   (audited, rate limited, encrypted identifiers excluded) and a deletion request with a
+   grace period (`privacy.account_deletion_grace_days`, 30 days) during which the person can
+   cancel. Deletion is anonymisation of the `User` row (name, e-mail, phone replaced; identity
+   numbers, payout details, documents, sessions, credentials, push subscriptions and
+   addresses removed) rather than physical deletion: audit, ledger, booking, payment and
+   contract rows are kept for statutory retention without identifying the person. Requests
+   are refused while a booking is in flight, an owner balance is outstanding or a vehicle is
+   still listed. Staff process early or reject requests under Administration → Data
+   requests (`user.suspend`).
 7. **Security** — see `docs/SECURITY.md` (encryption, redaction, signed URLs).
 
 ## Processing inventory (initial)

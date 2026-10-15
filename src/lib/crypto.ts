@@ -22,6 +22,30 @@ function loadKey(): { key: Buffer; id: string } {
   return { key, id: process.env.APP_ENCRYPTION_KEY_ID ?? "v1" };
 }
 
+/**
+ * During a rotation the previous key stays readable (APP_ENCRYPTION_KEY_PREVIOUS +
+ * APP_ENCRYPTION_KEY_PREVIOUS_ID) until `pnpm db:rotate-key` has re-encrypted every row.
+ */
+function loadPreviousKey(): { key: Buffer; id: string } | null {
+  const raw = process.env.APP_ENCRYPTION_KEY_PREVIOUS;
+  const id = process.env.APP_ENCRYPTION_KEY_PREVIOUS_ID;
+  if (!raw || !id) return null;
+  const key = Buffer.from(raw, "base64");
+  if (key.length !== 32)
+    throw new Error("APP_ENCRYPTION_KEY_PREVIOUS must decode to exactly 32 bytes");
+  return { key, id };
+}
+
+function keyFor(keyId: string): Buffer {
+  const active = loadKey();
+  if (keyId === active.id) return active.key;
+  const previous = loadPreviousKey();
+  if (previous && keyId === previous.id) return previous.key;
+  throw new Error(
+    `Encrypted with key ${keyId}, but active key is ${active.id}; rotate before decrypting`,
+  );
+}
+
 export function encryptField(plaintext: string): string {
   const { key, id } = loadKey();
   const iv = randomBytes(12);
@@ -34,14 +58,9 @@ export function encryptField(plaintext: string): string {
 }
 
 export function decryptField(payload: string): string {
-  const { key, id } = loadKey();
   const [keyId, ivB64, tagB64, dataB64] = payload.split(":");
   if (!keyId || !ivB64 || !tagB64 || !dataB64) throw new Error("Malformed encrypted payload");
-  if (keyId !== id) {
-    throw new Error(
-      `Encrypted with key ${keyId}, but active key is ${id}; rotate before decrypting`,
-    );
-  }
+  const key = keyFor(keyId);
   const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(ivB64, "base64"));
   decipher.setAuthTag(Buffer.from(tagB64, "base64"));
   const decrypted = Buffer.concat([
@@ -49,6 +68,17 @@ export function decryptField(payload: string): string {
     decipher.final(),
   ]);
   return decrypted.toString("utf8");
+}
+
+/** Key id embedded in an encrypted payload. */
+export function encryptedKeyId(payload: string): string {
+  return payload.split(":")[0] ?? "";
+}
+
+/** Re-encrypt a payload with the active key; returns it unchanged when already current. */
+export function reencryptField(payload: string): string {
+  if (encryptedKeyId(payload) === loadKey().id) return payload;
+  return encryptField(decryptField(payload));
 }
 
 /** Deterministic keyed hash for equality lookups on encrypted fields. */

@@ -244,6 +244,40 @@ export const SYSTEM_SETTINGS_SEED: SystemSettingSeed[] = [
     category: "privacy",
   },
   {
+    key: "privacy.account_deletion_grace_days",
+    valueType: "INTEGER",
+    value: "30",
+    descriptionEn:
+      "Days between a customer's deletion request and anonymisation of the account (cancellable in between)",
+    descriptionFr:
+      "Délai entre la demande de suppression d'un client et l'anonymisation du compte (annulable entre-temps)",
+    category: "privacy",
+  },
+  {
+    key: "privacy.notification_retention_days",
+    valueType: "INTEGER",
+    value: "180",
+    descriptionEn: "Retention of sent in-app / SMS / email notification records (days)",
+    descriptionFr: "Conservation des notifications envoyées (jours)",
+    category: "privacy",
+  },
+  {
+    key: "privacy.webhook_event_retention_days",
+    valueType: "INTEGER",
+    value: "365",
+    descriptionEn: "Retention of processed payment webhook payloads (days)",
+    descriptionFr: "Conservation des webhooks de paiement traités (jours)",
+    category: "privacy",
+  },
+  {
+    key: "privacy.hold_retention_days",
+    valueType: "INTEGER",
+    value: "30",
+    descriptionEn: "Retention of expired or released reservation holds (days)",
+    descriptionFr: "Conservation des réservations temporaires expirées (jours)",
+    category: "privacy",
+  },
+  {
     key: "security.staff_mfa_required",
     valueType: "BOOLEAN",
     value: "true",

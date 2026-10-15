@@ -6,6 +6,7 @@ import { AvailabilityError, windowFromLocal } from "@/features/availability/serv
 
 import { checkoutSchema, dateRe, timeRe } from "./schemas";
 import { requirePermissionOrThrow, getCurrentSession } from "@/server/auth/session";
+import { enforceRateLimit, RateLimitedError } from "@/server/security/rate-limit";
 
 import {
   BookingError,
@@ -29,6 +30,7 @@ export interface BookingActionResult {
 function fail(error: unknown): BookingActionResult {
   if (error instanceof BookingError || error instanceof AvailabilityError)
     return { ok: false, message: error.code };
+  if (error instanceof RateLimitedError) return { ok: false, message: "RATE_LIMITED" };
   throw error;
 }
 
@@ -48,6 +50,7 @@ export async function confirmBookingAction(
   const d = parsed.data;
   if (!d.accept) return { ok: false, errors: { accept: "required" } };
   try {
+    await enforceRateLimit("booking.create", current.user.id);
     const window = windowFromLocal(d.pickupDate, d.pickupTime, d.returnDate, d.returnTime);
     const options = {
       chauffeur: d.chauffeur,

@@ -70,7 +70,13 @@
     "perDay": "per day",
     "from": "from",
     "seats": "{count, plural, one {# seat} other {# seats}}",
-    "demoBanner": "Demonstration environment: all data is synthetic and payment providers are mocks."
+    "demoBanner": "Demonstration environment: all data is synthetic and payment providers are mocks.",
+    "pwa": {
+      "updateAvailable": "A new version of RideKmer is available.",
+      "reload": "Update now",
+      "dismiss": "Later",
+      "offlineBanner": "You are offline. Some pages may be unavailable."
+    }
   },
   "home": {
     "metaTitle": "RideKmer — Car rental in Douala and Yaoundé",
@@ -530,7 +536,8 @@
       "security": "Security",
       "bookings": "My bookings",
       "documents": "My documents",
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "privacy": "Privacy"
     },
     "overview": {
       "roles": "Your roles",
@@ -594,6 +601,29 @@
       "file": "File (PDF, JPEG or PNG)",
       "upload": "Upload",
       "uploaded": "Document uploaded."
+    },
+    "privacy": {
+      "title": "Privacy and your data",
+      "intro": "You can download a copy of the personal data RideKmer holds about you, or ask for your account to be deleted.",
+      "exportTitle": "Download my data",
+      "exportBody": "A JSON file with your profile, bookings, payments, contracts, documents and notifications. Encrypted identifiers (ID numbers, licence numbers, bank accounts) are not included; contact support to consult them.",
+      "exportButton": "Download my data (JSON)",
+      "deleteTitle": "Delete my account",
+      "deleteBody": "Your account is frozen immediately and anonymised after {days} days. You can cancel during that period by signing in. Bookings in progress, money owed and active vehicles must be settled first. Financial and contractual records are kept without your identity, as the law requires.",
+      "deleteReason": "Reason (optional)",
+      "deleteConfirm": "I understand that this cannot be undone after the grace period",
+      "deleteButton": "Request deletion",
+      "pendingTitle": "Deletion requested",
+      "pendingBody": "Requested on {date}. Your account will be anonymised after the grace period unless you cancel.",
+      "cancelButton": "Cancel the deletion request",
+      "cancelled": "Deletion request cancelled. Your account is active again.",
+      "requested": "Deletion requested. We have frozen your account.",
+      "errorActiveBookings": "You still have a booking in progress or an active vehicle. Finish or cancel it first.",
+      "errorBalance": "Money is still owed on your owner account. Contact finance before deleting.",
+      "errorStaff": "Staff accounts are deleted by an administrator, not from this page.",
+      "errorRateLimited": "Too many requests. Please try again later.",
+      "errorGeneric": "Something went wrong. Please try again.",
+      "legalNote": "Retention periods are placeholders pending legal review (docs/PRIVACY.md)."
     }
   },
   "owner": {
@@ -896,7 +926,8 @@
       "contracts": "Contracts",
       "payouts": "Payouts",
       "expenses": "Expenses",
-      "fleet": "Fleet map"
+      "fleet": "Fleet map",
+      "dataRequests": "Data requests"
     },
     "dashboard": {
       "bookingsToday": "Bookings today",
@@ -1196,6 +1227,22 @@
         "INSPECTION_REQUIRED": "A submitted inspection is required first (pickup before the rental starts, return before completion)."
       },
       "overrideGates": "Override the contract/inspection gates (recorded in the audit log)"
+    },
+    "dataRequests": {
+      "title": "Data-subject requests",
+      "intro": "Export requests are served instantly to the person. Deletion requests are anonymised automatically after the grace period; process one early only after checking that nothing is outstanding.",
+      "user": "User",
+      "type": "Type",
+      "status": "Status",
+      "requested": "Requested",
+      "processed": "Processed",
+      "reason": "Reason",
+      "anonymiseNow": "Anonymise now",
+      "reject": "Reject",
+      "rejectReason": "Reason for rejection",
+      "none": "No requests.",
+      "done": "Request processed.",
+      "blocked": "Blocked: {code}"
     }
   },
   "errors": {
@@ -1205,7 +1252,9 @@
     "genericTitle": "Something went wrong",
     "genericBody": "An unexpected error occurred. Our team has been notified.",
     "offlineTitle": "You are offline",
-    "offlineBody": "Some pages are unavailable without a connection. Reconnect to continue."
+    "offlineBody": "Some pages are unavailable without a connection. Reconnect to continue.",
+    "offlineRetry": "Retry",
+    "rateLimited": "Too many requests. Please wait a moment and try again."
   },
   "validation": {
     "required": "This field is required.",
@@ -1313,7 +1362,8 @@
     "errors": {
       "INVALID_STATUS": "This action is not possible in the current status.",
       "UNAVAILABLE": "The vehicle is not available for these dates.",
-      "EXTENSION_INVALID": "Choose a date after the current return."
+      "EXTENSION_INVALID": "Choose a date after the current return.",
+      "RATE_LIMITED": "Too many attempts. Please wait a moment and try again."
     }
   },
   "payments": {
@@ -1390,7 +1440,8 @@
       "PHONE_INVALID": "Enter a valid Cameroon mobile number.",
       "ALREADY_PAID": "This booking is already paid.",
       "PROVIDER_ERROR": "The payment provider did not respond. Please try again.",
-      "NOT_MOCK": "Simulation is only available with the mock provider."
+      "NOT_MOCK": "Simulation is only available with the mock provider.",
+      "RATE_LIMITED": "Too many payment attempts. Please wait a moment and try again."
     },
     "admin": {
       "title": "Payments",
@@ -1755,7 +1806,8 @@
       "RESPONSIBILITY_REVIEW": "Responsibility review.",
       "DISPUTED": "Marked as disputed.",
       "RESOLVED": "Resolved.",
-      "CLOSED": "Closed."
+      "CLOSED": "Closed.",
+      "RATE_LIMITED": "Too many reports. Please wait a moment and try again."
     },
     "admin": {
       "title": "Incidents",

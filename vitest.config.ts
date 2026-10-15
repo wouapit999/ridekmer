@@ -11,6 +11,13 @@ export default defineConfig({
   plugins: [react()],
   resolve: { alias },
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "html", "lcov"],
+      include: ["src/**/*.{ts,tsx}", "packages/*/src/**/*.ts"],
+      exclude: ["src/generated/**", "src/app/**", "**/*.d.ts", "src/messages/**"],
+      reportsDirectory: "coverage",
+    },
     projects: [
       {
         resolve: { alias },

@@ -208,7 +208,30 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] Tests: geo maths and push parser (unit); devices, ingestion, geofences, access log,
       retention, immobilisation (integration); fleet pages (e2e)
 
-### Milestone 8 — Hardening, accessibility, performance, PWA, full test-suite, readiness `[ ]`
+### Milestone 8 — Hardening, accessibility, performance, PWA, full test-suite, readiness `[x]` (2026-10-15)
+
+- [x] Hardening: deep `/api/health` (migrations, storage, payment modes, cron freshness,
+      production warnings) behind the cron secret; `instrumentation.ts` boot validation and
+      unhandled-error logging; application rate limits (Upstash / in-memory) on contact,
+      payment, booking, incident, export and deletion actions; `pnpm audit` green with
+      documented overrides and a CI gate
+- [x] Housekeeping cron (`/api/cron/housekeeping`): expired sessions / tokens / idempotency
+      keys / rate-limit rows, old holds, processed webhooks, old notifications (settings),
+      failed-notification retry (max 3 attempts), due account anonymisations
+- [x] Privacy self-service: JSON export, deletion request with grace period and cancellation,
+      anonymisation that keeps financial and audit records; admin data-requests page
+- [x] Field-encryption key rotation (`pnpm db:rotate-key`, previous-key fallback)
+- [x] Performance: public layout no longer reads the session (client viewer descriptor); 11
+      marketing / legal pages prerendered per locale; home page on demand (city list)
+- [x] PWA: service worker (offline pages precached, hashed assets cache-first, navigations
+      network-first, private routes never cached), update prompt, offline banner, offline
+      pages
+- [x] Accessibility: axe-core (WCAG 2.1 A/AA) scans of public, customer and admin pages in
+      Playwright; issues found fixed
+- [x] Tests: unit (rate limiter, housekeeping policy, privacy rules, key rotation, service
+      worker invariants), integration (export, deletion lifecycle, anonymisation,
+      housekeeping), e2e (privacy, PWA, accessibility); coverage report in CI
+- [x] Docs: ADR-031–035, readiness checklist re-evaluated, runbook, privacy, security, API
 
 ## 4. Working method
 

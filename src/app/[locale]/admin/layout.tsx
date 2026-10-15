@@ -50,6 +50,7 @@ export default async function AdminLayout({
     { key: "maintenance", href: "/admin/maintenance", show: p.has("maintenance.manage") },
     { key: "contracts", href: "/admin/contracts", show: p.has("contract.view_all") },
     { key: "users", href: "/admin/users", show: p.has("user.view_all") },
+    { key: "dataRequests", href: "/admin/data-requests", show: p.has("user.view_all") },
     { key: "settings", href: "/admin/settings", show: p.has("settings.manage") },
     { key: "audit", href: "/admin/audit", show: p.has("audit.view") },
   ] as const;
