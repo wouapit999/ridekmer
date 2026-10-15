@@ -120,6 +120,8 @@ jobs:
     env:
       ALLOW_DEMO_SEED: "true"
       AUTH_RATE_LIMIT_MULTIPLIER: "20"
+      # Demo staff accounts have no TOTP; the e2e flows exercise the staff areas directly.
+      AUTH_REQUIRE_STAFF_MFA: "false"
       CRON_SECRET: ci-only-cron-secret-0123456789
     steps:
       - uses: actions/checkout@v4
