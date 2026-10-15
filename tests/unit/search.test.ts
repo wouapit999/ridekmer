@@ -58,4 +58,16 @@ describe("vehicle search parameters", () => {
     expect(where.reservationHolds).toBeDefined();
     expect(where.selfDriveAllowed).toBe(true);
   });
+
+  it("ignores the viewer's own active hold but not other customers' holds", () => {
+    const where = buildWhere(
+      { page: 1, pickupDate: "2026-11-01", returnDate: "2026-11-03" },
+      "user-1",
+    );
+    expect(where.reservationHolds).toMatchObject({
+      none: { status: "ACTIVE", NOT: { userId: "user-1" } },
+    });
+    const anonymous = buildWhere({ page: 1, pickupDate: "2026-11-01", returnDate: "2026-11-03" });
+    expect(anonymous.reservationHolds).not.toHaveProperty("none.NOT");
+  });
 });

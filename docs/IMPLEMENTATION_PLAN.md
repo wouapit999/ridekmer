@@ -104,13 +104,26 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] Tests: lifecycle + schema unit tests, onboarding/approval/expiry integration test,
       full owner → admin e2e flow
 
-### Milestone 3 — Catalogue, search, pricing and booking `[ ]`
+### Milestone 3 — Catalogue, search, pricing and booking `[x]` (2026-10-15)
 
-- Public catalogue and search with all filters from the brief
-- Availability calendar, blocked dates, overlap prevention (DB exclusion constraint)
-- Deterministic pricing engine (integer XAF) with tests
-- Reservation holds with automatic expiry
-- Booking state machine with validated transitions and status history, price snapshots
+- [x] Public catalogue: search results with photos (signed URLs), vehicle detail page with
+      specifications, prices, unavailable dates and a quote widget
+- [x] Deterministic pricing engine (integer XAF): daily path with weekend/seasonal
+      multipliers vs weekly/monthly packages, long-duration discounts, chauffeur, delivery,
+      return collection, additional drivers, promo codes (caps, minimums, per-user limits),
+      service fee, tax, commission and owner share; cancellation and late-return fees
+- [x] Availability: advance-notice and duration rules, overlap checks against bookings,
+      blocks and foreign holds; public unavailable ranges
+- [x] Reservation holds: per-user hold created at checkout (vehicle row lock + exclusion
+      constraint), refreshed on revisit, expired by cron every 5 minutes together with unpaid
+      bookings past their payment deadline
+- [x] Booking state machine with explicit transitions, status history, immutable price
+      snapshots (one per re-quote), customer cancellation policy, extension requests,
+      `confirmBookingAfterPayment` for Milestone 4, staff transitions by permission
+- [x] Checkout, customer bookings list/detail, admin bookings list/detail
+- [x] Tests: pricing engine, state machine and window rules (unit); quotes, holds,
+      concurrent booking prevention, lifecycle, cancellation, expiry (integration);
+      customer booking and double-booking prevention (e2e)
 
 ### Milestone 4 — Payments `[ ]`
 

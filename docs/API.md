@@ -14,6 +14,7 @@ future native apps is planned (see "Mobile readiness").
 | GET      | `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml` | none        | PWA / SEO metadata.                                                               |
 
 | GET | `/api/cron/document-expiry` | `Authorization: Bearer $CRON_SECRET` | Daily document-expiry job (Milestone 2). |
+| GET | `/api/cron/expire-holds` | `Authorization: Bearer $CRON_SECRET` | Every 5 minutes: expire checkout holds and unpaid bookings (Milestone 3). |
 | GET | `/api/storage/local/<key>?expires&sig` | HMAC signature | Development-only download route for the local storage provider. |
 
 Planned (later milestones): `/api/cron/*` for other jobs, `/api/webhooks/payments/<provider>`,

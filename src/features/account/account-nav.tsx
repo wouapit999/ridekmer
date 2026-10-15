@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 export function AccountNav({
   current,
 }: {
-  current: "overview" | "profile" | "security" | "documents";
+  current: "overview" | "profile" | "security" | "documents" | "bookings";
 }) {
   const t = useTranslations("account.nav");
   const items = [
@@ -13,6 +13,7 @@ export function AccountNav({
     { key: "profile", href: "/account/profile" },
     { key: "security", href: "/account/security" },
     { key: "documents", href: "/account/documents" },
+    { key: "bookings", href: "/account/bookings" },
   ] as const;
   return (
     <nav aria-label="Account" className="flex gap-1 overflow-x-auto border-b border-sand-200 pb-px">

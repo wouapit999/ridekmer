@@ -48,6 +48,24 @@ export const SYSTEM_SETTINGS_SEED: SystemSettingSeed[] = [
     isPublic: true,
   },
   {
+    key: "pricing.delivery_fee_xaf",
+    valueType: "INTEGER",
+    value: "5000",
+    descriptionEn: "Default delivery fee when no city rule applies",
+    descriptionFr: "Frais de livraison par défaut sans règle de ville",
+    category: "pricing",
+    isPublic: true,
+  },
+  {
+    key: "pricing.return_pickup_fee_xaf",
+    valueType: "INTEGER",
+    value: "5000",
+    descriptionEn: "Fee for collecting the vehicle at the customer's address",
+    descriptionFr: "Frais de récupération du véhicule à l'adresse du client",
+    category: "pricing",
+    isPublic: true,
+  },
+  {
     key: "pricing.late_return_fee_xaf_per_day",
     valueType: "INTEGER",
     value: "25000",
@@ -96,6 +114,16 @@ export const SYSTEM_SETTINGS_SEED: SystemSettingSeed[] = [
     value: "30",
     descriptionEn: "Time allowed to complete payment before the booking expires",
     descriptionFr: "Délai de paiement avant expiration de la réservation",
+    category: "booking",
+  },
+  {
+    key: "booking.verification_timeout_hours",
+    valueType: "INTEGER",
+    value: "48",
+    descriptionEn:
+      "Hours an unverified customer's booking waits for identity verification before it is cancelled",
+    descriptionFr:
+      "Heures pendant lesquelles la réservation d'un client non vérifié attend la vérification avant annulation",
     category: "booking",
   },
   {

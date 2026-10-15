@@ -9,6 +9,8 @@ import { listActiveCities, parseSearchParams, searchVehicles } from "@/features/
 import { SearchForm } from "@/features/vehicles/search-form";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
+import { getCurrentSession } from "@/server/auth/session";
+import { signedDownloadUrl } from "@/server/files/service";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -29,10 +31,31 @@ export default async function CarsPage({ params, searchParams }: Props) {
   const currentLocale = await getLocale();
   const raw = await searchParams;
   const filters = parseSearchParams(raw);
-  const [cities, result] = await Promise.all([listActiveCities(), searchVehicles(filters)]);
+  const session = await getCurrentSession();
+  const [cities, result] = await Promise.all([
+    listActiveCities(),
+    searchVehicles(filters, session?.user.id ?? null),
+  ]);
+  const photoUrls = new Map<string, string>();
+  await Promise.all(
+    result.vehicles.map(async (v) => {
+      if (v.images[0])
+        photoUrls.set(
+          v.id,
+          await signedDownloadUrl({ storageKey: v.images[0].storageKey, ttlSeconds: 3600 }),
+        );
+    }),
+  );
+
   const defaults = Object.fromEntries(
     Object.entries(raw).map(([k, v]) => [k, Array.isArray(v) ? v[0] : v]),
   );
+  const datesQuery = new URLSearchParams(
+    Object.entries(defaults).filter(
+      ([k, v]) =>
+        v && ["pickupDate", "pickupTime", "returnDate", "returnTime", "drive"].includes(k),
+    ) as [string, string][],
+  ).toString();
 
   return (
     <Container className="py-10">
@@ -174,12 +197,24 @@ export default async function CarsPage({ params, searchParams }: Props) {
                   key={v.id}
                   className="flex flex-col overflow-hidden rounded-xl border border-sand-200 bg-white shadow-card"
                 >
-                  <div
-                    className="flex aspect-[4/3] items-center justify-center bg-sand-100 text-sm text-sand-500"
-                    aria-hidden="true"
+                  <Link
+                    href={`/cars/${v.id}${datesQuery ? `?${datesQuery}` : ""}`}
+                    className="block aspect-[4/3] bg-sand-100"
                   >
-                    {v.images[0] ? "📷" : "RideKmer"}
-                  </div>
+                    {photoUrls.get(v.id) ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL
+                      <img
+                        src={photoUrls.get(v.id)}
+                        alt={`${v.make} ${v.model}`}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="flex h-full items-center justify-center text-sm text-sand-500">
+                        RideKmer
+                      </span>
+                    )}
+                  </Link>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone="brand">{t(`categories.${v.category}`)}</Badge>
@@ -202,6 +237,12 @@ export default async function CarsPage({ params, searchParams }: Props) {
                     <p className="text-xs text-sand-600">
                       {t("deposit", { amount: formatXaf(v.securityDepositXaf, currentLocale) })}
                     </p>
+                    <Link
+                      href={`/cars/${v.id}${datesQuery ? `?${datesQuery}` : ""}`}
+                      className="mt-3 inline-block font-medium text-brand-700 hover:underline"
+                    >
+                      {t("viewDetails")} →
+                    </Link>
                   </div>
                 </li>
               ))}

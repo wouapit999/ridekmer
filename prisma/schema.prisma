@@ -1331,46 +1331,52 @@ model ReservationHold {
 }
 
 model Booking {
-  id                 String        @id @default(cuid())
-  reference          String        @unique
-  customerId         String
-  customer           User          @relation("BookingCustomer", fields: [customerId], references: [id])
-  vehicleId          String
-  vehicle            Vehicle       @relation(fields: [vehicleId], references: [id])
-  chauffeurId        String?
-  chauffeur          User?         @relation("BookingChauffeur", fields: [chauffeurId], references: [id])
-  type               BookingType   @default(SELF_DRIVE)
-  status             BookingStatus @default(DRAFT)
-  startAt            DateTime
-  endAt              DateTime
-  rentalDays         Int
-  pickupMode         HandoverMode  @default(BRANCH_PICKUP)
-  returnMode         HandoverMode  @default(BRANCH_PICKUP)
-  pickupCityId       String?
-  pickupCity         City?         @relation("BookingPickupCity", fields: [pickupCityId], references: [id])
-  pickupBranchId     String?
-  pickupBranch       Branch?       @relation("BookingPickupBranch", fields: [pickupBranchId], references: [id])
-  returnBranchId     String?
-  returnBranch       Branch?       @relation("BookingReturnBranch", fields: [returnBranchId], references: [id])
-  pickupAddress      String?
-  pickupLatitude     Float?
-  pickupLongitude    Float?
-  returnAddress      String?
-  promoCodeId        String?
-  promoCode          PromoCode?    @relation(fields: [promoCodeId], references: [id])
-  customerNotes      String?
-  internalNotes      String?
-  cancellationReason String?
-  cancelledAt        DateTime?
-  confirmedAt        DateTime?
-  pickedUpAt         DateTime?
-  returnedAt         DateTime?
-  completedAt        DateTime?
-  currencyCode       String        @default("XAF")
-  timezone           String        @default("Africa/Douala")
-  version            Int           @default(1)
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                      String        @id @default(cuid())
+  reference               String        @unique
+  customerId              String
+  customer                User          @relation("BookingCustomer", fields: [customerId], references: [id])
+  vehicleId               String
+  vehicle                 Vehicle       @relation(fields: [vehicleId], references: [id])
+  chauffeurId             String?
+  chauffeur               User?         @relation("BookingChauffeur", fields: [chauffeurId], references: [id])
+  type                    BookingType   @default(SELF_DRIVE)
+  status                  BookingStatus @default(DRAFT)
+  startAt                 DateTime
+  endAt                   DateTime
+  rentalDays              Int
+  pickupMode              HandoverMode  @default(BRANCH_PICKUP)
+  returnMode              HandoverMode  @default(BRANCH_PICKUP)
+  pickupCityId            String?
+  pickupCity              City?         @relation("BookingPickupCity", fields: [pickupCityId], references: [id])
+  pickupBranchId          String?
+  pickupBranch            Branch?       @relation("BookingPickupBranch", fields: [pickupBranchId], references: [id])
+  returnBranchId          String?
+  returnBranch            Branch?       @relation("BookingReturnBranch", fields: [returnBranchId], references: [id])
+  pickupAddress           String?
+  pickupLatitude          Float?
+  pickupLongitude         Float?
+  returnAddress           String?
+  promoCodeId             String?
+  promoCode               PromoCode?    @relation(fields: [promoCodeId], references: [id])
+  customerNotes           String?
+  internalNotes           String?
+  cancellationReason      String?
+  cancelledAt             DateTime?
+  confirmedAt             DateTime?
+  pickedUpAt              DateTime?
+  returnedAt              DateTime?
+  completedAt             DateTime?
+  paymentDueAt            DateTime?
+  extensionRequestedEndAt DateTime?
+  cancellationFeeXaf      Int?
+  cancelledById           String?
+  additionalDrivers       Int           @default(0)
+  promoCodeValue          String?
+  currencyCode            String        @default("XAF")
+  timezone                String        @default("Africa/Douala")
+  version                 Int           @default(1)
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
 
   statusHistory  BookingStatusHistory[]
   addOns         BookingAddOn[]

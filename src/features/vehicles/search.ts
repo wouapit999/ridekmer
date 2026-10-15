@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import type { Prisma } from "@/generated/prisma/client";
 
 const BLOCKING_STATUSES = [
+  "PENDING_VERIFICATION",
   "PAYMENT_PENDING",
   "CONFIRMED",
   "READY_FOR_PICKUP",
@@ -74,7 +75,10 @@ export function searchWindow(params: VehicleSearchParams): { startAt: Date; endA
   return { startAt, endAt };
 }
 
-export function buildWhere(params: VehicleSearchParams): Prisma.VehicleWhereInput {
+export function buildWhere(
+  params: VehicleSearchParams,
+  viewerUserId: string | null = null,
+): Prisma.VehicleWhereInput {
   const where: Prisma.VehicleWhereInput = {
     status: "ACTIVE",
     documentsValid: true,
@@ -107,15 +111,24 @@ export function buildWhere(params: VehicleSearchParams): Prisma.VehicleWhereInpu
     const overlap = { startAt: { lt: window.endAt }, endAt: { gt: window.startAt } };
     where.bookings = { none: { status: { in: [...BLOCKING_STATUSES] }, ...overlap } };
     where.availabilityBlocks = { none: overlap };
+    // Other customers' live checkout holds hide the vehicle; the viewer's own hold does not.
     where.reservationHolds = {
-      none: { status: "ACTIVE", expiresAt: { gt: new Date() }, ...overlap },
+      none: {
+        status: "ACTIVE",
+        expiresAt: { gt: new Date() },
+        ...overlap,
+        ...(viewerUserId ? { NOT: { userId: viewerUserId } } : {}),
+      },
     };
   }
   return where;
 }
 
-export async function searchVehicles(params: VehicleSearchParams) {
-  const where = buildWhere(params);
+export async function searchVehicles(
+  params: VehicleSearchParams,
+  viewerUserId: string | null = null,
+) {
+  const where = buildWhere(params, viewerUserId);
   const [total, vehicles] = await Promise.all([
     db.vehicle.count({ where }),
     db.vehicle.findMany({

@@ -110,3 +110,34 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   notifications) and recomputes `Vehicle.documentsValid`/status. Uploads, reviews and
   overrides also trigger `recomputeVehicleCompliance` immediately so the catalogue never
   shows a vehicle with missing mandatory documents between runs.
+
+## ADR-014 Pricing: "best of" daily path vs package path, then fees
+
+- Context: owners set daily, weekly and monthly rates; seasonal/weekend multipliers and
+  long-duration discounts must coexist without ambiguous outcomes.
+- Decision: base rental = min(sum of per-day prices with multipliers, package price built from
+  28-day and 7-day blocks, never above daily × days). Long-duration discount applies to the
+  base; chauffeur, delivery, collection, additional drivers and add-ons are added; promo codes
+  discount base + chauffeur only (capped); the service fee is a percentage of the subtotal and
+  tax is applied after the fee. Commission is taken on base − discounts + chauffeur; delivery
+  and service fees belong to the platform. Every amount is an integer XAF (`applyBps`).
+- Consequences: explainable breakdown lines persisted in the snapshot; changes to the rules
+  bump `PRICING_VERSION` so old snapshots stay interpretable.
+
+## ADR-015 Holds and bookings are serialised per vehicle
+
+- Decision: hold creation and booking creation run in a transaction that first locks the
+  vehicle row (`SELECT … FOR UPDATE`), re-checks bookings, blocks and other users' active
+  holds, and relies on the exclusion constraints as the last line of defence. A customer's own
+  hold is reused and refreshed; a booking converts it. Holds expire after
+  `booking.hold_minutes`, unpaid bookings after `booking.payment_timeout_minutes` (cron).
+- Consequences: two concurrent checkouts for the same window always yield exactly one
+  booking (covered by an integration test). Holds are never shown publicly.
+
+## ADR-016 Bookings wait for a verified payment; no confirmation from redirects
+
+- Decision: `createBooking` leaves the booking in `PAYMENT_PENDING` (or
+  `PENDING_VERIFICATION` for unverified self-drive customers). Only
+  `confirmBookingAfterPayment`, invoked by the Milestone 4 payment verification/webhook
+  pipeline, or a staff member holding `booking.override` with a recorded reason, moves it to
+  `CONFIRMED`.
