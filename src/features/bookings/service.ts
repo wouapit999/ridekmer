@@ -29,6 +29,8 @@ import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
 import { openRefundForCancelledBooking } from "@/features/payments/refunds";
+import { ensureRentalContract } from "@/features/contracts/service";
+import { bookingInspectionState } from "@/features/inspections/service";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { ActorType, BookingStatus } from "@/generated/prisma/enums";
@@ -48,7 +50,9 @@ export class BookingError extends Error {
       | "DRIVE_OPTION"
       | "PROMO_INVALID"
       | "EXTENSION_INVALID"
-      | "CUSTOMER_SUSPENDED",
+      | "CUSTOMER_SUSPENDED"
+      | "CONTRACT_NOT_ACCEPTED"
+      | "INSPECTION_REQUIRED",
     message?: string,
   ) {
     super(message ?? code);
@@ -667,6 +671,16 @@ export async function confirmBookingAfterPayment(
     after: { status: "CONFIRMED" },
     reason: reference,
   });
+  // The rental agreement is generated now and accepted by the customer before pickup.
+  try {
+    const customer = await db.user.findUnique({
+      where: { id: booking.customerId },
+      select: { preferredLocale: true },
+    });
+    await ensureRentalContract(bookingId, customer?.preferredLocale === "en" ? "en" : "fr");
+  } catch (error) {
+    logger.error("booking.contract_generation_failed", { bookingId, error });
+  }
   return updated;
 }
 
@@ -677,6 +691,8 @@ export async function staffTransition(input: {
   actorId: string;
   reason?: string;
   extension?: "APPROVE" | "DECLINE";
+  /** `booking.override` holders may skip the contract/inspection gates (audited). */
+  override?: boolean;
 }) {
   const booking = await db.booking.findUniqueOrThrow({ where: { id: input.bookingId } });
   if (booking.status === "EXTENSION_REQUESTED" && input.extension) {
@@ -727,6 +743,20 @@ export async function staffTransition(input: {
     throw error;
   }
   const now = new Date();
+  // Handover gates: signed agreement + pickup inspection before the keys, return inspection
+  // before completion. Overrides are explicit and audited.
+  if (!input.override && (input.to === "ACTIVE" || input.to === "COMPLETED")) {
+    const inspections = await bookingInspectionState(booking.id);
+    if (input.to === "ACTIVE") {
+      const contract = await db.generatedContract.findFirst({
+        where: { bookingId: booking.id, type: "CUSTOMER_RENTAL_AGREEMENT", status: "ACCEPTED" },
+      });
+      if (!contract) throw new BookingError("CONTRACT_NOT_ACCEPTED");
+      if (!inspections.pickup) throw new BookingError("INSPECTION_REQUIRED", "pickup");
+    }
+    if (input.to === "COMPLETED" && !inspections.return)
+      throw new BookingError("INSPECTION_REQUIRED", "return");
+  }
   const data: Prisma.BookingUpdateInput = { status: input.to, version: { increment: 1 } };
   if (input.to === "ACTIVE") data.pickedUpAt = now;
   if (input.to === "COMPLETED") {
@@ -768,7 +798,7 @@ export async function staffTransition(input: {
     entityType: "Booking",
     entityId: booking.id,
     before: { status: booking.status },
-    after: { status: input.to },
+    after: { status: input.to, override: input.override ?? false },
     reason: input.reason,
   });
   if (input.to === "CANCELLED" || input.to === "NO_SHOW") {

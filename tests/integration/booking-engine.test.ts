@@ -175,7 +175,13 @@ describe("booking creation, concurrency and lifecycle", () => {
   it("confirms after payment, runs the rental and approves an extension", async () => {
     const confirmed = await confirmBookingAfterPayment(bookingId, "WEBHOOK", "mock-ref");
     expect(confirmed.status).toBe("CONFIRMED");
-    await staffTransition({ bookingId, to: "ACTIVE", actorId: staffId });
+    // Milestone 5 gates: no accepted agreement / pickup inspection → refused unless overridden.
+    await expect(
+      staffTransition({ bookingId, to: "ACTIVE", actorId: staffId }),
+    ).rejects.toMatchObject({
+      code: "CONTRACT_NOT_ACCEPTED",
+    });
+    await staffTransition({ bookingId, to: "ACTIVE", actorId: staffId, override: true });
     const ext = await requestExtension(bookingId, customerA, addHours(window.endAt, 26));
     expect(ext.booking.status).toBe("EXTENSION_REQUESTED");
     expect(ext.extraDays).toBe(2);
@@ -192,7 +198,12 @@ describe("booking creation, concurrency and lifecycle", () => {
     await expect(
       staffTransition({ bookingId, to: "CONFIRMED", actorId: staffId }),
     ).rejects.toMatchObject({ code: "INVALID_STATUS" });
-    const done = await staffTransition({ bookingId, to: "COMPLETED", actorId: staffId });
+    const done = await staffTransition({
+      bookingId,
+      to: "COMPLETED",
+      actorId: staffId,
+      override: true,
+    });
     expect(done.status).toBe("COMPLETED");
   });
 

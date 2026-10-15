@@ -121,6 +121,9 @@ test.describe("owner onboarding and vehicle approval", () => {
       .isVisible()
       .then(async (v) => v && (await page.getByRole("button", { name: "Menu" }).click()));
     await page.getByRole("button", { name: "Se déconnecter", exact: true }).first().click();
+    // Wait for the sign-out to complete (redirect home) before signing in as staff; otherwise
+    // the login page still sees the owner session and redirects back to the account.
+    await expect(page).toHaveURL(/\/fr\/?$/);
     await login(page, "demo.fleet@ridekmer.test");
     await page.goto(`/fr/admin/vehicles/${vehicleId}`);
     await expect(page.getByRole("heading", { level: 1 })).toContainText(plate);

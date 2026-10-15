@@ -188,3 +188,31 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   refund request automatically (net of the cancellation fee) but never executes it.
 - Consequences: finance keeps control of outflows; manual-method refunds stay `PROCESSING`
   until a finance user records the bank/cash reference.
+
+## ADR-021 Handover gates: agreement + inspections before the keys, audited overrides
+
+- Decision: a booking only becomes `ACTIVE` when the customer has accepted the rental
+  agreement (click-to-accept with evidence, ADR in ASSUMPTIONS §7) and a pickup inspection with
+  at least four photos has been submitted; it only becomes `COMPLETED` after a submitted return
+  inspection. `booking.override` holders can bypass the gates, and the override is written into
+  the audit log with the reason.
+- Consequences: every rental has a frozen contract copy (checksum) and a photographed condition
+  report on both ends, which is what disputes and deposit deductions are judged on.
+
+## ADR-022 Return settlement is a pure function; money moves only through approvals
+
+- Decision: `computeSettlement` turns the pickup/return readings into explainable integer lines
+  (extra km, fuel, new damage estimates, late days with a one-hour grace) and a deduction. The
+  deposit release (`settleReturnDeposit`) opens a refund request for the deposit net of the
+  deduction (finance approves, dual approval above the threshold) and records any excess as an
+  `ADDITIONAL_CHARGE` payment to collect. Nothing is debited or refunded automatically.
+- Consequences: customers see the same lines as finance; disputes are recorded on the inspection
+  and reviewed by people.
+
+## ADR-023 Maintenance downtime is an availability block, never an automatic status change
+
+- Decision: starting maintenance creates a `MAINTENANCE` availability block for the downtime
+  window (refused when a confirmed booking overlaps); completion closes the block, records an
+  `Expense` (owner- or RideKmer-allocated for the ledger in Milestone 6) and rolls the matching
+  schedule forward by interval. The vehicle status is untouched, so document compliance and
+  owner requests keep their own semantics.

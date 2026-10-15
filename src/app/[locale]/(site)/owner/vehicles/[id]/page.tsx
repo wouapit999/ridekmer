@@ -11,6 +11,8 @@ import { OwnerNav } from "@/features/owner/owner-nav";
 import { removeBlockAction } from "@/features/vehicles/actions";
 import { VehicleError, getOwnedVehicle } from "@/features/vehicles/service";
 import { BlockDatesForm, OwnerRequestForm } from "@/features/vehicles/wizard-forms";
+import { OwnerMaintenanceDecision } from "@/features/maintenance/forms";
+import { listMaintenanceForVehicle } from "@/features/maintenance/service";
 import { formatXaf } from "@/lib/money";
 
 const TONE: Record<string, "neutral" | "brand" | "warn" | "danger" | "good"> = {
@@ -34,6 +36,7 @@ export default async function OwnerVehicleDetailPage({
   setRequestLocale(locale);
   const { user } = await requireOwnerPage(`/owner/vehicles/${id}`);
   const t = await getTranslations("owner");
+  const tm = await getTranslations("maintenance");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   let data: Awaited<ReturnType<typeof getOwnedVehicle>>;
@@ -44,6 +47,7 @@ export default async function OwnerVehicleDetailPage({
     throw error;
   }
   const { vehicle } = data;
+  const maintenance = await listMaintenanceForVehicle(vehicle.id);
   const canRequest = ["ACTIVE", "APPROVED", "SUSPENDED", "UNAVAILABLE_DOCUMENTS"].includes(
     vehicle.status,
   );
@@ -181,6 +185,43 @@ export default async function OwnerVehicleDetailPage({
           </section>
         </div>
         <aside className="space-y-4">
+          <section className="space-y-2 rounded-xl border border-sand-200 bg-white p-5 text-sm">
+            <h2 className="font-semibold">{tm("sectionTitle")}</h2>
+            {maintenance.records.length === 0 ? (
+              <p className="text-sand-600">{tm("owner.none")}</p>
+            ) : null}
+            <ul className="space-y-2">
+              {maintenance.records.slice(0, 8).map((r) => (
+                <li key={r.id} className="rounded-md border border-sand-200 px-3 py-2">
+                  <p className="font-medium">
+                    {tm(`types.${r.type}`)} · {r.title}{" "}
+                    <Badge
+                      tone={
+                        r.status === "COMPLETED"
+                          ? "good"
+                          : r.status === "AWAITING_OWNER_APPROVAL"
+                            ? "warn"
+                            : "neutral"
+                      }
+                    >
+                      {tm(`statuses.${r.status}`)}
+                    </Badge>
+                  </p>
+                  <p className="text-xs text-sand-600">
+                    {r.quoteXaf ? `${tm("quoteXaf")}: ${formatXaf(r.quoteXaf, currentLocale)}` : ""}
+                    {r.finalCostXaf
+                      ? ` · ${tm("finalCostXaf")}: ${formatXaf(r.finalCostXaf, currentLocale)}`
+                      : ""}
+                  </p>
+                  {r.status === "AWAITING_OWNER_APPROVAL" ? (
+                    <div className="mt-2">
+                      <OwnerMaintenanceDecision recordId={r.id} />
+                    </div>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </section>
           {canRequest && !vehicle.ownerRequestType ? (
             <OwnerRequestForm vehicleId={vehicle.id} />
           ) : null}

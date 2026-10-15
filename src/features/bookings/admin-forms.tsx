@@ -5,7 +5,7 @@ import { useActionState } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/field";
+import { Checkbox, Field, Input } from "@/components/ui/field";
 
 import { staffBookingTransitionAction, type BookingActionResult } from "./actions";
 import { BOOKING_TRANSITIONS, STAFF_TRANSITIONS } from "./state-machine";
@@ -73,6 +73,13 @@ export function StaffTransitionForm({
       <Field id="transitionReason" label={t("reason")}>
         <Input id="transitionReason" name="reason" maxLength={500} />
       </Field>
+      {canOverride &&
+      (status === "CONFIRMED" || status === "READY_FOR_PICKUP" || status === "ACTIVE") ? (
+        <label className="flex items-center gap-2 text-xs text-sand-700">
+          <Checkbox name="override" value="1" />
+          {t("overrideGates")}
+        </label>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         {available.map((rule) => (
           <Button

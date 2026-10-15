@@ -35,26 +35,31 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 
 ## Technical follow-ups
 
-| #   | Item                                                                                                                                                                                    | Milestone |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| 21  | CSP nonces for scripts (remove `'unsafe-inline'`)                                                                                                                                       | 8         |
-| 22  | Vercel Blob / S3 storage adapters + signed access route                                                                                                                                 | 2         |
-| 23  | Email verification enforcement before booking                                                                                                                                           | 3         |
-| 24  | Phone verification flow in the account area (number added at sign-up is unverified)                                                                                                     | 2         |
-| 25  | Admin UI for document-type editing (read-only table today)                                                                                                                              | 2         |
-| 26  | Vehicle images: upload pipeline and optimisation                                                                                                                                        | 2         |
-| 27  | Generic REST GPS adapter, webhook receiver, fleet map                                                                                                                                   | 7         |
-| 28  | Key-rotation script for field encryption                                                                                                                                                | 8         |
-| 29  | Public JSON API (`/api/v1`) for native apps                                                                                                                                             | post-v1   |
-| 30  | Static rendering of public pages (currently dynamic because the layout reads the session)                                                                                               | 8         |
-| 36  | Implement `MtnMomoProvider` from the official MTN MoMo API docs once merchant credentials exist (collections, disbursements, callbacks); sandbox test                                   | owner     |
-| 37  | Implement `OrangeMoneyProvider` from Orange Cameroon merchant API docs; sandbox test                                                                                                    | owner     |
-| 38  | Select a card PSP available in Cameroon and implement `CardProvider` (hosted page + webhook); decide whether genuine card holds are offered                                             | owner     |
-| 39  | Bank transfer: real bank details for `payment.bank_transfer_instructions_*` settings; a pending transfer blocks the vehicle for `payment.bank_transfer_expiry_hours` (24 h placeholder) | owner     |
-| 40  | Refund payouts for manual methods (cash/bank) are recorded by finance, not executed; decide the operational process and proof required                                                  | owner     |
-| 41  | Card chargebacks: no `CHARGEBACK` ingestion until a PSP is selected                                                                                                                     | 4+        |
-| 42  | Partial payments / payment plans for long-term leases (today the full amount is due at checkout)                                                                                        | post-v1   |
-| 43  | Direct deposit release flow after return inspection (refund of `depositXaf` net of damages) — wired in Milestone 5 inspections                                                          | 5         |
+| #   | Item                                                                                                                                                                                                      | Milestone |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 21  | CSP nonces for scripts (remove `'unsafe-inline'`)                                                                                                                                                         | 8         |
+| 22  | Vercel Blob / S3 storage adapters + signed access route                                                                                                                                                   | 2         |
+| 23  | Email verification enforcement before booking                                                                                                                                                             | 3         |
+| 24  | Phone verification flow in the account area (number added at sign-up is unverified)                                                                                                                       | 2         |
+| 25  | Admin UI for document-type editing (read-only table today)                                                                                                                                                | 2         |
+| 26  | Vehicle images: upload pipeline and optimisation                                                                                                                                                          | 2         |
+| 27  | Generic REST GPS adapter, webhook receiver, fleet map                                                                                                                                                     | 7         |
+| 28  | Key-rotation script for field encryption                                                                                                                                                                  | 8         |
+| 29  | Public JSON API (`/api/v1`) for native apps                                                                                                                                                               | post-v1   |
+| 30  | Static rendering of public pages (currently dynamic because the layout reads the session)                                                                                                                 | 8         |
+| 36  | Implement `MtnMomoProvider` from the official MTN MoMo API docs once merchant credentials exist (collections, disbursements, callbacks); sandbox test                                                     | owner     |
+| 37  | Implement `OrangeMoneyProvider` from Orange Cameroon merchant API docs; sandbox test                                                                                                                      | owner     |
+| 38  | Select a card PSP available in Cameroon and implement `CardProvider` (hosted page + webhook); decide whether genuine card holds are offered                                                               | owner     |
+| 39  | Bank transfer: real bank details for `payment.bank_transfer_instructions_*` settings; a pending transfer blocks the vehicle for `payment.bank_transfer_expiry_hours` (24 h placeholder)                   | owner     |
+| 40  | Refund payouts for manual methods (cash/bank) are recorded by finance, not executed; decide the operational process and proof required                                                                    | owner     |
+| 41  | Card chargebacks: no `CHARGEBACK` ingestion until a PSP is selected                                                                                                                                       | 4+        |
+| 42  | Partial payments / payment plans for long-term leases (today the full amount is due at checkout)                                                                                                          | post-v1   |
+| 43  | Deposit release after the return inspection: built (settlement → refund request); confirm the one-hour late grace and whether fuel is charged (`pricing.fuel_adjustment_xaf_per_percent` is 0 by default) | owner     |
+| 44  | Contract wording (customer rental agreement, owner agreement) must be validated by Cameroonian counsel before launch; OTP-confirmed or certified signature provider to be decided                         | legal     |
+| 45  | Inspection photos are uploaded through server actions (4 MB default on Vercel); direct-to-storage uploads for large photo sets                                                                            | 8         |
+| 46  | Customer-disputed inspections and incidents are handled manually by staff; a formal dispute workflow with deadlines is not built                                                                          | post-v1   |
+| 47  | Maintenance expenses are recorded as PENDING and flow into the ledger/statements in Milestone 6                                                                                                           | 6         |
+| 48  | Reminder notifications go by SMS when a number exists, otherwise in-app only (no email variant for reminder templates); confirm channel policy                                                            | owner     |
 
 ## Legal
 

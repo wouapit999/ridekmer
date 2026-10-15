@@ -122,9 +122,10 @@ export async function staffBookingTransitionAction(
     : undefined;
   const rule = STAFF_TRANSITIONS.find((t) => t.to === to);
   if (!rule && !extension) return { ok: false, message: "INVALID" };
-  const { user } = await requirePermissionOrThrow(
+  const { user, access } = await requirePermissionOrThrow(
     extension ? "booking.override" : rule!.permission,
   );
+  const override = formData.get("override") === "1" && access.permissions.has("booking.override");
   const bookingId = String(formData.get("bookingId") ?? "");
   const reason = String(formData.get("reason") ?? "").trim();
   if (["CANCELLED", "NO_SHOW", "CONFIRMED", "DISPUTED"].includes(to) && reason.length < 3)
@@ -136,6 +137,7 @@ export async function staffBookingTransitionAction(
       actorId: user.id,
       reason: reason || undefined,
       extension,
+      override,
     });
     revalidatePath("/[locale]/admin/bookings", "layout");
     return { ok: true, bookingId, message: extension ?? to };

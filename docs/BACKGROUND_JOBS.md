@@ -18,16 +18,16 @@ Vercel-compatible workflow/queue service without changing business code.
 
 ## Planned schedule
 
-| Job                                                                             | Schedule                  | Milestone |
-| ------------------------------------------------------------------------------- | ------------------------- | --------- |
-| Expire reservation holds / unpaid bookings                                      | every 5 min               | 3         |
-| Document expiry alerts (60/30/14/7/0 days) and automatic vehicle unavailability | daily 06:00 Africa/Douala | 2         |
-| Payment reconciliation (`/api/cron/reconcile-payments`, built)                  | every 15 min              | 4         |
-| Pickup / return reminders, late-return detection                                | hourly                    | 3/5       |
-| Maintenance reminders (date / mileage)                                          | daily                     | 5         |
-| Owner statement generation                                                      | monthly                   | 6         |
-| Location-data retention purge                                                   | daily                     | 7         |
-| Notification retry                                                              | every 10 min              | 2         |
+| Job                                                                              | Schedule                  | Milestone |
+| -------------------------------------------------------------------------------- | ------------------------- | --------- |
+| Expire reservation holds / unpaid bookings                                       | every 5 min               | 3         |
+| Document expiry alerts (60/30/14/7/0 days) and automatic vehicle unavailability  | daily 06:00 Africa/Douala | 2         |
+| Payment reconciliation (`/api/cron/reconcile-payments`, built)                   | every 15 min              | 4         |
+| Pickup / return reminders, late-return detection (`/api/cron/operations`, built) | hourly                    | 5         |
+| Maintenance reminders (date / mileage) (same `/api/cron/operations` job)         | hourly                    | 5         |
+| Owner statement generation                                                       | monthly                   | 6         |
+| Location-data retention purge                                                    | daily                     | 7         |
+| Notification retry                                                               | every 10 min              | 2         |
 
 ## Local development
 

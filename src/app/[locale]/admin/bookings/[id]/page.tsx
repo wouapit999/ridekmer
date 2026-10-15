@@ -2,6 +2,14 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { listContractsForBooking } from "@/features/contracts/service";
+import { ReportIncidentForm } from "@/features/incidents/forms";
+import { listIncidentsForBooking } from "@/features/incidents/service";
+import { startInspectionAction } from "@/features/inspections/actions";
+import { SettleDepositForm } from "@/features/inspections/forms";
+import { listInspectionsForBooking } from "@/features/inspections/service";
+import type { Settlement } from "@/features/inspections/settlement";
 import { ManualPaymentForm } from "@/features/payments/admin-forms";
 import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
 import { getPaymentSettings } from "@/features/payments/settings";
@@ -25,6 +33,25 @@ export default async function AdminBookingDetailPage({
   if (!booking) notFound();
   const t = await getTranslations("admin.bookings");
   const tp = await getTranslations("payments.admin");
+  const tc = await getTranslations("contracts");
+  const ti = await getTranslations("inspections");
+  const tn = await getTranslations("incidents");
+  const [contracts, inspections, incidents] = await Promise.all([
+    listContractsForBooking(booking.id),
+    listInspectionsForBooking(booking.id),
+    listIncidentsForBooking(booking.id),
+  ]);
+  const rentalContract = contracts.find(
+    (c) =>
+      c.type === "CUSTOMER_RENTAL_AGREEMENT" &&
+      ["SENT", "GENERATED", "ACCEPTED"].includes(c.status),
+  );
+  const returnInspection = inspections.find(
+    (i) => i.type === "RETURN" && (i.status === "SUBMITTED" || i.status === "ACKNOWLEDGED"),
+  );
+  const canStartPickup = ["CONFIRMED", "READY_FOR_PICKUP"].includes(booking.status);
+  const canStartReturn = ["ACTIVE", "EXTENSION_REQUESTED"].includes(booking.status);
+  const canPerform = access.permissions.has("inspection.perform");
   const format = await getFormatter();
   const paymentSettings = await getPaymentSettings();
   const manualMethods = [
@@ -122,6 +149,114 @@ export default async function AdminBookingDetailPage({
               methods={[...manualMethods]}
             />
           ) : null}
+          <section className="rounded-xl border border-sand-200 bg-white p-5">
+            <h2 className="text-lg font-semibold">{ti("sectionTitle")}</h2>
+            <p className="mt-1 text-sm text-sand-700">
+              {tc("sectionTitle")}:{" "}
+              {rentalContract ? (
+                <Badge tone={rentalContract.status === "ACCEPTED" ? "good" : "warn"}>
+                  {tc(`statuses.${rentalContract.status}`)}
+                </Badge>
+              ) : (
+                <Badge>{tc("statuses.NONE")}</Badge>
+              )}
+            </p>
+            <ul className="mt-2 divide-y divide-sand-200 text-sm">
+              {inspections.map((i) => (
+                <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                  <span>
+                    <Link
+                      href={`/admin/inspections/${i.id}`}
+                      className="font-medium text-brand-700 hover:underline"
+                    >
+                      {ti(`types.${i.type}`)}
+                    </Link>{" "}
+                    · {format.dateTime(i.performedAt, "full")} · {i.inspector?.name ?? ""} ·{" "}
+                    {i._count.photos} {ti("photosShort")} · {i._count.damages} {ti("damagesShort")}
+                    {i.type === "RETURN" && i.deductionXaf
+                      ? ` · ${ti("settlement.deduction")}: ${formatXaf(i.deductionXaf, "fr")}`
+                      : ""}
+                  </span>
+                  <Badge
+                    tone={
+                      i.status === "DRAFT" ? "warn" : i.status === "DISPUTED" ? "danger" : "good"
+                    }
+                  >
+                    {ti(`statuses.${i.status}`)}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+            {canPerform && (canStartPickup || canStartReturn) ? (
+              <form action={startInspectionAction} className="mt-3 flex flex-wrap gap-2">
+                <input type="hidden" name="vehicleId" value={booking.vehicle.id} />
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <input type="hidden" name="type" value={canStartPickup ? "PICKUP" : "RETURN"} />
+                <Button type="submit" variant="outline" size="sm">
+                  {canStartPickup ? ti("startPickup") : ti("startReturn")}
+                </Button>
+              </form>
+            ) : null}
+            {returnInspection &&
+            ["COMPLETED", "DISPUTED"].includes(booking.status) &&
+            !booking.depositSettledAt &&
+            access.permissions.has("refund.request") ? (
+              <div className="mt-4">
+                <SettleDepositForm
+                  bookingId={booking.id}
+                  refundXaf={formatXaf(
+                    (returnInspection.settlement as unknown as Settlement | null)
+                      ?.depositRefundXaf ?? 0,
+                    "fr",
+                  )}
+                  chargeXaf={
+                    (returnInspection.settlement as unknown as Settlement | null)
+                      ?.additionalChargeXaf
+                      ? formatXaf(
+                          (returnInspection.settlement as unknown as Settlement)
+                            .additionalChargeXaf,
+                          "fr",
+                        )
+                      : null
+                  }
+                />
+              </div>
+            ) : null}
+            {booking.depositSettledAt ? (
+              <p className="mt-2 text-xs text-success-600">
+                {ti("settlement.settledOn", {
+                  date: format.dateTime(booking.depositSettledAt, "full"),
+                })}
+              </p>
+            ) : null}
+          </section>
+          <section className="rounded-xl border border-sand-200 bg-white p-5">
+            <h2 className="text-lg font-semibold">{tn("sectionTitle")}</h2>
+            <ul className="mt-2 space-y-1 text-sm">
+              {incidents.map((i) => (
+                <li key={i.id}>
+                  <Link
+                    href={`/admin/incidents/${i.id}`}
+                    className="font-mono text-xs text-brand-700 hover:underline"
+                  >
+                    {i.reference}
+                  </Link>{" "}
+                  · {tn(`types.${i.type}`)} · {tn(`statuses.${i.status}`)} ·{" "}
+                  {format.dateTime(i.occurredAt, "short")}
+                </li>
+              ))}
+            </ul>
+            {access.permissions.has("incident.manage") ? (
+              <details className="mt-3">
+                <summary className="cursor-pointer text-sm font-medium text-brand-700">
+                  {tn("reportButton")}
+                </summary>
+                <div className="mt-2">
+                  <ReportIncidentForm bookingId={booking.id} asStaff />
+                </div>
+              </details>
+            ) : null}
+          </section>
           <section>
             <h2 className="text-lg font-semibold">{tp("title")}</h2>
             {booking.payments.length === 0 ? (

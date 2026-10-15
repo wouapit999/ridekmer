@@ -78,7 +78,7 @@ test.describe("customer booking", () => {
     test.setTimeout(90_000);
     // Each project and each run book a different window: pending bookings from earlier local
     // runs are only expired by the cron job, which does not run during tests.
-    const runOffset = (Math.floor(Date.now() / 60_000) % 150) * 2;
+    const runOffset = (Math.floor(Date.now() / 1000) % 1500) * 2;
     const offset = 15 + runOffset + (testInfo.project.name.startsWith("mobile") ? 0 : 1);
     const pickup = isoDate(offset);
     const ret = isoDate(offset + 1);

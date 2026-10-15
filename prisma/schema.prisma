@@ -1379,6 +1379,7 @@ model Booking {
   cancelledById           String?
   additionalDrivers       Int           @default(0)
   promoCodeValue          String?
+  depositSettledAt        DateTime?
   currencyCode            String        @default("XAF")
   timezone                String        @default("Africa/Douala")
   version                 Int           @default(1)
@@ -1812,6 +1813,15 @@ model Inspection {
   customerAcknowledgedAt DateTime?
   customerSignatureKey   String?
   staffAcknowledgedAt    DateTime?
+  submittedAt            DateTime?
+  disputeNote            String?
+  /// Return settlement (integer XAF): extra kilometres, fuel, new damage, late return → deduction.
+  extraKmXaf             Int              @default(0)
+  fuelXaf                Int              @default(0)
+  damageXaf              Int              @default(0)
+  lateXaf                Int              @default(0)
+  deductionXaf           Int              @default(0)
+  settlement             Json?
   clientDraftId          String?          @unique
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
@@ -1891,30 +1901,31 @@ model MaintenanceSchedule {
 }
 
 model MaintenanceRecord {
-  id              String            @id @default(cuid())
-  vehicleId       String
-  vehicle         Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  type            MaintenanceType
-  status          MaintenanceStatus @default(SCHEDULED)
-  title           String
-  description     String?
-  scheduledFor    DateTime?
-  startedAt       DateTime?
-  completedAt     DateTime?
-  mileageKm       Int?
-  providerName    String?
-  providerContact String?
-  quoteXaf        Int?
-  quoteStorageKey String?
-  finalCostXaf    Int?
-  downtimeStart   DateTime?
-  downtimeEnd     DateTime?
-  ownerApprovedAt DateTime?
-  ownerApprovedBy String?
-  createdById     String?
-  createdBy       User?             @relation("MaintenanceCreator", fields: [createdById], references: [id])
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                  String            @id @default(cuid())
+  vehicleId           String
+  vehicle             Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  type                MaintenanceType
+  status              MaintenanceStatus @default(SCHEDULED)
+  title               String
+  description         String?
+  scheduledFor        DateTime?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  mileageKm           Int?
+  providerName        String?
+  providerContact     String?
+  quoteXaf            Int?
+  quoteStorageKey     String?
+  finalCostXaf        Int?
+  downtimeStart       DateTime?
+  downtimeEnd         DateTime?
+  ownerApprovedAt     DateTime?
+  ownerApprovedBy     String?
+  availabilityBlockId String?
+  createdById         String?
+  createdBy           User?             @relation("MaintenanceCreator", fields: [createdById], references: [id])
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   expenses Expense[]
 

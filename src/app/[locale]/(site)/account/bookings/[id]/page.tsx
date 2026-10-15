@@ -13,6 +13,9 @@ import { BookingError, getBookingForCustomer } from "@/features/bookings/service
 import { CUSTOMER_CANCELLABLE } from "@/features/bookings/state-machine";
 import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
 import { listPaymentsForBooking } from "@/features/payments/service";
+import { listContractsForBooking } from "@/features/contracts/service";
+import { listIncidentsForBooking } from "@/features/incidents/service";
+import { listInspectionsForBooking } from "@/features/inspections/service";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { formatXaf } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
@@ -36,6 +39,19 @@ export default async function CustomerBookingDetailPage({ params }: Props) {
   const settings = await getPricingSettings();
   const payments = await listPaymentsForBooking(booking.id);
   const tp = await getTranslations("payments");
+  const tc = await getTranslations("contracts");
+  const ti = await getTranslations("inspections");
+  const tn = await getTranslations("incidents");
+  const [contracts, inspections, incidents] = await Promise.all([
+    listContractsForBooking(booking.id),
+    listInspectionsForBooking(booking.id),
+    listIncidentsForBooking(booking.id),
+  ]);
+  const rentalContract = contracts.find(
+    (c) =>
+      c.type === "CUSTOMER_RENTAL_AGREEMENT" &&
+      ["SENT", "GENERATED", "ACCEPTED"].includes(c.status),
+  );
   const snapshot = booking.priceSnapshots[0];
   const breakdown = (snapshot?.breakdown ?? { lines: [], grandTotalXaf: 0 }) as {
     lines: Array<{ key: string; amountXaf: number; detail?: string }>;
@@ -134,7 +150,92 @@ export default async function CustomerBookingDetailPage({ params }: Props) {
               </ul>
             </section>
           ) : null}
-          <p className="text-xs text-sand-600">{t("detail.contract")}</p>
+          {[
+            "CONFIRMED",
+            "READY_FOR_PICKUP",
+            "ACTIVE",
+            "EXTENSION_REQUESTED",
+            "COMPLETED",
+            "DISPUTED",
+          ].includes(booking.status) ? (
+            <section className="rounded-xl border border-sand-200 bg-white p-5">
+              <h2 className="text-lg font-semibold">{tc("sectionTitle")}</h2>
+              {rentalContract?.status === "ACCEPTED" ? (
+                <p className="mt-1 text-sm text-success-600">
+                  {tc("acceptedOn", { date: format.dateTime(rentalContract.acceptedAt!, "full") })}
+                </p>
+              ) : (
+                <p className="mt-1 text-sm text-sand-700">{tc("pendingNotice")}</p>
+              )}
+              <ButtonLink
+                href={`/account/bookings/${booking.id}/contract`}
+                variant={rentalContract?.status === "ACCEPTED" ? "ghost" : "primary"}
+                size="sm"
+                className="mt-2"
+              >
+                {rentalContract?.status === "ACCEPTED" ? tc("view") : tc("readAndAccept")}
+              </ButtonLink>
+            </section>
+          ) : null}
+          {inspections.length > 0 ? (
+            <section>
+              <h2 className="text-lg font-semibold">{ti("sectionTitle")}</h2>
+              <ul className="mt-2 divide-y divide-sand-200 rounded-xl border border-sand-200 bg-white text-sm">
+                {inspections.map((i) => (
+                  <li
+                    key={i.id}
+                    className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                  >
+                    <span>
+                      {ti(`types.${i.type}`)} · {format.dateTime(i.performedAt, "full")}
+                      <span className="block text-xs text-sand-600">
+                        {ti(`statuses.${i.status}`)}
+                        {i.type === "RETURN" && i.deductionXaf
+                          ? ` · ${ti("settlement.deduction")}: ${formatXaf(i.deductionXaf, currentLocale)}`
+                          : ""}
+                      </span>
+                    </span>
+                    {i.status !== "DRAFT" ? (
+                      <ButtonLink
+                        href={`/account/bookings/${booking.id}/inspections/${i.id}`}
+                        variant={i.status === "SUBMITTED" ? "primary" : "ghost"}
+                        size="sm"
+                      >
+                        {i.status === "SUBMITTED" ? ti("customer.review") : ti("customer.view")}
+                      </ButtonLink>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+          {["ACTIVE", "EXTENSION_REQUESTED", "COMPLETED", "DISPUTED"].includes(booking.status) ||
+          incidents.length > 0 ? (
+            <section className="rounded-xl border border-sand-200 bg-white p-5">
+              <h2 className="text-lg font-semibold">{tn("sectionTitle")}</h2>
+              <ul className="mt-2 space-y-1 text-sm">
+                {incidents.map((i) => (
+                  <li key={i.id}>
+                    <span className="font-mono text-xs">{i.reference}</span> ·{" "}
+                    {tn(`types.${i.type}`)} · {tn(`statuses.${i.status}`)} ·{" "}
+                    {format.dateTime(i.occurredAt, "short")}
+                  </li>
+                ))}
+              </ul>
+              {["ACTIVE", "EXTENSION_REQUESTED", "COMPLETED", "DISPUTED"].includes(
+                booking.status,
+              ) ? (
+                <ButtonLink
+                  href={`/account/bookings/${booking.id}/incidents/new`}
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                >
+                  {tn("reportButton")}
+                </ButtonLink>
+              ) : null}
+            </section>
+          ) : null}
           <section>
             <h2 className="text-lg font-semibold">{t("detail.history")}</h2>
             <ol className="mt-2 space-y-1 text-sm">

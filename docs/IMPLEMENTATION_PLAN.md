@@ -145,7 +145,27 @@ ridekmer/                      (repository root = Vercel root directory)
       forged / stale / mismatch, retry after decline, manual payment, expiry + reconciliation,
       refund approvals), e2e (pay with the simulated MTN provider)
 
-### Milestone 5 — Contracts, inspections, incidents, maintenance `[ ]`
+### Milestone 5 — Contracts, inspections, incidents, maintenance `[x]`
+
+- [x] Customer rental agreement template (FR/EN, placeholder wording pending counsel), generated
+      and frozen (markdown + SHA-256) at booking confirmation, click-to-accept with evidence
+      (IP, user agent, timestamp, checksum) — explicitly not a certified signature
+- [x] Admin contracts page: template versions (publish new, immutable history), generated list
+- [x] Inspections: pickup / return / periodic drafts with mileage, fuel, checklists, photos
+      (private storage, checksum, ≥ 4 required), damages on RideKmer's own outline diagram,
+      submission freezes the record and updates vehicle mileage; customer acknowledges or disputes
+- [x] Return settlement (pure integer function): extra km, fuel, new damage, late days → deduction;
+      deposit release opens the refund request (dual approval) and records additional charges
+- [x] Handover gates in the booking state machine: ACTIVE needs an accepted agreement and a
+      submitted pickup inspection; COMPLETED needs a return inspection; audited override
+- [x] Incidents: customer or staff report with photos, reference, status machine with history,
+      responsibility/resolution fields, insurance claims, optional vehicle block, notifications
+- [x] Maintenance: schedules (days/km, reminders), records with owner approval above the vehicle's
+      threshold, availability block while in progress (refused over confirmed bookings), expense
+      on completion, schedule roll-forward; owner view + approval
+- [x] Hourly operations cron: pickup/return reminders, late-return detection, maintenance reminders
+- [x] Tests: settlement (unit); contract gating, inspections, settlement, incidents, maintenance,
+      reminders (integration)
 
 ### Milestone 6 — Ledger, statements, payouts, finance dashboards, reports `[ ]`
 

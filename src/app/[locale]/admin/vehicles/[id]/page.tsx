@@ -12,6 +12,11 @@ import {
   VehicleDecisionForm,
 } from "@/features/admin/review-forms";
 import { getVehicleForAdmin } from "@/features/admin/review-queries";
+import { startInspectionAction } from "@/features/inspections/actions";
+import { listInspectionsForVehicle } from "@/features/inspections/service";
+import { RecordForm, RecordTransitionForm, ScheduleForm } from "@/features/maintenance/forms";
+import { listMaintenanceForVehicle } from "@/features/maintenance/service";
+import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 
@@ -38,6 +43,13 @@ export default async function AdminVehicleDetailPage({
   const vehicle = await getVehicleForAdmin(id);
   if (!vehicle) notFound();
   const t = await getTranslations("admin.vehicles");
+  const tm = await getTranslations("maintenance");
+  const ti = await getTranslations("inspections");
+  const [maintenance, inspections] = await Promise.all([
+    listMaintenanceForVehicle(vehicle.id),
+    listInspectionsForVehicle(vehicle.id, 10),
+  ]);
+  const canMaintain = access.permissions.has("maintenance.manage");
   const ts = await getTranslations("owner.vehicles.status");
   const ta = await getTranslations("owner.wizard.arrangement");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
@@ -169,6 +181,120 @@ export default async function AdminVehicleDetailPage({
             </li>
           ))}
         </ul>
+      </section>
+      <section id="maintenance" className="space-y-3">
+        <h2 className="text-lg font-semibold">{tm("sectionTitle")}</h2>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {maintenance.schedules.map((sch) => (
+            <div key={sch.id} className="space-y-2">
+              <p className="text-sm">
+                <Badge tone={sch.isActive ? "brand" : "neutral"}>{tm(`types.${sch.type}`)}</Badge>{" "}
+                {sch.nextDueDate ? format.dateTime(sch.nextDueDate, "short") : ""}
+                {sch.nextDueKm ? ` · ${sch.nextDueKm} km` : ""}
+                {sch.lastDoneAt
+                  ? ` · ${tm("lastDone")}: ${format.dateTime(sch.lastDoneAt, "short")}`
+                  : ""}
+              </p>
+              {canMaintain ? (
+                <ScheduleForm
+                  vehicleId={vehicle.id}
+                  schedule={{
+                    id: sch.id,
+                    type: sch.type,
+                    intervalDays: sch.intervalDays,
+                    intervalKm: sch.intervalKm,
+                    nextDueDate: sch.nextDueDate
+                      ? sch.nextDueDate.toISOString().slice(0, 10)
+                      : null,
+                    nextDueKm: sch.nextDueKm,
+                    reminderDaysBefore: sch.reminderDaysBefore,
+                    reminderKmBefore: sch.reminderKmBefore,
+                  }}
+                />
+              ) : null}
+            </div>
+          ))}
+          {canMaintain ? <ScheduleForm vehicleId={vehicle.id} /> : null}
+        </div>
+        <ul className="space-y-3">
+          {maintenance.records.map((r) => (
+            <li key={r.id} className="rounded-xl border border-sand-200 bg-white p-4 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-semibold">
+                  {tm(`types.${r.type}`)} · {r.title}
+                </span>
+                <Badge
+                  tone={
+                    r.status === "COMPLETED"
+                      ? "good"
+                      : r.status === "CANCELLED"
+                        ? "neutral"
+                        : r.status === "IN_PROGRESS"
+                          ? "brand"
+                          : "warn"
+                  }
+                >
+                  {tm(`statuses.${r.status}`)}
+                </Badge>
+              </div>
+              <p className="text-xs text-sand-600">
+                {r.scheduledFor
+                  ? `${tm("scheduledFor")}: ${format.dateTime(r.scheduledFor, "short")} · `
+                  : ""}
+                {r.quoteXaf ? `${tm("quoteXaf")}: ${formatXaf(r.quoteXaf, "fr")} · ` : ""}
+                {r.finalCostXaf
+                  ? `${tm("finalCostXaf")}: ${formatXaf(r.finalCostXaf, "fr")} · `
+                  : ""}
+                {r.providerName ?? ""} {r.createdBy?.name ? `· ${r.createdBy.name}` : ""}
+              </p>
+              {r.description ? (
+                <p className="mt-1 whitespace-pre-line text-sand-700">{r.description}</p>
+              ) : null}
+              {canMaintain ? (
+                <div className="mt-2">
+                  <RecordTransitionForm recordId={r.id} status={r.status} />
+                </div>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+        {canMaintain ? <RecordForm vehicleId={vehicle.id} /> : null}
+      </section>
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">{ti("sectionTitle")}</h2>
+        <ul className="divide-y divide-sand-200 rounded-xl border border-sand-200 bg-white text-sm">
+          {inspections.length === 0 ? (
+            <li className="px-4 py-3 text-sand-600">{ti("none")}</li>
+          ) : null}
+          {inspections.map((i) => (
+            <li key={i.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3">
+              <span>
+                <Link
+                  href={`/admin/inspections/${i.id}`}
+                  className="font-medium text-brand-700 hover:underline"
+                >
+                  {ti(`types.${i.type}`)}
+                </Link>{" "}
+                · {format.dateTime(i.performedAt, "full")} · {i.inspector?.name ?? ""}
+                {i.booking ? ` · ${i.booking.reference}` : ""} · {i.mileageKm ?? "—"} km
+              </span>
+              <Badge
+                tone={i.status === "DRAFT" ? "warn" : i.status === "DISPUTED" ? "danger" : "good"}
+              >
+                {ti(`statuses.${i.status}`)}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+        {access.permissions.has("inspection.perform") ? (
+          <form action={startInspectionAction}>
+            <input type="hidden" name="vehicleId" value={vehicle.id} />
+            <input type="hidden" name="type" value="PERIODIC" />
+            <Button type="submit" variant="outline" size="sm">
+              {ti("startPeriodic")}
+            </Button>
+          </form>
+        ) : null}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
