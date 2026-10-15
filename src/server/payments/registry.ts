@@ -1,17 +1,23 @@
 import {
-  CardProvider,
   ManualPaymentProvider,
   MockPaymentProvider,
-  MtnMomoProvider,
-  OrangeMoneyProvider,
   PaymentProviderError,
   type PaymentMethod,
   type PaymentProvider,
 } from "@ridekmer/payments";
 
+import {
+  PROVIDER_KEYS,
+  PROVIDER_METHOD,
+  buildRealProvider,
+  providerConfigVersion,
+  resolveProviderSettings,
+} from "@/features/payments/provider-config";
 import { getPaymentSettings } from "@/features/payments/settings";
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
+
+import type { PaymentProviderKey } from "@/generated/prisma/enums";
 
 /** Public webhook slugs → payment method. Mock providers share the real slug so switching
  *  environments never changes the URL registered with the provider. */
@@ -26,61 +32,72 @@ export function webhookSlugFor(method: PaymentMethod): string | null {
   return entry ? entry[0] : null;
 }
 
-type Registry = Partial<Record<PaymentMethod, PaymentProvider>>;
-const globalRegistry = globalThis as unknown as { __ridekmerPayments?: Registry };
-const registry: Registry = (globalRegistry.__ridekmerPayments ??= {});
+interface RegistryState {
+  version: string;
+  checkedAt: number;
+  providers: Partial<Record<PaymentMethod, PaymentProvider>>;
+  /** Mock instances survive configuration reloads so in-memory transactions are kept. */
+  mocks: Partial<Record<PaymentMethod, MockPaymentProvider>>;
+}
+const globalRegistry = globalThis as unknown as { __ridekmerPayments?: RegistryState };
+const state: RegistryState = (globalRegistry.__ridekmerPayments ??= {
+  version: "",
+  checkedAt: 0,
+  providers: {},
+  mocks: {},
+});
+const VERSION_TTL_MS = 15_000;
 
 function isProduction(): boolean {
   const env = getEnv();
   return env.NODE_ENV === "production" && env.APP_ENV === "production";
 }
 
-function mock(id: string, method: PaymentMethod, secret: string | undefined): PaymentProvider {
+const MOCK_IDS: Record<PaymentProviderKey, string> = {
+  MTN_MOMO: "mock-mtn-momo",
+  ORANGE_MONEY: "mock-orange-money",
+  CARD: "mock-card",
+};
+
+function mock(key: PaymentProviderKey, secret: string | undefined): PaymentProvider {
+  const method = PROVIDER_METHOD[key];
   if (isProduction()) {
     throw new PaymentProviderError("NOT_CONFIGURED", `${method} is not configured for production`);
   }
-  return new MockPaymentProvider({
-    id,
+  const existing = state.mocks[method];
+  if (existing) return existing;
+  const created = new MockPaymentProvider({
+    id: MOCK_IDS[key],
     method,
-    webhookSecret: secret ?? `${id}-dev-webhook-secret`,
+    webhookSecret: secret ?? `${MOCK_IDS[key]}-dev-webhook-secret`,
   });
+  state.mocks[method] = created;
+  return created;
+}
+
+async function buildReal(key: PaymentProviderKey): Promise<PaymentProvider> {
+  const settings = await resolveProviderSettings(key);
+  if (!settings.enabled) {
+    throw new PaymentProviderError(
+      "NOT_CONFIGURED",
+      `${key} is disabled in the admin configuration`,
+    );
+  }
+  if (settings.environment === "mock") {
+    const secretField = Object.keys(settings.credentials).find((f) => f.endsWith("WEBHOOK_SECRET"));
+    return mock(key, secretField ? settings.credentials[secretField] : undefined);
+  }
+  return buildRealProvider(settings);
 }
 
 async function build(method: PaymentMethod): Promise<PaymentProvider> {
-  const env = getEnv();
   switch (method) {
     case "MTN_MOBILE_MONEY":
-      if (env.MTN_MOMO_ENVIRONMENT === "mock")
-        return mock("mock-mtn-momo", method, env.MTN_MOMO_WEBHOOK_SECRET);
-      return new MtnMomoProvider({
-        environment: env.MTN_MOMO_ENVIRONMENT,
-        baseUrl: env.MTN_MOMO_BASE_URL,
-        subscriptionKey: env.MTN_MOMO_SUBSCRIPTION_KEY,
-        apiUser: env.MTN_MOMO_API_USER,
-        apiKey: env.MTN_MOMO_API_KEY,
-        webhookSecret: env.MTN_MOMO_WEBHOOK_SECRET,
-      });
+      return buildReal("MTN_MOMO");
     case "ORANGE_MONEY":
-      if (env.ORANGE_MONEY_ENVIRONMENT === "mock")
-        return mock("mock-orange-money", method, env.ORANGE_MONEY_WEBHOOK_SECRET);
-      return new OrangeMoneyProvider({
-        environment: env.ORANGE_MONEY_ENVIRONMENT,
-        baseUrl: env.ORANGE_MONEY_BASE_URL,
-        clientId: env.ORANGE_MONEY_CLIENT_ID,
-        clientSecret: env.ORANGE_MONEY_CLIENT_SECRET,
-        merchantKey: env.ORANGE_MONEY_MERCHANT_KEY,
-        webhookSecret: env.ORANGE_MONEY_WEBHOOK_SECRET,
-      });
+      return buildReal("ORANGE_MONEY");
     case "CARD":
-      if (env.CARD_PAYMENT_PROVIDER === "mock")
-        return mock("mock-card", method, env.CARD_PAYMENT_WEBHOOK_SECRET);
-      return new CardProvider({
-        providerId: env.CARD_PAYMENT_PROVIDER,
-        environment: env.APP_ENV === "production" ? "production" : "sandbox",
-        publicKey: env.CARD_PAYMENT_PUBLIC_KEY,
-        secretKey: env.CARD_PAYMENT_SECRET_KEY,
-        webhookSecret: env.CARD_PAYMENT_WEBHOOK_SECRET,
-      });
+      return buildReal("CARD");
     case "BANK_TRANSFER": {
       const settings = await getPaymentSettings();
       return new ManualPaymentProvider({
@@ -100,18 +117,30 @@ async function build(method: PaymentMethod): Promise<PaymentProvider> {
   }
 }
 
+async function refreshVersion() {
+  const now = Date.now();
+  if (now - state.checkedAt < VERSION_TTL_MS) return;
+  state.checkedAt = now;
+  const version = await providerConfigVersion();
+  if (version !== state.version) {
+    state.version = version;
+    state.providers = {};
+  }
+}
+
 /**
- * Resolve the provider for a payment method. Mock providers are cached per process so the
- * in-memory transaction state survives between the server action that initiates a payment
- * and the route that receives its (mock) webhook. Manual providers are rebuilt so setting
- * changes apply immediately.
+ * Resolve the provider for a payment method from the admin configuration (database) with
+ * environment-variable fallback. Real/mock providers are cached per process and rebuilt when
+ * the configuration changes; manual providers are rebuilt each time so setting changes apply
+ * immediately.
  */
 export async function getPaymentProvider(method: PaymentMethod): Promise<PaymentProvider> {
   if (method === "BANK_TRANSFER" || method === "CASH") return build(method);
-  const cached = registry[method];
+  await refreshVersion();
+  const cached = state.providers[method];
   if (cached) return cached;
   const provider = await build(method);
-  registry[method] = provider;
+  state.providers[method] = provider;
   return provider;
 }
 
@@ -127,15 +156,11 @@ export interface AvailableMethod {
 export async function listAvailableMethods(): Promise<AvailableMethod[]> {
   const settings = await getPaymentSettings();
   const out: AvailableMethod[] = [];
-  for (const method of ["MTN_MOBILE_MONEY", "ORANGE_MONEY", "CARD"] as const) {
+  for (const key of PROVIDER_KEYS) {
+    const method = PROVIDER_METHOD[key];
     try {
       const p = await getPaymentProvider(method);
-      out.push({
-        method,
-        providerId: p.id,
-        environment: p.environment,
-        customerSelectable: true,
-      });
+      out.push({ method, providerId: p.id, environment: p.environment, customerSelectable: true });
     } catch (error) {
       if (error instanceof PaymentProviderError) {
         logger.warn("payments.method_unavailable", { method, code: error.code });
@@ -161,8 +186,15 @@ export async function listAvailableMethods(): Promise<AvailableMethod[]> {
   return out;
 }
 
+/** Force the next resolution to re-read the configuration (after an admin change). */
+export function resetPaymentRegistry() {
+  state.checkedAt = 0;
+  state.version = "";
+  state.providers = {};
+}
+
 /** Tests only: replace a provider. */
 export function setPaymentProviderForTests(method: PaymentMethod, provider?: PaymentProvider) {
-  if (provider) registry[method] = provider;
-  else delete registry[method];
+  if (provider) state.providers[method] = provider;
+  else delete state.providers[method];
 }

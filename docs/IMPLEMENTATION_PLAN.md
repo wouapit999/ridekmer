@@ -139,6 +139,8 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] Customer pay page (method choice, Mobile Money number, live status, mock controls in
       non-production), admin payments list/detail (attempts, provider events, refunds), refund
       queue, manual payment recording on the booking page
+- [x] Admin payment configuration page: typed method/rule settings and per-provider
+      environment, base URL and encrypted credentials with validation (overrides env vars)
 - [x] Tests: package unit tests (shells, manual, mock), integration (webhook pipeline, replay /
       forged / stale / mismatch, retry after decline, manual payment, expiry + reconciliation,
       refund approvals), e2e (pay with the simulated MTN provider)

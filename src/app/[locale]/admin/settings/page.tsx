@@ -6,6 +6,7 @@ import { toggleCity } from "@/features/admin/actions";
 import { getSettingsPageData } from "@/features/admin/queries";
 import { CityForm, SettingRow } from "@/features/admin/settings-forms";
 import { DocumentTypeForm } from "@/features/admin/review-forms";
+import { Link } from "@/i18n/navigation";
 import { requirePermission } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -25,6 +26,17 @@ export default async function AdminSettingsPage({ params }: Props) {
   return (
     <div className="space-y-10">
       <h1 className="text-2xl font-bold text-sand-900">{t("title")}</h1>
+
+      <section className="rounded-xl border border-brand-200 bg-brand-50 p-5">
+        <h2 className="text-lg font-semibold text-brand-800">{t("payments.title")}</h2>
+        <p className="mt-1 text-sm text-sand-700">{t("payments.cardIntro")}</p>
+        <Link
+          href="/admin/settings/payments"
+          className="mt-3 inline-block font-semibold text-brand-700 hover:underline"
+        >
+          {t("payments.open")} →
+        </Link>
+      </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">{t("cities")}</h2>

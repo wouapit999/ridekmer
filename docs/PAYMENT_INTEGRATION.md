@@ -42,6 +42,28 @@ materialised, so a cold start between the two does not break the simulation.
 refunded after return**, never described as holds (ADR-017). Card holds appear only once a PSP
 that supports them is integrated and the capability flag is set.
 
+## Admin configuration (`/admin/settings/payments`)
+
+Everything the payment layer needs is configurable by a `settings.manage` holder without a
+redeploy:
+
+- **Methods and rules**: `payment.bank_transfer_enabled`, `payment.cash_enabled`, bank-transfer
+  instructions (FR/EN), Mobile Money expiry, bank-transfer expiry, `finance.dual_approval_threshold_xaf`,
+  `booking.payment_timeout_minutes` (typed controls, audited `setting.update`).
+- **Providers** (`PaymentProviderConfig`, one row per provider): enabled flag, environment
+  (`mock | sandbox | production`), base URL, card PSP identifier, and credentials. Credentials are
+  encrypted at rest (AES-256-GCM with `APP_ENCRYPTION_KEY`), stored as one blob, and never returned
+  to the browser: the page only shows which fields are set and whether they come from the admin
+  configuration or from environment variables. The audit log records field **names** only.
+- **Resolution order**: an admin row wins for enabled/environment/base URL; credentials merge field
+  by field over the `MTN_MOMO_*`, `ORANGE_MONEY_*`, `CARD_PAYMENT_*` environment variables, so a
+  secret kept in Vercel still applies when the admin leaves the field empty. The registry re-reads
+  the configuration within 15 seconds (immediately in the process that saved it).
+- **Validate configuration** checks completeness without any network call (`OK_MOCK`, `OK_SHELL`,
+  `NOT_CONFIGURED`, `DISABLED`, `MOCK_IN_PRODUCTION`). A real connectivity test only becomes
+  possible once an adapter is implemented.
+- The webhook URL to register with each provider is displayed on the card.
+
 ## Checkout flow (`src/features/payments/service.ts`)
 
 1. `initiatePaymentForBooking` — booking must be `PAYMENT_PENDING` and belong to the caller;

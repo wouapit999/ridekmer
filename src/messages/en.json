@@ -965,7 +965,67 @@
       "dtAlertDays": "Alert days before expiry (comma-separated)",
       "dtSave": "Save document type",
       "dtSaved": "Document type saved.",
-      "dtInvalid": "Invalid document type."
+      "dtInvalid": "Invalid document type.",
+      "enabledValue": "Enabled",
+      "disabledValue": "Disabled",
+      "payments": {
+        "title": "Payment configuration",
+        "cardIntro": "Payment methods, bank-transfer instructions, approval threshold and provider credentials (MTN Mobile Money, Orange Money, card).",
+        "open": "Open payment configuration",
+        "backToSettings": "Settings",
+        "intro": "Everything the payment layer needs is configured here. Changes apply within seconds; every change is audited.",
+        "securityTitle": "Secrets handling",
+        "securityBody": "Credentials are encrypted at rest with the application field-encryption key and never sent back to the browser. Values set here override the server environment variables of the same name; leave a field empty to keep its current value. No PIN, card number or CVV is ever stored.",
+        "rules": "Methods and rules",
+        "providersTitle": "Providers",
+        "providersIntro": "Mock providers simulate payments in development and preview and are refused in production. Sandbox and production need the provider's base URL and credentials; the adapters remain shells until they are implemented from the official documentation.",
+        "providers": {
+          "MTN_MOMO": "MTN Mobile Money",
+          "ORANGE_MONEY": "Orange Money",
+          "CARD": "Bank card (PSP)"
+        },
+        "webhookUrl": "Webhook URL to register with the provider",
+        "updatedBy": "Last updated by {name} on {date}",
+        "enabled": "Enabled for customers",
+        "environment": "Environment",
+        "environments": {
+          "mock": "Mock (simulation)",
+          "sandbox": "Sandbox",
+          "production": "Production"
+        },
+        "mockHint": "Mock is only honoured outside production.",
+        "mockForbidden": "This is the production app: mock is not available.",
+        "baseUrl": "Provider base URL",
+        "baseUrlHint": "HTTPS URL published by the provider for the selected environment.",
+        "cardProviderId": "PSP identifier",
+        "cardProviderIdHint": "Short lowercase id of the selected acquirer (letters, digits, dashes).",
+        "credentials": "Credentials",
+        "credentialsHint": "Enter a value to replace it; empty keeps the stored value.",
+        "credentialsMock": "Not required in mock mode (a development webhook secret is generated).",
+        "setDatabase": "set (admin)",
+        "setEnvironment": "set (environment)",
+        "notSet": "not set",
+        "clear": "Remove stored value",
+        "save": "Save configuration",
+        "validate": "Validate configuration",
+        "lastValidation": "Last validation {date}",
+        "source": {
+          "database": "admin configuration",
+          "environment": "environment variables"
+        },
+        "validation": {
+          "OK_MOCK": "Mock active",
+          "OK_SHELL": "Configured (adapter pending)",
+          "NOT_CONFIGURED": "Incomplete configuration",
+          "DISABLED": "Disabled",
+          "MOCK_IN_PRODUCTION": "Mock refused in production",
+          "INVALID": "Invalid request."
+        },
+        "result": {
+          "SAVED": "Configuration saved.",
+          "INVALID": "Invalid values (base URL must start with https://)."
+        }
+      }
     },
     "audit": {
       "title": "Audit log",

@@ -480,6 +480,12 @@ enum DataRequestStatus {
   REJECTED
 }
 
+enum PaymentProviderKey {
+  MTN_MOMO
+  ORANGE_MONEY
+  CARD
+}
+
 enum SettingValueType {
   STRING
   INTEGER
@@ -520,37 +526,38 @@ model User {
   chauffeurProfile ChauffeurProfile?
   addresses        Address[]
 
-  auditLogs            AuditLog[]                @relation("AuditActor")
-  notifications        Notification[]
-  notificationSettings NotificationPreference[]
-  supportCases         SupportCase[]             @relation("SupportRequester")
-  assignedSupportCases SupportCase[]             @relation("SupportAssignee")
-  dataRequests         DataRequest[]
-  reviewsWritten       Review[]                  @relation("ReviewAuthor")
-  trackingAccessLogs   TrackingAccessLog[]
-  approvals            Approval[]
-  documentReviews      VehicleDocument[]         @relation("VehicleDocumentReviewer")
-  verificationReviews  VerificationDocument[]    @relation("VerificationDocumentReviewer")
-  caseReviews          VerificationCase[]        @relation("VerificationCaseReviewer")
-  documentOverrides    DocumentOverride[]        @relation("DocumentOverrideCreator")
-  vehicleReviews       Vehicle[]                 @relation("VehicleReviewer")
-  inspectionsPerformed Inspection[]              @relation("Inspector")
-  bookingStatusChanges BookingStatusHistory[]    @relation("BookingStatusActor")
-  incidentsReported    Incident[]                @relation("IncidentReporter")
-  incidentStatusChange IncidentStatusHistory[]   @relation("IncidentStatusActor")
-  generatedContracts   GeneratedContract[]       @relation("ContractSignatory")
-  bookingsAsCustomer   Booking[]                 @relation("BookingCustomer")
-  bookingsAsChauffeur  Booking[]                 @relation("BookingChauffeur")
-  reservationHolds     ReservationHold[]
-  pricingRulesCreated  PricingRule[]             @relation("PricingRuleCreator")
-  payoutsRequested     OwnerPayout[]             @relation("PayoutRequester")
-  refundsRequested     Refund[]                  @relation("RefundRequester")
-  templateVersions     ContractTemplateVersion[] @relation("TemplateVersionAuthor")
-  settingsUpdated      SystemSetting[]           @relation("SettingUpdater")
-  recordedPayments     Payment[]                 @relation("PaymentRecorder")
-  maintenanceCreated   MaintenanceRecord[]       @relation("MaintenanceCreator")
-  expensesApproved     Expense[]                 @relation("ExpenseApprover")
-  deviceRegistrations  TrackerDevice[]           @relation("DeviceRegistrar")
+  auditLogs              AuditLog[]                @relation("AuditActor")
+  notifications          Notification[]
+  notificationSettings   NotificationPreference[]
+  supportCases           SupportCase[]             @relation("SupportRequester")
+  assignedSupportCases   SupportCase[]             @relation("SupportAssignee")
+  dataRequests           DataRequest[]
+  reviewsWritten         Review[]                  @relation("ReviewAuthor")
+  trackingAccessLogs     TrackingAccessLog[]
+  approvals              Approval[]
+  documentReviews        VehicleDocument[]         @relation("VehicleDocumentReviewer")
+  verificationReviews    VerificationDocument[]    @relation("VerificationDocumentReviewer")
+  caseReviews            VerificationCase[]        @relation("VerificationCaseReviewer")
+  documentOverrides      DocumentOverride[]        @relation("DocumentOverrideCreator")
+  vehicleReviews         Vehicle[]                 @relation("VehicleReviewer")
+  inspectionsPerformed   Inspection[]              @relation("Inspector")
+  bookingStatusChanges   BookingStatusHistory[]    @relation("BookingStatusActor")
+  incidentsReported      Incident[]                @relation("IncidentReporter")
+  incidentStatusChange   IncidentStatusHistory[]   @relation("IncidentStatusActor")
+  generatedContracts     GeneratedContract[]       @relation("ContractSignatory")
+  bookingsAsCustomer     Booking[]                 @relation("BookingCustomer")
+  bookingsAsChauffeur    Booking[]                 @relation("BookingChauffeur")
+  reservationHolds       ReservationHold[]
+  pricingRulesCreated    PricingRule[]             @relation("PricingRuleCreator")
+  payoutsRequested       OwnerPayout[]             @relation("PayoutRequester")
+  refundsRequested       Refund[]                  @relation("RefundRequester")
+  templateVersions       ContractTemplateVersion[] @relation("TemplateVersionAuthor")
+  settingsUpdated        SystemSetting[]           @relation("SettingUpdater")
+  recordedPayments       Payment[]                 @relation("PaymentRecorder")
+  maintenanceCreated     MaintenanceRecord[]       @relation("MaintenanceCreator")
+  expensesApproved       Expense[]                 @relation("ExpenseApprover")
+  deviceRegistrations    TrackerDevice[]           @relation("DeviceRegistrar")
+  paymentProviderConfigs PaymentProviderConfig[]   @relation("PaymentProviderConfigEditor")
 
   @@index([status])
   @@index([createdAt])
@@ -1591,6 +1598,25 @@ model IdempotencyKey {
   expiresAt    DateTime
 
   @@index([expiresAt])
+}
+
+/// Admin-managed configuration of a real payment provider. Credentials are stored encrypted
+/// (AES-256-GCM, field encryption key) and never returned to the browser; only field names.
+model PaymentProviderConfig {
+  id                   String             @id @default(cuid())
+  provider             PaymentProviderKey @unique
+  enabled              Boolean            @default(true)
+  environment          String             @default("mock")
+  baseUrl              String?
+  cardProviderId       String?
+  credentialsEnc       String?
+  credentialFields     String[]           @default([])
+  lastValidatedAt      DateTime?
+  lastValidationResult String?
+  updatedById          String?
+  updatedBy            User?              @relation("PaymentProviderConfigEditor", fields: [updatedById], references: [id])
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

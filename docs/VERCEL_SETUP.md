@@ -89,7 +89,9 @@ Project Settings → Domains → add `ridekmer.<tld>` and `www`. Vercel shows th
 
 After the production URL exists, register in each provider portal (Milestone 4 routes):
 `https://<domain>/api/webhooks/payments/mtn-momo`, `/orange-money`, `/card`, and set the
-matching `*_WEBHOOK_SECRET` variables.
+matching `*_WEBHOOK_SECRET` either as Vercel variables or from **Admin → Settings → Payment
+configuration**, where provider environment, base URL and credentials are stored encrypted and
+override the variables of the same name.
 
 ## 18. Cron-job authentication
 

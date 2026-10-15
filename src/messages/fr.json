@@ -965,7 +965,67 @@
       "dtAlertDays": "Jours d'alerte avant expiration (séparés par des virgules)",
       "dtSave": "Enregistrer le type",
       "dtSaved": "Type de document enregistré.",
-      "dtInvalid": "Type de document invalide."
+      "dtInvalid": "Type de document invalide.",
+      "enabledValue": "Activé",
+      "disabledValue": "Désactivé",
+      "payments": {
+        "title": "Configuration des paiements",
+        "cardIntro": "Moyens de paiement, instructions de virement, seuil d'approbation et identifiants des fournisseurs (MTN Mobile Money, Orange Money, carte).",
+        "open": "Ouvrir la configuration des paiements",
+        "backToSettings": "Paramètres",
+        "intro": "Tout ce dont la couche de paiement a besoin se configure ici. Les changements s'appliquent en quelques secondes ; chaque modification est auditée.",
+        "securityTitle": "Gestion des secrets",
+        "securityBody": "Les identifiants sont chiffrés au repos avec la clé de chiffrement de l'application et ne sont jamais renvoyés au navigateur. Les valeurs saisies ici remplacent les variables d'environnement du même nom ; laissez un champ vide pour conserver sa valeur actuelle. Aucun code PIN, numéro de carte ni CVV n'est jamais stocké.",
+        "rules": "Moyens et règles",
+        "providersTitle": "Fournisseurs",
+        "providersIntro": "Les fournisseurs simulés imitent les paiements en développement et en préproduction et sont refusés en production. Les modes sandbox et production exigent l'URL de base et les identifiants ; les adaptateurs restent des coquilles tant qu'ils ne sont pas implémentés d'après la documentation officielle.",
+        "providers": {
+          "MTN_MOMO": "MTN Mobile Money",
+          "ORANGE_MONEY": "Orange Money",
+          "CARD": "Carte bancaire (PSP)"
+        },
+        "webhookUrl": "URL de webhook à enregistrer chez le fournisseur",
+        "updatedBy": "Dernière modification par {name} le {date}",
+        "enabled": "Activé pour les clients",
+        "environment": "Environnement",
+        "environments": {
+          "mock": "Simulation (mock)",
+          "sandbox": "Sandbox",
+          "production": "Production"
+        },
+        "mockHint": "La simulation n'est prise en compte qu'en dehors de la production.",
+        "mockForbidden": "Application de production : la simulation n'est pas disponible.",
+        "baseUrl": "URL de base du fournisseur",
+        "baseUrlHint": "URL HTTPS publiée par le fournisseur pour l'environnement choisi.",
+        "cardProviderId": "Identifiant du PSP",
+        "cardProviderIdHint": "Identifiant court en minuscules de l'acquéreur retenu (lettres, chiffres, tirets).",
+        "credentials": "Identifiants",
+        "credentialsHint": "Saisissez une valeur pour la remplacer ; vide conserve la valeur enregistrée.",
+        "credentialsMock": "Non requis en mode simulation (un secret de webhook de développement est généré).",
+        "setDatabase": "défini (admin)",
+        "setEnvironment": "défini (environnement)",
+        "notSet": "non défini",
+        "clear": "Supprimer la valeur enregistrée",
+        "save": "Enregistrer la configuration",
+        "validate": "Valider la configuration",
+        "lastValidation": "Dernière validation {date}",
+        "source": {
+          "database": "configuration admin",
+          "environment": "variables d'environnement"
+        },
+        "validation": {
+          "OK_MOCK": "Simulation active",
+          "OK_SHELL": "Configuré (adaptateur à implémenter)",
+          "NOT_CONFIGURED": "Configuration incomplète",
+          "DISABLED": "Désactivé",
+          "MOCK_IN_PRODUCTION": "Simulation refusée en production",
+          "INVALID": "Requête invalide."
+        },
+        "result": {
+          "SAVED": "Configuration enregistrée.",
+          "INVALID": "Valeurs invalides (l'URL de base doit commencer par https://)."
+        }
+      }
     },
     "audit": {
       "title": "Journal d'audit",
