@@ -43,8 +43,27 @@ test.describe("customer booking", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Réservation RK-");
     await expect(page.getByText("En attente de paiement").first()).toBeVisible();
     await expect(page.getByText(/Paiement attendu avant le/)).toBeVisible();
+    await expect(page.getByText("Remboursement", { exact: false })).toHaveCount(0);
 
-    // Cancel (free: pickup is 8 days away)
+    // Pay with the simulated MTN Mobile Money provider: the booking is only confirmed after
+    // the signed (mock) webhook is verified server-side.
+    await page.getByRole("link", { name: "Payer maintenant" }).first().click();
+    await expect(page).toHaveURL(/\/account\/bookings\/[a-z0-9]+\/pay$/);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Payer la réservation");
+    await page.getByLabel("MTN Mobile Money").check();
+    await page.getByLabel("Numéro Mobile Money").fill("677 12 34 56");
+    await page.getByRole("button", { name: "Payer maintenant" }).click();
+    await expect(page.getByText("En attente du paiement")).toBeVisible();
+    await page.getByRole("button", { name: "Simuler l'approbation" }).click();
+    await expect(page.getByText("Cette réservation est payée et confirmée.")).toBeVisible({
+      timeout: 15_000,
+    });
+    await page.getByRole("link", { name: "Retour à la réservation" }).click();
+    await expect(page).toHaveURL(/\/fr\/account\/bookings\/[a-z0-9]+$/);
+    await expect(page.getByText("Confirmée", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("Payé", { exact: true }).first()).toBeVisible();
+
+    // Cancel (free: pickup is 8 days away) — opens a refund request for finance.
     await page.getByLabel("Motif").fill("Changement de programme");
     await page.getByRole("button", { name: "Confirmer l'annulation" }).click();
     // The page re-renders with the new status; the cancel form disappears.

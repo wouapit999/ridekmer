@@ -66,13 +66,13 @@ Dependencies point downwards only: routes → features → server/lib → packag
 
 ## Packages
 
-| Package                   | Interfaces                                                                              | Implementations today                                                                                   |
-| ------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `@ridekmer/payments`      | `PaymentProvider` (initiate, status, verify, webhook, refund, reconcile, payout)        | `MockPaymentProvider` (MTN/Orange/card shells use it until credentials exist)                           |
-| `@ridekmer/notifications` | `EmailProvider`, `SmsProvider`, `WhatsAppProvider`, `PushProvider`, bilingual templates | `LogNotificationProvider` (dev), `MemoryNotificationProvider` (tests), `GenericHttpSmsProvider` (shell) |
-| `@ridekmer/storage`       | `StorageProvider`, `MalwareScanner`, file validation                                    | `LocalDiskStorageProvider` (dev only), `MemoryStorageProvider` (tests); Vercel Blob / S3 in Milestone 2 |
-| `@ridekmer/tracking`      | `TrackingProvider`, `ImmobilisationProvider` (future, interface only)                   | `MockTrackingProvider`                                                                                  |
-| `@ridekmer/contracts`     | `renderContract`, checksums                                                             | dependency-free template engine                                                                         |
+| Package                   | Interfaces                                                                              | Implementations today                                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@ridekmer/payments`      | `PaymentProvider` (initiate, status, verify, webhook, refund, reconcile, payout)        | `MockPaymentProvider` (dev/preview), `ManualPaymentProvider` (bank transfer, cash), shells for MTN MoMo / Orange Money / card that refuse to run until implemented |
+| `@ridekmer/notifications` | `EmailProvider`, `SmsProvider`, `WhatsAppProvider`, `PushProvider`, bilingual templates | `LogNotificationProvider` (dev), `MemoryNotificationProvider` (tests), `GenericHttpSmsProvider` (shell)                                                            |
+| `@ridekmer/storage`       | `StorageProvider`, `MalwareScanner`, file validation                                    | `LocalDiskStorageProvider` (dev only), `MemoryStorageProvider` (tests); Vercel Blob / S3 in Milestone 2                                                            |
+| `@ridekmer/tracking`      | `TrackingProvider`, `ImmobilisationProvider` (future, interface only)                   | `MockTrackingProvider`                                                                                                                                             |
+| `@ridekmer/contracts`     | `renderContract`, checksums                                                             | dependency-free template engine                                                                                                                                    |
 
 ## Milestone status
 

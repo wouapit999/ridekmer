@@ -1464,30 +1464,36 @@ model BookingPriceSnapshot {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Payment {
-  id                String         @id @default(cuid())
-  bookingId         String?
-  booking           Booking?       @relation(fields: [bookingId], references: [id])
-  purpose           PaymentPurpose
-  method            PaymentMethod
-  provider          String
-  status            PaymentStatus  @default(CREATED)
-  amountXaf         Int
-  refundedXaf       Int            @default(0)
-  currencyCode      String         @default("XAF")
-  idempotencyKey    String         @unique
-  providerReference String?
-  payerPhoneMasked  String?
-  description       String?
-  failureCode       String?
-  failureMessage    String?
-  confirmedAt       DateTime?
-  expiresAt         DateTime?
-  reconciledAt      DateTime?
-  recordedById      String?
-  recordedBy        User?          @relation("PaymentRecorder", fields: [recordedById], references: [id])
-  metadata          Json?
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
+  id                  String         @id @default(cuid())
+  bookingId           String?
+  booking             Booking?       @relation(fields: [bookingId], references: [id])
+  purpose             PaymentPurpose
+  method              PaymentMethod
+  provider            String
+  status              PaymentStatus  @default(CREATED)
+  amountXaf           Int
+  /// Part of amountXaf that is the refundable security deposit (Mobile Money deposits are real debits).
+  depositXaf          Int            @default(0)
+  refundedXaf         Int            @default(0)
+  currencyCode        String         @default("XAF")
+  idempotencyKey      String         @unique
+  providerReference   String?
+  providerEnvironment String?
+  customerInstruction String?
+  redirectUrl         String?
+  lastCheckedAt       DateTime?
+  payerPhoneMasked    String?
+  description         String?
+  failureCode         String?
+  failureMessage      String?
+  confirmedAt         DateTime?
+  expiresAt           DateTime?
+  reconciledAt        DateTime?
+  recordedById        String?
+  recordedBy          User?          @relation("PaymentRecorder", fields: [recordedById], references: [id])
+  metadata            Json?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   attempts      PaymentAttempt[]
   webhookEvents PaymentWebhookEvent[]
@@ -1548,6 +1554,8 @@ model Refund {
   requestedById        String?
   requestedBy          User?        @relation("RefundRequester", fields: [requestedById], references: [id])
   requiresDualApproval Boolean      @default(false)
+  approvedById         String?
+  approvedAt           DateTime?
   processedAt          DateTime?
   failureMessage       String?
   createdAt            DateTime     @default(now())

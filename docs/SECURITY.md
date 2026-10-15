@@ -3,32 +3,32 @@
 Companion to the root `SECURITY.md` (reporting policy). Status column: ✅ implemented in
 Milestone 1 · 🔜 planned milestone.
 
-| Control                                                     | Status                                     | Where                                                                                  |
-| ----------------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Password hashing (scrypt), min length 10                    | ✅                                         | Better Auth config                                                                     |
-| MFA (TOTP + backup codes) for staff, enforced server-side   | ✅                                         | `requireStaffMfa`                                                                      |
-| Session rotation, revocation on suspension / password reset | ✅                                         | Better Auth + `setUserStatus`                                                          |
-| Rate limiting (DB-backed, per endpoint)                     | ✅                                         | Better Auth `rateLimit`; Upstash for app-level limits 🔜 M3                            |
-| CSRF                                                        | ✅                                         | Server actions (Next.js origin checks), Better Auth origin validation, `SameSite=Lax`  |
-| Input validation                                            | ✅                                         | Zod on every action and search parameter                                               |
-| File validation (size, MIME, magic bytes), safe object keys | ✅                                         | `@ridekmer/storage`                                                                    |
-| Malware scanning interface                                  | ✅ interface, 🔜 provider                  | `MalwareScanner`                                                                       |
-| Secure headers + CSP                                        | ✅                                         | `src/server/security/headers.ts`                                                       |
-| Brute-force protection                                      | ✅                                         | rate limits + TOTP lockout                                                             |
-| Object-level access control                                 | ✅ pattern, 🔜 per feature                 | ownership checks in actions                                                            |
-| Server-side permission checks                               | ✅                                         | `src/server/auth/rbac.ts`, `session.ts`                                                |
-| Audit logging (append-only)                                 | ✅                                         | `recordAudit`, DB trigger                                                              |
-| Secret redaction / PII redaction in logs                    | ✅                                         | `src/lib/logger.ts`                                                                    |
-| Account suspension                                          | ✅                                         | admin action + session hook                                                            |
-| Data retention configuration                                | ✅ settings, 🔜 jobs                       | `SystemSetting` `privacy.*`, `tracking.*`                                              |
-| Data export / deletion requests                             | ✅ model, 🔜 UI (M8)                       | `DataRequest`                                                                          |
-| Field-level encryption (AES-256-GCM, key id for rotation)   | ✅                                         | `src/lib/crypto.ts`                                                                    |
-| Short-lived signed file URLs with access checks             | ✅ interface, 🔜 M2                        | `StorageProvider.getSignedReadUrl`                                                     |
-| Webhook signature validation + replay protection            | ✅ helpers, 🔜 M4 routes                   | `@ridekmer/payments/webhook-security`, `PaymentWebhookEvent`                           |
-| Idempotent financial operations                             | ✅ schema (unique keys), 🔜 M4/M6 services | `Payment.idempotencyKey`, `IdempotencyKey`                                             |
-| CSV formula-injection protection                            | ✅                                         | `src/lib/csv.ts`                                                                       |
-| Dual approval above threshold                               | ✅ schema (`Approval`), 🔜 M6              |                                                                                        |
-| Production configuration guard                              | ✅                                         | `getEnv()` refuses local storage, demo seed, localhost DB, missing Redis in production |
+| Control                                                     | Status                                   | Where                                                                                  |
+| ----------------------------------------------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| Password hashing (scrypt), min length 10                    | ✅                                       | Better Auth config                                                                     |
+| MFA (TOTP + backup codes) for staff, enforced server-side   | ✅                                       | `requireStaffMfa`                                                                      |
+| Session rotation, revocation on suspension / password reset | ✅                                       | Better Auth + `setUserStatus`                                                          |
+| Rate limiting (DB-backed, per endpoint)                     | ✅                                       | Better Auth `rateLimit`; Upstash for app-level limits 🔜 M3                            |
+| CSRF                                                        | ✅                                       | Server actions (Next.js origin checks), Better Auth origin validation, `SameSite=Lax`  |
+| Input validation                                            | ✅                                       | Zod on every action and search parameter                                               |
+| File validation (size, MIME, magic bytes), safe object keys | ✅                                       | `@ridekmer/storage`                                                                    |
+| Malware scanning interface                                  | ✅ interface, 🔜 provider                | `MalwareScanner`                                                                       |
+| Secure headers + CSP                                        | ✅                                       | `src/server/security/headers.ts`                                                       |
+| Brute-force protection                                      | ✅                                       | rate limits + TOTP lockout                                                             |
+| Object-level access control                                 | ✅ pattern, 🔜 per feature               | ownership checks in actions                                                            |
+| Server-side permission checks                               | ✅                                       | `src/server/auth/rbac.ts`, `session.ts`                                                |
+| Audit logging (append-only)                                 | ✅                                       | `recordAudit`, DB trigger                                                              |
+| Secret redaction / PII redaction in logs                    | ✅                                       | `src/lib/logger.ts`                                                                    |
+| Account suspension                                          | ✅                                       | admin action + session hook                                                            |
+| Data retention configuration                                | ✅ settings, 🔜 jobs                     | `SystemSetting` `privacy.*`, `tracking.*`                                              |
+| Data export / deletion requests                             | ✅ model, 🔜 UI (M8)                     | `DataRequest`                                                                          |
+| Field-level encryption (AES-256-GCM, key id for rotation)   | ✅                                       | `src/lib/crypto.ts`                                                                    |
+| Short-lived signed file URLs with access checks             | ✅ interface, 🔜 M2                      | `StorageProvider.getSignedReadUrl`                                                     |
+| Webhook signature validation + replay protection            | ✅ routes + replay window (M4)           | `@ridekmer/payments/webhook-security`, `PaymentWebhookEvent`                           |
+| Idempotent financial operations                             | ✅ payments/refunds (M4), 🔜 ledger (M6) | `Payment.idempotencyKey`, `IdempotencyKey`                                             |
+| CSV formula-injection protection                            | ✅                                       | `src/lib/csv.ts`                                                                       |
+| Dual approval above threshold                               | ✅ schema (`Approval`), 🔜 M6            |                                                                                        |
+| Production configuration guard                              | ✅                                       | `getEnv()` refuses local storage, demo seed, localhost DB, missing Redis in production |
 
 ## Content Security Policy
 

@@ -1,7 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/document-expiry", "schedule": "0 5 * * *" },
-    { "path": "/api/cron/expire-holds", "schedule": "*/5 * * * *" }
+    {
+      "path": "/api/cron/document-expiry",
+      "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/expire-holds",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/reconcile-payments",
+      "schedule": "*/15 * * * *"
+    }
   ]
 }

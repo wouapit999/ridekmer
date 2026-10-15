@@ -2,6 +2,10 @@ import { getFormatter, getTranslations, setRequestLocale } from "next-intl/serve
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/alert";
+import { ManualPaymentForm } from "@/features/payments/admin-forms";
+import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
+import { getPaymentSettings } from "@/features/payments/settings";
+import { formatXaf } from "@/lib/money";
 import { StaffTransitionForm } from "@/features/bookings/admin-forms";
 import { BookingStatusBadge } from "@/features/bookings/booking-badge";
 import { getBookingForAdmin } from "@/features/bookings/queries";
@@ -20,7 +24,13 @@ export default async function AdminBookingDetailPage({
   const booking = await getBookingForAdmin(id);
   if (!booking) notFound();
   const t = await getTranslations("admin.bookings");
+  const tp = await getTranslations("payments.admin");
   const format = await getFormatter();
+  const paymentSettings = await getPaymentSettings();
+  const manualMethods = [
+    ...(paymentSettings.cashEnabled ? (["CASH"] as const) : []),
+    ...(paymentSettings.bankTransferEnabled ? (["BANK_TRANSFER"] as const) : []),
+  ];
   const snapshot = booking.priceSnapshots[0];
   const breakdown = (snapshot?.breakdown ?? { lines: [], grandTotalXaf: 0 }) as {
     lines: Array<{ key: string; amountXaf: number; detail?: string }>;
@@ -103,6 +113,34 @@ export default async function AdminBookingDetailPage({
                 : undefined
             }
           />
+          {booking.status === "PAYMENT_PENDING" &&
+          snapshot &&
+          access.permissions.has("payment.record_manual") ? (
+            <ManualPaymentForm
+              bookingId={booking.id}
+              amountXaf={snapshot.totalRentalXaf + snapshot.securityDepositXaf}
+              methods={[...manualMethods]}
+            />
+          ) : null}
+          <section>
+            <h2 className="text-lg font-semibold">{tp("title")}</h2>
+            {booking.payments.length === 0 ? (
+              <p className="text-sm text-sand-600">{tp("noResults")}</p>
+            ) : null}
+            <ul className="mt-2 divide-y divide-sand-200 rounded-xl border border-sand-200 bg-white text-sm">
+              {booking.payments.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+                >
+                  <Link href={`/admin/payments/${p.id}`} className="text-brand-700 hover:underline">
+                    <PaymentMethodLabel method={p.method} /> · {formatXaf(p.amountXaf, "fr")}
+                  </Link>
+                  <PaymentStatusBadge status={p.status} />
+                </li>
+              ))}
+            </ul>
+          </section>
           <section>
             <h2 className="text-lg font-semibold">{t("history")}</h2>
             <ol className="mt-2 space-y-1 text-sm">

@@ -11,6 +11,8 @@ import { CancelBookingForm, ExtensionForm } from "@/features/bookings/customer-f
 import { QuoteBreakdown } from "@/features/bookings/quote-breakdown";
 import { BookingError, getBookingForCustomer } from "@/features/bookings/service";
 import { CUSTOMER_CANCELLABLE } from "@/features/bookings/state-machine";
+import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
+import { listPaymentsForBooking } from "@/features/payments/service";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { formatXaf } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
@@ -32,6 +34,8 @@ export default async function CustomerBookingDetailPage({ params }: Props) {
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const settings = await getPricingSettings();
+  const payments = await listPaymentsForBooking(booking.id);
+  const tp = await getTranslations("payments");
   const snapshot = booking.priceSnapshots[0];
   const breakdown = (snapshot?.breakdown ?? { lines: [], grandTotalXaf: 0 }) as {
     lines: Array<{ key: string; amountXaf: number; detail?: string }>;
@@ -64,7 +68,10 @@ export default async function CustomerBookingDetailPage({ params }: Props) {
                 time: format.dateTime(booking.paymentDueAt, "full"),
               })}
             >
-              {t("detail.paymentSoon")}
+              <p>{t("detail.paymentSoon")}</p>
+              <ButtonLink href={`/account/bookings/${booking.id}/pay`} size="sm" className="mt-2">
+                {t("detail.payNow")}
+              </ButtonLink>
             </Alert>
           ) : null}
           {booking.status === "PENDING_VERIFICATION" ? (
@@ -101,6 +108,32 @@ export default async function CustomerBookingDetailPage({ params }: Props) {
               </div>
             ) : null}
           </dl>
+          {payments.length > 0 ? (
+            <section>
+              <h2 className="text-lg font-semibold">{tp("history")}</h2>
+              <ul className="mt-2 divide-y divide-sand-200 rounded-xl border border-sand-200 bg-white text-sm">
+                {payments.map((p) => (
+                  <li key={p.id} className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span>
+                        <PaymentMethodLabel method={p.method} /> ·{" "}
+                        {formatXaf(p.amountXaf, currentLocale)}
+                      </span>
+                      <PaymentStatusBadge status={p.status} />
+                    </div>
+                    {p.refunds.map((r) => (
+                      <p key={r.id} className="mt-1 text-xs text-sand-600">
+                        {tp("refundLine", {
+                          amount: formatXaf(r.amountXaf, currentLocale),
+                          status: tp(`refundStatuses.${r.status}`),
+                        })}
+                      </p>
+                    ))}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
           <p className="text-xs text-sand-600">{t("detail.contract")}</p>
           <section>
             <h2 className="text-lg font-semibold">{t("detail.history")}</h2>

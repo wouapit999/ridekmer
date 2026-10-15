@@ -125,11 +125,23 @@ ridekmer/                      (repository root = Vercel root directory)
       concurrent booking prevention, lifecycle, cancellation, expiry (integration);
       customer booking and double-booking prevention (e2e)
 
-### Milestone 4 — Payments `[ ]`
+### Milestone 4 — Payments `[x]`
 
-- `@ridekmer/payments` interfaces, MTN MoMo / Orange Money / card / bank transfer / cash shells
-- Development mock providers, idempotency, webhook signature + replay protection
-- Server-side confirmation only, reconciliation job
+- [x] `@ridekmer/payments`: provider shells (MTN MoMo, Orange Money, card) that validate config
+      and refuse to run until implemented from official docs; manual providers (bank transfer,
+      cash); hardened mock (signed webhooks, amount semantics, restart-safe)
+- [x] Registry resolving providers from the environment; mocks refused in production
+- [x] Payment service: idempotent initiation per booking, attempts, status polling, webhook
+      ingestion with signature + replay + window checks, `verifyTransaction` gate, single
+      confirmation path, manual recording/confirmation, reconciliation cron (every 15 min)
+- [x] Refunds with separation of duties and dual approval; automatic refund request on
+      cancellation of a paid booking
+- [x] Customer pay page (method choice, Mobile Money number, live status, mock controls in
+      non-production), admin payments list/detail (attempts, provider events, refunds), refund
+      queue, manual payment recording on the booking page
+- [x] Tests: package unit tests (shells, manual, mock), integration (webhook pipeline, replay /
+      forged / stale / mismatch, retry after decline, manual payment, expiry + reconciliation,
+      refund approvals), e2e (pay with the simulated MTN provider)
 
 ### Milestone 5 — Contracts, inspections, incidents, maintenance `[ ]`
 

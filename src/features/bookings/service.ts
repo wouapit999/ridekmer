@@ -28,6 +28,7 @@ import { formatXaf } from "@/lib/money";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { openRefundForCancelledBooking } from "@/features/payments/refunds";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { ActorType, BookingStatus } from "@/generated/prisma/enums";
@@ -555,6 +556,8 @@ export async function cancelBookingByCustomer(
     entityId: booking.id,
     dedupeKey: `booking_cancelled:${booking.id}`,
   });
+  // Paid bookings: open a refund request (net of the fee) for finance to approve.
+  await openRefundForCancelledBooking(booking.id, fee, `customer cancellation: ${reason}`);
   return { booking: updated, cancellationFeeXaf: fee };
 }
 
@@ -768,6 +771,14 @@ export async function staffTransition(input: {
     after: { status: input.to },
     reason: input.reason,
   });
+  if (input.to === "CANCELLED" || input.to === "NO_SHOW") {
+    // Any amount already paid becomes a refund request net of the fee; finance decides.
+    await openRefundForCancelledBooking(
+      booking.id,
+      (data.cancellationFeeXaf as number | undefined) ?? 0,
+      `${input.to.toLowerCase()} by staff: ${input.reason ?? ""}`,
+    );
+  }
   return updated;
 }
 

@@ -138,3 +138,69 @@ describe("webhook security helpers", () => {
     });
   });
 });
+
+describe("provider shells and manual providers", () => {
+  it("refuses to build a real provider without configuration", async () => {
+    const { MtnMomoProvider, OrangeMoneyProvider, CardProvider, PaymentProviderError } =
+      await import("@ridekmer/payments");
+    expect(() => new MtnMomoProvider({ environment: "sandbox" })).toThrow(PaymentProviderError);
+    expect(() => new OrangeMoneyProvider({ environment: "sandbox" })).toThrow(
+      /ORANGE_MONEY_CLIENT_ID/,
+    );
+    expect(() => new CardProvider({ providerId: "acme", environment: "sandbox" })).toThrow(
+      /CARD_PAYMENT_SECRET_KEY/,
+    );
+  });
+
+  it("refuses to run a configured shell until it is implemented", async () => {
+    const { MtnMomoProvider } = await import("@ridekmer/payments");
+    const p = new MtnMomoProvider({
+      environment: "sandbox",
+      baseUrl: "https://sandbox.example.invalid",
+      subscriptionKey: "k",
+      apiUser: "u",
+      apiKey: "a",
+      webhookSecret: "w",
+    });
+    expect(p.environment).toBe("sandbox");
+    expect(p.capabilities.supportsPreAuthorisation).toBe(false);
+    await expect(p.initiatePayment({ ...base, idempotencyKey: "idem-9999" })).rejects.toMatchObject(
+      {
+        code: "NOT_IMPLEMENTED",
+      },
+    );
+  });
+
+  it("manual providers never move money and reject webhooks", async () => {
+    const { ManualPaymentProvider } = await import("@ridekmer/payments");
+    const p = new ManualPaymentProvider({
+      method: "BANK_TRANSFER",
+      customerInstruction: { fr: "Virement", en: "Transfer" },
+      expiryHours: 1,
+    });
+    const init = await p.initiatePayment({ ...base, idempotencyKey: "idem-7777" });
+    expect(init.status).toBe("PENDING");
+    expect(init.expiresAt!.getTime()).toBeGreaterThan(Date.now());
+    expect(p.capabilities.supportsWebhooks).toBe(false);
+    await expect(
+      p.processWebhook({ headers: {}, rawBody: "{}", receivedAt: new Date() }),
+    ).rejects.toMatchObject({ code: "UNSUPPORTED_OPERATION" });
+    expect((await p.verifyTransaction("x")).status).toBe("PENDING");
+  });
+
+  it("mock: a signed webhook for an unknown reference is materialised, malformed bodies rejected", async () => {
+    const p = new MockPaymentProvider({
+      id: "mtn-mock",
+      method: "MTN_MOBILE_MONEY",
+      webhookSecret: "s",
+    });
+    const hook = p.buildWebhook("mtn-mock-unseen", "SUCCESSFUL", "evt-1", 12345);
+    const result = await p.processWebhook(hook);
+    expect(result.signatureValid).toBe(true);
+    expect((await p.verifyTransaction("mtn-mock-unseen", 12345)).status).toBe("SUCCESSFUL");
+    expect((await p.getPaymentStatus("never-seen")).status).toBe("PENDING");
+    await expect(
+      p.processWebhook({ headers: {}, rawBody: "nope", receivedAt: new Date() }),
+    ).rejects.toMatchObject({ code: "INVALID_WEBHOOK" });
+  });
+});

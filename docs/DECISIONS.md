@@ -141,3 +141,50 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   `confirmBookingAfterPayment`, invoked by the Milestone 4 payment verification/webhook
   pipeline, or a staff member holding `booking.override` with a recorded reason, moves it to
   `CONFIRMED`.
+
+## ADR-017 One provider transaction per checkout, deposit tracked as a component
+
+- Context: Mobile Money has no pre-authorisation; every push request costs the customer a
+  confirmation on their phone. Asking for two approvals (rental, then deposit) would roughly
+  double abandonment.
+- Decision: checkout collects **one** transaction for `totalRentalXaf + securityDepositXaf`.
+  `Payment.depositXaf` records the deposit component so refunds after return and the ledger
+  (Milestone 6) can separate it. The deposit is described everywhere as a real debit refunded
+  after the return inspection, never as a hold. A separately collected deposit (e.g. cash at
+  pickup) uses `PaymentPurpose.SECURITY_DEPOSIT`.
+- Consequences: partial refunds target the deposit component; the price snapshot stays the
+  source of truth for the rental/deposit split.
+
+## ADR-018 Webhooks are evidence, verification is the decision
+
+- Decision: a provider callback never confirms a booking by itself. `ingestPaymentWebhook`
+  persists the event (unique provider event id → replay rejected), checks the adapter's
+  signature result, rejects events outside `PAYMENT_WEBHOOK_REPLAY_WINDOW_SECONDS`, then calls
+  `verifyTransaction(reference, expectedAmount)`; only an exact status **and amount** match
+  reaches `applySuccessfulPayment`, the single path that confirms a booking from a payment.
+  Status polling (customer "check status", reconciliation cron) goes through the same gate.
+- Consequences: a forged or truncated webhook can at most create an IGNORED/FAILED event row;
+  a provider amount mismatch leaves the payment open with `failureCode=AMOUNT_MISMATCH` for
+  finance review. Webhook routes answer 401 for bad signatures, 400 for malformed bodies, 200
+  for duplicates (so providers stop retrying) and 500 only on internal failure.
+
+## ADR-019 Real providers are shells until credentials exist; mocks never run in production
+
+- Decision: `MtnMomoProvider`, `OrangeMoneyProvider` and `CardProvider` validate their
+  configuration and refuse every operation with `NOT_IMPLEMENTED` until implemented from the
+  providers' official documentation. No endpoint or payload is guessed. In development and
+  preview the registry substitutes `MockPaymentProvider` (labelled `environment: "mock"` in
+  the UI and admin). In production a `mock` environment makes the method **unavailable**
+  rather than simulated, so no booking can ever be confirmed by a fake payment.
+- Consequences: bank transfer and cash are the only production-ready methods today; both are
+  manual, confirmed by `payment.record_manual` holders and audited.
+
+## ADR-020 Refunds: separation of duties, dual approval above the threshold
+
+- Decision: every refund is a `Refund` row in `PENDING_APPROVAL`; approvers must hold
+  `refund.approve` and differ from the requester; amounts at or above
+  `finance.dual_approval_threshold_xaf` need two distinct approvers (`Approval` rows). Money
+  moves only in `executeRefund`, after the last approval. Cancelling a paid booking opens the
+  refund request automatically (net of the cancellation fee) but never executes it.
+- Consequences: finance keeps control of outflows; manual-method refunds stay `PROCESSING`
+  until a finance user records the bank/cash reference.

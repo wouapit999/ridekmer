@@ -32,6 +32,12 @@ export default async function AdminLayout({
       href: "/admin/verifications",
       show: p.has("customer.verify") || p.has("owner.verify"),
     },
+    { key: "payments", href: "/admin/payments", show: p.has("payment.view") },
+    {
+      key: "refunds",
+      href: "/admin/refunds",
+      show: p.has("refund.request") || p.has("refund.approve"),
+    },
     { key: "users", href: "/admin/users", show: p.has("user.view_all") },
     { key: "settings", href: "/admin/settings", show: p.has("settings.manage") },
     { key: "audit", href: "/admin/audit", show: p.has("audit.view") },

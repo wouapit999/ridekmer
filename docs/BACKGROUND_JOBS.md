@@ -22,7 +22,7 @@ Vercel-compatible workflow/queue service without changing business code.
 | ------------------------------------------------------------------------------- | ------------------------- | --------- |
 | Expire reservation holds / unpaid bookings                                      | every 5 min               | 3         |
 | Document expiry alerts (60/30/14/7/0 days) and automatic vehicle unavailability | daily 06:00 Africa/Douala | 2         |
-| Payment reconciliation (pending > 15 min, successful not reconciled)            | every 15 min              | 4         |
+| Payment reconciliation (`/api/cron/reconcile-payments`, built)                  | every 15 min              | 4         |
 | Pickup / return reminders, late-return detection                                | hourly                    | 3/5       |
 | Maintenance reminders (date / mileage)                                          | daily                     | 5         |
 | Owner statement generation                                                      | monthly                   | 6         |

@@ -17,6 +17,7 @@ import type {
   WebhookRequest,
   WebhookResult,
 } from "../types";
+import { PaymentProviderError } from "../errors";
 import { signPayload, verifyHmacSignature } from "../webhook-security";
 
 interface MockRecord {
@@ -111,7 +112,9 @@ export class MockPaymentProvider implements PaymentProvider {
   buildWebhook(
     providerReference: string,
     status: PaymentStatus,
-    eventId = randomUUID(),
+    eventId: string = randomUUID(),
+    amountXaf?: number,
+    occurredAt: Date = new Date(),
   ): WebhookRequest {
     const record = this.records.get(providerReference);
     const body = JSON.stringify({
@@ -119,8 +122,8 @@ export class MockPaymentProvider implements PaymentProvider {
       eventType: `payment.${status.toLowerCase()}`,
       reference: providerReference,
       status,
-      amount: record?.input.amountXaf,
-      occurredAt: new Date().toISOString(),
+      amount: amountXaf ?? record?.input.amountXaf,
+      occurredAt: occurredAt.toISOString(),
     });
     return {
       headers: { "x-mock-signature": signPayload(body, this.webhookSecret) },
@@ -141,7 +144,9 @@ export class MockPaymentProvider implements PaymentProvider {
 
   async getPaymentStatus(providerReference: string): Promise<PaymentStatusResult> {
     const record = this.records.get(providerReference);
-    if (!record) return { providerReference, status: "FAILED", failureCode: "NOT_FOUND" };
+    // Mock state is in-memory: an unknown reference (e.g. after a process restart) is
+    // reported as PENDING rather than as a failure, so nothing is cancelled by mistake.
+    if (!record) return { providerReference, status: "PENDING", raw: { unknown: true } };
     return this.toStatus(providerReference, record);
   }
 
@@ -162,7 +167,7 @@ export class MockPaymentProvider implements PaymentProvider {
       this.webhookSecret,
       request.headers["x-mock-signature"],
     );
-    const payload = JSON.parse(request.rawBody) as {
+    let payload: {
       eventId: string;
       eventType: string;
       reference: string;
@@ -170,10 +175,36 @@ export class MockPaymentProvider implements PaymentProvider {
       amount?: number;
       occurredAt?: string;
     };
+    try {
+      payload = JSON.parse(request.rawBody) as typeof payload;
+    } catch {
+      throw new PaymentProviderError("INVALID_WEBHOOK", "Malformed webhook body", this.id);
+    }
+    if (!payload || typeof payload.eventId !== "string" || typeof payload.reference !== "string") {
+      throw new PaymentProviderError("INVALID_WEBHOOK", "Webhook body missing fields", this.id);
+    }
     if (signatureValid) {
-      const record = this.records.get(payload.reference);
+      let record = this.records.get(payload.reference);
+      if (!record && typeof payload.amount === "number") {
+        // A signed event for a transaction this process never saw (restart, other instance):
+        // trust the signature and materialise the record so verification can follow.
+        record = {
+          input: {
+            idempotencyKey: `webhook-${payload.eventId}`,
+            amountXaf: payload.amount,
+            currency: "XAF",
+            description: "",
+            reference: payload.reference,
+          },
+          status: payload.status,
+          refundedXaf: 0,
+        };
+        this.records.set(payload.reference, record);
+      }
       if (record) {
         record.status = payload.status;
+        // The provider's view of the settled amount is whatever the signed event carries.
+        if (typeof payload.amount === "number") record.input.amountXaf = payload.amount;
         if (payload.status === "SUCCESSFUL") record.confirmedAt = new Date();
       }
     }
