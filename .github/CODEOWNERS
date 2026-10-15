@@ -1,0 +1,7 @@
+# CODEOWNERS placeholder — replace with the real maintainers before enabling branch protection.
+# Every path defaults to the repository owner; add finance/legal reviewers for sensitive areas.
+*                               @wouapit999
+/prisma/                        @wouapit999
+/packages/payments/             @wouapit999
+/src/server/auth/               @wouapit999
+/docs/LEGAL_REVIEW_CHECKLIST.md @wouapit999

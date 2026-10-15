@@ -1,0 +1,53 @@
+# Open items
+
+Unresolved requirements, decisions and external dependencies. Owner: product owner unless
+stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decision).
+
+## Decisions needed from the owner
+
+| #   | Item                                                                         | Impact              | Default assumed                                                              |
+| --- | ---------------------------------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------- |
+| 1   | Create `wouapit999/ridekmer` and import the code (`docs/GITHUB_WORKFLOW.md`) | blocks Vercel setup | code lives on `wouapit999/wouapit999` branch `claude/clever-hamilton-yn2ghh` |
+| 2   | Software licence (`LICENSE`)                                                 | legal               | all rights reserved placeholder                                              |
+| 3   | Commission rates per ownership model                                         | pricing             | 20 % managed, 15 % self-managed                                              |
+| 4   | Service fee, tax (VAT) treatment, late/cleaning fees                         | pricing             | placeholders in `SystemSetting`                                              |
+| 5   | Dual-approval threshold                                                      | finance             | 200 000 XAF                                                                  |
+| 6   | Cancellation windows and fees                                                | policy              | 48 h free, 30 % late fee                                                     |
+| 7   | Minimum licence seniority and age for self-drive                             | eligibility         | 2 years (FAQ placeholder)                                                    |
+| 8   | Retention periods (documents, location, audit)                               | privacy             | 3 years / 90 days / 5 years                                                  |
+| 9   | Branch addresses and opening hours for Douala and Yaoundé                    | content             | placeholders                                                                 |
+| 10  | Brand assets (final logo, photography licence)                               | design              | original placeholder mark; no vehicle photos                                 |
+
+## External credentials / contracts (block real integrations)
+
+| #   | Provider                                       | Needed                                                  | Status                     |
+| --- | ---------------------------------------------- | ------------------------------------------------------- | -------------------------- |
+| 11  | MTN Mobile Money                               | merchant onboarding, API credentials, callback approval | not started — mock         |
+| 12  | Orange Money                                   | merchant onboarding, API credentials                    | not started — mock         |
+| 13  | Card PSP                                       | provider selection + contract                           | not started — mock         |
+| 14  | SMS aggregator (Cameroon)                      | sender id, API key                                      | not started — log provider |
+| 15  | Email provider (Resend/SMTP)                   | domain verification, API key                            | not started — log provider |
+| 16  | WhatsApp Business (Meta Cloud API or BSP)      | business verification, templates approval               | not started — log provider |
+| 17  | Telematics provider                            | contract, device purchase, API access                   | not started — mock         |
+| 18  | Managed PostgreSQL, Upstash Redis, Vercel Blob | accounts                                                | not started                |
+| 19  | Error monitoring (Sentry)                      | account + DSN                                           | optional                   |
+| 20  | Certified e-signature provider                 | only if legal review requires it                        | pending review             |
+
+## Technical follow-ups
+
+| #   | Item                                                                                      | Milestone |
+| --- | ----------------------------------------------------------------------------------------- | --------- |
+| 21  | CSP nonces for scripts (remove `'unsafe-inline'`)                                         | 8         |
+| 22  | Vercel Blob / S3 storage adapters + signed access route                                   | 2         |
+| 23  | Email verification enforcement before booking                                             | 3         |
+| 24  | Phone verification flow in the account area (number added at sign-up is unverified)       | 2         |
+| 25  | Admin UI for document-type editing (read-only table today)                                | 2         |
+| 26  | Vehicle images: upload pipeline and optimisation                                          | 2         |
+| 27  | Generic REST GPS adapter, webhook receiver, fleet map                                     | 7         |
+| 28  | Key-rotation script for field encryption                                                  | 8         |
+| 29  | Public JSON API (`/api/v1`) for native apps                                               | post-v1   |
+| 30  | Static rendering of public pages (currently dynamic because the layout reads the session) | 8         |
+
+## Legal
+
+All items in `docs/LEGAL_REVIEW_CHECKLIST.md` are open.

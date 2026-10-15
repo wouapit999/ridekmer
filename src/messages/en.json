@@ -1,0 +1,627 @@
+{
+  "common": {
+    "appName": "RideKmer",
+    "tagline": "Car rental, leasing and fleet management in Cameroon",
+    "skipToContent": "Skip to main content",
+    "language": "Language",
+    "french": "Français",
+    "english": "English",
+    "currencyNote": "All prices are shown in XAF (CFA franc), taxes included where applicable.",
+    "nav": {
+      "home": "Home",
+      "cars": "Find a car",
+      "howItWorks": "How it works",
+      "partner": "List your vehicle",
+      "chauffeur": "With chauffeur",
+      "corporate": "Business",
+      "longTerm": "Long-term rental",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "login": "Sign in",
+      "register": "Create account",
+      "account": "My account",
+      "owner": "Owner space",
+      "admin": "Administration",
+      "logout": "Sign out",
+      "menu": "Menu",
+      "closeMenu": "Close menu"
+    },
+    "footer": {
+      "company": "RideKmer",
+      "description": "A Cameroonian platform connecting customers with RideKmer vehicles, entrusted owner vehicles and marketplace vehicles, with or without a chauffeur.",
+      "rent": "Rent",
+      "partners": "Partners",
+      "legal": "Legal",
+      "privacy": "Privacy notice",
+      "terms": "Terms and conditions",
+      "rentalPolicy": "Rental policy",
+      "cancellationPolicy": "Cancellation policy",
+      "support": "Support",
+      "cities": "Cities: Douala, Yaoundé",
+      "rights": "© {year} RideKmer. All rights reserved.",
+      "legalNotice": "Legal documents are placeholders pending review by qualified Cameroonian counsel."
+    },
+    "actions": {
+      "search": "Search",
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "back": "Back",
+      "continue": "Continue",
+      "retry": "Try again",
+      "learnMore": "Learn more",
+      "viewAll": "View all",
+      "close": "Close",
+      "loading": "Loading…",
+      "confirm": "Confirm"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended",
+      "pending": "Pending",
+      "draft": "Draft",
+      "verified": "Verified",
+      "rejected": "Rejected"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "optional": "optional",
+    "required": "required",
+    "perDay": "per day",
+    "from": "from",
+    "seats": "{count, plural, one {# seat} other {# seats}}",
+    "demoBanner": "Demonstration environment: all data is synthetic and payment providers are mocks."
+  },
+  "home": {
+    "metaTitle": "RideKmer — Car rental in Douala and Yaoundé",
+    "metaDescription": "Rent a car with or without a chauffeur in Cameroon. Transparent XAF prices, Mobile Money payment, verified vehicles.",
+    "hero": {
+      "eyebrow": "Douala · Yaoundé · and more cities soon",
+      "title": "The car you need, when you need it.",
+      "subtitle": "Self-drive or chauffeur-driven, by the day, week or month. Verified vehicles, transparent prices in XAF, MTN Mobile Money and Orange Money accepted.",
+      "cta": "Find a car",
+      "ctaSecondary": "List your vehicle"
+    },
+    "search": {
+      "title": "Search for a vehicle",
+      "city": "City",
+      "anyCity": "Any city",
+      "pickupDate": "Pickup date",
+      "pickupTime": "Pickup time",
+      "returnDate": "Return date",
+      "returnTime": "Return time",
+      "driveType": "Driving option",
+      "selfDrive": "I drive",
+      "chauffeur": "With chauffeur",
+      "submit": "Show available cars"
+    },
+    "pillars": {
+      "title": "Why RideKmer",
+      "verified": {
+        "title": "Verified vehicles",
+        "body": "Every car is reviewed, insured and inspected before it goes live. Documents are tracked and expiring ones are flagged automatically."
+      },
+      "prices": {
+        "title": "Transparent prices in XAF",
+        "body": "Daily, weekly and monthly rates, deposit and fees are shown before you book. No surprises at pickup."
+      },
+      "payments": {
+        "title": "Local payment methods",
+        "body": "Pay with MTN Mobile Money, Orange Money or a bank card. Deposits are refunded after the return inspection."
+      },
+      "support": {
+        "title": "Support in French and English",
+        "body": "A support team based in Cameroon, bilingual contracts and inspection reports on your phone."
+      }
+    },
+    "models": {
+      "title": "Three ways to drive with RideKmer",
+      "owned": {
+        "title": "RideKmer fleet",
+        "body": "Vehicles owned and maintained by RideKmer, available from our branches."
+      },
+      "managed": {
+        "title": "Entrusted vehicles",
+        "body": "Vehicles entrusted to RideKmer by private or corporate owners; we handle bookings, inspections and payouts."
+      },
+      "marketplace": {
+        "title": "Marketplace vehicles",
+        "body": "Vehicles managed by their owners on the platform, with clear responsibilities for each side."
+      }
+    },
+    "ownerCta": {
+      "title": "Own a car that sits idle?",
+      "body": "Entrust it to RideKmer or list it yourself. Track bookings, earnings and maintenance from your owner space.",
+      "cta": "Become a vehicle partner"
+    }
+  },
+  "cars": {
+    "metaTitle": "Available cars",
+    "title": "Available cars",
+    "resultsCount": "{count, plural, =0 {No vehicle matches your search} one {# vehicle available} other {# vehicles available}}",
+    "filters": "Filters",
+    "category": "Category",
+    "anyCategory": "Any category",
+    "transmission": "Transmission",
+    "anyTransmission": "Any",
+    "manual": "Manual",
+    "automatic": "Automatic",
+    "fuel": "Fuel",
+    "anyFuel": "Any",
+    "minSeats": "Minimum seats",
+    "maxDailyPrice": "Max daily price (XAF)",
+    "chauffeurOnly": "Chauffeur-driven only",
+    "deliveryOnly": "Delivery available",
+    "instantOnly": "Instant booking",
+    "apply": "Apply filters",
+    "reset": "Reset",
+    "empty": "No vehicle is published for these criteria yet. Vehicles appear once they are approved and their documents are valid.",
+    "deposit": "Deposit {amount}",
+    "viewDetails": "View details",
+    "catalogueNote": "The catalogue, detailed vehicle pages and online booking are delivered in Milestone 3. This list shows published vehicles only.",
+    "categories": {
+      "ECONOMY": "Economy",
+      "COMPACT": "Compact",
+      "SEDAN": "Sedan",
+      "SUV": "SUV",
+      "PICKUP": "Pickup",
+      "VAN": "Van",
+      "MINIBUS": "Minibus",
+      "LUXURY": "Luxury",
+      "UTILITY": "Utility"
+    },
+    "fuels": {
+      "PETROL": "Petrol",
+      "DIESEL": "Diesel",
+      "HYBRID": "Hybrid",
+      "ELECTRIC": "Electric",
+      "LPG": "LPG"
+    }
+  },
+  "howItWorks": {
+    "metaTitle": "How it works",
+    "title": "How RideKmer works",
+    "intro": "Four steps from search to return, with everything documented on your phone.",
+    "steps": {
+      "search": {
+        "title": "1. Search and compare",
+        "body": "Choose your city, dates and whether you want a chauffeur. Compare prices, deposits and kilometre allowances."
+      },
+      "verify": {
+        "title": "2. Verify your identity",
+        "body": "Upload your identity document and driving licence once. Verified customers can book instantly on eligible vehicles."
+      },
+      "pay": {
+        "title": "3. Book and pay",
+        "body": "Pay the rental and the security deposit with MTN Mobile Money, Orange Money or card. Your booking is confirmed only when the payment is verified."
+      },
+      "drive": {
+        "title": "4. Pickup, drive, return",
+        "body": "A joint inspection with photos at pickup and return protects both sides. Your deposit is released after the return inspection."
+      }
+    },
+    "faqLink": "Read the frequently asked questions"
+  },
+  "partner": {
+    "metaTitle": "Become a vehicle partner",
+    "title": "Turn your vehicle into income",
+    "intro": "Entrust your vehicle to RideKmer or manage it yourself on the marketplace. Either way you see every booking, every franc earned and every maintenance expense.",
+    "options": {
+      "managed": {
+        "title": "Fully managed",
+        "body": "RideKmer handles bookings, customer contact, inspections, maintenance coordination and payouts. You approve major expenses and receive monthly statements."
+      },
+      "marketplace": {
+        "title": "Self-managed marketplace",
+        "body": "You keep control of handovers and customer contact while RideKmer provides verification, payment collection, contracts and payouts."
+      }
+    },
+    "requirements": {
+      "title": "What we need from you",
+      "items": [
+        "Vehicle registration certificate (carte grise) and proof of ownership",
+        "Valid motor insurance covering rental use",
+        "Valid technical inspection certificate",
+        "Owner identity document and proof of address (company registration for companies)",
+        "Consent to the installation of a GPS tracker",
+        "A Mobile Money or bank account for payouts"
+      ]
+    },
+    "earnings": {
+      "title": "Earnings and commissions",
+      "body": "RideKmer retains a commission on each rental (configurable per arrangement) and deducts approved maintenance or damage costs. Everything is itemised in your statements."
+    },
+    "cta": "Create an owner account",
+    "ctaExisting": "Already registered? Sign in"
+  },
+  "chauffeur": {
+    "metaTitle": "Chauffeur-driven rentals",
+    "title": "Chauffeur-driven rentals",
+    "intro": "Professional drivers who know Douala, Yaoundé and the roads between them. Ideal for business trips, events, airport transfers and upcountry travel.",
+    "benefits": [
+      "Daily chauffeur fee shown upfront in XAF",
+      "No driving-licence verification required for the customer",
+      "Fuel and tolls agreed in the rental contract",
+      "Bilingual drivers available on request"
+    ],
+    "cta": "Search chauffeur-driven cars"
+  },
+  "corporate": {
+    "metaTitle": "Corporate rentals",
+    "title": "Mobility for companies and organisations",
+    "intro": "Pool vehicles for your teams, monthly invoicing, consolidated reporting and dedicated support.",
+    "benefits": [
+      "Framework agreements with negotiated rates",
+      "Monthly consolidated invoices",
+      "Driver assignment and trip reporting",
+      "Vehicles with chauffeur for executives and visitors"
+    ],
+    "cta": "Contact our corporate team"
+  },
+  "longTerm": {
+    "metaTitle": "Long-term rental and leasing",
+    "title": "Long-term rental and leasing",
+    "intro": "From one month to several years, with maintenance, insurance renewals and technical inspections handled by RideKmer.",
+    "benefits": [
+      "Monthly rates lower than daily rates",
+      "Maintenance schedule and reminders included",
+      "Replacement vehicle during major repairs (subject to availability)",
+      "Clear end-of-term inspection and deposit settlement"
+    ],
+    "cta": "Request a long-term quote"
+  },
+  "faq": {
+    "metaTitle": "Frequently asked questions",
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "q": "Which documents do I need to rent?",
+        "a": "A valid identity document (national ID card or passport) and a driving licence held for at least two years for self-drive rentals. Chauffeur-driven rentals only require an identity document."
+      },
+      {
+        "q": "How do I pay?",
+        "a": "With MTN Mobile Money, Orange Money or a bank card. The booking is confirmed only when the payment is verified by the provider, never on a simple redirect."
+      },
+      {
+        "q": "How does the security deposit work?",
+        "a": "The deposit is debited with the rental and refunded after the return inspection, minus any agreed deductions. Mobile Money deposits are real debits, not holds."
+      },
+      {
+        "q": "Can I extend my rental?",
+        "a": "Yes, from your booking page, subject to the vehicle's availability and the payment of the extension."
+      },
+      {
+        "q": "What happens if the car breaks down?",
+        "a": "Report the incident from the app. Our operations team coordinates assistance and a replacement vehicle where possible."
+      },
+      {
+        "q": "Are the vehicles tracked?",
+        "a": "Vehicles are equipped with commercial GPS trackers for security and recovery. This is disclosed in the rental agreement and the privacy notice. Location data is accessible only to authorised staff and every access is logged."
+      },
+      {
+        "q": "Can I cancel?",
+        "a": "Yes. The cancellation policy describes the free-cancellation window and the fees that apply afterwards."
+      }
+    ]
+  },
+  "contact": {
+    "metaTitle": "Contact and support",
+    "title": "Contact and support",
+    "intro": "Write to us in French or English. We answer within one working day.",
+    "form": {
+      "name": "Your name",
+      "email": "Email address",
+      "phone": "Phone number",
+      "category": "Subject",
+      "categories": {
+        "booking": "A booking",
+        "owner": "Listing my vehicle",
+        "corporate": "Corporate rental",
+        "incident": "An incident",
+        "other": "Other"
+      },
+      "message": "Message",
+      "submit": "Send message",
+      "success": "Thank you. Your request {reference} has been recorded.",
+      "error": "Your message could not be sent. Please try again."
+    },
+    "offices": "Branches",
+    "hours": "Monday to Friday 08:00–18:00, Saturday 09:00–15:00 (Africa/Douala)"
+  },
+  "legal": {
+    "placeholderNotice": "Placeholder document. This text must be reviewed and validated by qualified Cameroonian legal counsel before publication. See docs/LEGAL_REVIEW_CHECKLIST.md.",
+    "lastUpdated": "Last updated: {date}",
+    "privacy": {
+      "metaTitle": "Privacy notice",
+      "title": "Privacy notice",
+      "sections": [
+        {
+          "title": "Who we are",
+          "body": "RideKmer operates a car-rental, leasing and fleet-management platform in Cameroon. This notice explains how we process personal data of customers, vehicle owners, chauffeurs and staff."
+        },
+        {
+          "title": "Data we collect",
+          "body": "Identity and contact details, identity and driving-licence documents, payment references (never Mobile Money PINs or full card numbers), booking history, inspection photos, incident reports, and vehicle location data from GPS trackers."
+        },
+        {
+          "title": "Vehicle location data",
+          "body": "Vehicles may carry commercial GPS trackers. Location data is used for vehicle security, recovery and incident handling. Only authorised staff can access it, every access is recorded, and data is retained for a limited, configurable period."
+        },
+        {
+          "title": "Your rights",
+          "body": "You can request a copy of your data or its deletion from your account settings, subject to legal retention obligations for contracts, invoices and incidents."
+        },
+        {
+          "title": "Contact",
+          "body": "Privacy requests: use the contact form and choose the subject \"Other\"."
+        }
+      ]
+    },
+    "terms": {
+      "metaTitle": "Terms and conditions",
+      "title": "Terms and conditions",
+      "body": "The general terms and conditions governing the use of RideKmer, bookings, payments, deposits, liability and disputes will be published here after legal review."
+    },
+    "rentalPolicy": {
+      "metaTitle": "Rental policy",
+      "title": "Rental policy",
+      "body": "Eligibility (age, licence seniority), kilometre allowances, fuel policy, late-return fees, cleaning fees, cross-border restrictions and incident obligations will be detailed here after legal review."
+    },
+    "cancellationPolicy": {
+      "metaTitle": "Cancellation policy",
+      "title": "Cancellation policy",
+      "body": "Free cancellation up to {hours} hours before pickup (placeholder). Later cancellations retain a configurable share of the rental. No-shows are not refunded. Final rules pending legal review."
+    }
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Sign in",
+      "title": "Sign in to RideKmer",
+      "subtitle": "Use your email and password, or receive a code on your phone.",
+      "email": "Email address",
+      "password": "Password",
+      "submit": "Sign in",
+      "withPhone": "Sign in with my phone number",
+      "withEmail": "Sign in with email",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "register": "Create one",
+      "errorInvalid": "Incorrect email or password.",
+      "errorSuspended": "This account is suspended. Please contact support.",
+      "errorGeneric": "Sign-in failed. Please try again.",
+      "errorRateLimited": "Too many attempts. Please wait a minute and try again."
+    },
+    "phone": {
+      "title": "Sign in with your phone",
+      "phone": "Mobile number",
+      "phoneHint": "Cameroon numbers: 6XX XXX XXX. Other countries: start with +.",
+      "sendCode": "Send me a code",
+      "code": "6-digit code",
+      "verify": "Verify",
+      "resend": "Send a new code",
+      "sent": "A code was sent to {phone}. It expires in 5 minutes.",
+      "errorInvalidPhone": "Please enter a valid mobile number.",
+      "errorInvalidCode": "The code is incorrect or has expired.",
+      "devHint": "Development mode: the SMS provider is a log mock. Codes are not delivered; use email sign-in or check server logs configuration."
+    },
+    "register": {
+      "metaTitle": "Create an account",
+      "title": "Create your RideKmer account",
+      "subtitle": "Rent a car in minutes. Verification of your documents happens after sign-up.",
+      "name": "Full name",
+      "email": "Email address",
+      "phone": "Mobile number",
+      "password": "Password",
+      "passwordHint": "At least 10 characters.",
+      "locale": "Preferred language",
+      "intentCustomer": "I want to rent vehicles",
+      "intentOwner": "I want to list my vehicle(s)",
+      "accept": "I accept the <terms>terms and conditions</terms> and the <privacy>privacy notice</privacy>.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "login": "Sign in",
+      "errorExists": "An account already exists for this email.",
+      "errorGeneric": "Registration failed. Please check the form and try again.",
+      "success": "Account created. Check your email to confirm your address."
+    },
+    "mfa": {
+      "metaTitle": "Two-factor verification",
+      "title": "Two-factor verification",
+      "subtitle": "Enter the 6-digit code from your authenticator app.",
+      "code": "Authenticator code",
+      "trust": "Trust this device for 30 days",
+      "submit": "Verify",
+      "useBackup": "Use a backup code",
+      "backupCode": "Backup code",
+      "error": "The code is incorrect."
+    },
+    "forgot": {
+      "metaTitle": "Reset your password",
+      "title": "Reset your password",
+      "subtitle": "Enter your email address; if an account exists we will send a reset link.",
+      "email": "Email address",
+      "submit": "Send reset link",
+      "sent": "If an account exists for this address, a reset link has been sent."
+    },
+    "reset": {
+      "metaTitle": "Choose a new password",
+      "title": "Choose a new password",
+      "password": "New password",
+      "confirm": "Confirm password",
+      "submit": "Update password",
+      "mismatch": "The passwords do not match.",
+      "success": "Your password has been updated. You can sign in.",
+      "invalidToken": "This reset link is invalid or has expired."
+    },
+    "logout": "Sign out"
+  },
+  "account": {
+    "metaTitle": "My account",
+    "title": "My account",
+    "welcome": "Welcome, {name}",
+    "forbidden": "You do not have permission to access that page.",
+    "nav": {
+      "overview": "Overview",
+      "profile": "Profile",
+      "security": "Security",
+      "bookings": "My bookings",
+      "documents": "My documents",
+      "notifications": "Notifications"
+    },
+    "overview": {
+      "roles": "Your roles",
+      "verification": "Identity verification",
+      "verificationPending": "Not started. Upload your identity document and driving licence to book self-drive vehicles (available in the next release).",
+      "nextSteps": "Next steps",
+      "bookingsSoon": "Online booking opens in Milestone 3.",
+      "ownerSpace": "Go to the owner space",
+      "becomeOwner": "List my vehicle",
+      "becomeOwnerBody": "Activate the owner space to entrust or list your vehicles."
+    },
+    "profile": {
+      "title": "Profile",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "locale": "Preferred language",
+      "save": "Save changes",
+      "saved": "Profile updated."
+    },
+    "security": {
+      "title": "Security",
+      "mfaRequired": "Your role requires two-factor authentication. Enable it below to access staff areas.",
+      "mfaTitle": "Two-factor authentication (TOTP)",
+      "mfaEnabled": "Two-factor authentication is enabled.",
+      "mfaDisabled": "Two-factor authentication is not enabled.",
+      "enable": "Enable",
+      "disable": "Disable",
+      "password": "Confirm with your password",
+      "scan": "Scan this QR code with an authenticator app (Google Authenticator, Aegis, Authy…), or enter the secret manually.",
+      "secret": "Secret",
+      "enterCode": "Enter the 6-digit code to finish",
+      "backupCodes": "Backup codes — store them safely. Each works once.",
+      "done": "Two-factor authentication enabled.",
+      "errorPassword": "Incorrect password.",
+      "errorCode": "Incorrect code.",
+      "sessions": "Active sessions",
+      "revokeOthers": "Sign out other devices",
+      "passwordTitle": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "changePassword": "Update password",
+      "passwordChanged": "Password updated."
+    }
+  },
+  "owner": {
+    "metaTitle": "Owner space",
+    "title": "Owner space",
+    "intro": "Vehicle onboarding, documents, earnings and payouts arrive in Milestone 2. Your owner profile has been created.",
+    "activated": "Owner space activated."
+  },
+  "admin": {
+    "metaTitle": "Administration",
+    "title": "Administration",
+    "nav": {
+      "dashboard": "Dashboard",
+      "users": "Users",
+      "vehicles": "Vehicles",
+      "bookings": "Bookings",
+      "documents": "Documents",
+      "finance": "Finance",
+      "settings": "Settings",
+      "audit": "Audit log"
+    },
+    "dashboard": {
+      "bookingsToday": "Bookings today",
+      "activeRentals": "Active rentals",
+      "availableVehicles": "Available vehicles",
+      "vehiclesAwaitingApproval": "Vehicles awaiting approval",
+      "expiringDocuments": "Documents expiring (30 days)",
+      "maintenanceDue": "Maintenance due",
+      "paymentsToReconcile": "Payments to reconcile",
+      "pendingRefunds": "Pending refunds",
+      "pendingPayouts": "Owner payouts pending",
+      "openIncidents": "Open incidents",
+      "users": "Registered users",
+      "mfaNotice": "Staff MFA enforcement: {state}",
+      "enabled": "enabled",
+      "disabled": "disabled (development)"
+    },
+    "users": {
+      "title": "Users",
+      "search": "Search by name, email or phone",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "roles": "Roles",
+      "status": "Status",
+      "mfa": "MFA",
+      "created": "Created",
+      "manage": "Manage",
+      "noResults": "No user matches.",
+      "detailTitle": "User: {name}",
+      "assignRoles": "Roles",
+      "saveRoles": "Save roles",
+      "rolesSaved": "Roles updated.",
+      "suspend": "Suspend account",
+      "reinstate": "Reinstate account",
+      "suspendReason": "Reason (recorded in the audit log)",
+      "suspended": "Account suspended.",
+      "reinstated": "Account reinstated.",
+      "cannotEditSelf": "You cannot change your own roles or status."
+    },
+    "settings": {
+      "title": "Settings",
+      "cities": "Cities and branches",
+      "cityName": "City",
+      "region": "Region",
+      "active": "Active",
+      "branches": "Branches",
+      "addCity": "Add a city",
+      "slug": "Slug (URL identifier)",
+      "nameFr": "Name (French)",
+      "nameEn": "Name (English)",
+      "cityAdded": "City added.",
+      "toggleCity": "Toggle",
+      "systemSettings": "System settings",
+      "key": "Key",
+      "value": "Value",
+      "description": "Description",
+      "update": "Update",
+      "settingSaved": "Setting saved.",
+      "documentTypes": "Document types",
+      "mandatory": "Mandatory",
+      "blocksWhenExpired": "Blocks vehicle when expired"
+    },
+    "audit": {
+      "title": "Audit log",
+      "when": "When",
+      "actor": "Actor",
+      "action": "Action",
+      "entity": "Entity",
+      "reason": "Reason",
+      "empty": "No audit entries yet.",
+      "system": "system"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for does not exist or has moved.",
+    "goHome": "Back to home",
+    "genericTitle": "Something went wrong",
+    "genericBody": "An unexpected error occurred. Our team has been notified.",
+    "offlineTitle": "You are offline",
+    "offlineBody": "Some pages are unavailable without a connection. Reconnect to continue."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "phone": "Enter a valid mobile number.",
+    "passwordMin": "The password must contain at least {min} characters.",
+    "minLength": "Enter at least {min} characters.",
+    "maxLength": "Enter at most {max} characters.",
+    "accept": "You must accept the terms to continue.",
+    "dateOrder": "The return date must be after the pickup date.",
+    "slug": "Use lowercase letters, digits and hyphens only."
+  }
+}

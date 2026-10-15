@@ -1,0 +1,627 @@
+{
+  "common": {
+    "appName": "RideKmer",
+    "tagline": "Location de voitures, leasing et gestion de flotte au Cameroun",
+    "skipToContent": "Aller au contenu principal",
+    "language": "Langue",
+    "french": "Français",
+    "english": "English",
+    "currencyNote": "Tous les prix sont affichés en XAF (franc CFA), taxes comprises le cas échéant.",
+    "nav": {
+      "home": "Accueil",
+      "cars": "Trouver une voiture",
+      "howItWorks": "Comment ça marche",
+      "partner": "Confier mon véhicule",
+      "chauffeur": "Avec chauffeur",
+      "corporate": "Entreprises",
+      "longTerm": "Longue durée",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "login": "Se connecter",
+      "register": "Créer un compte",
+      "account": "Mon compte",
+      "owner": "Espace propriétaire",
+      "admin": "Administration",
+      "logout": "Se déconnecter",
+      "menu": "Menu",
+      "closeMenu": "Fermer le menu"
+    },
+    "footer": {
+      "company": "RideKmer",
+      "description": "Une plateforme camerounaise qui met en relation les clients avec les véhicules RideKmer, les véhicules confiés par leurs propriétaires et les véhicules de la place de marché, avec ou sans chauffeur.",
+      "rent": "Louer",
+      "partners": "Partenaires",
+      "legal": "Informations légales",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions générales",
+      "rentalPolicy": "Politique de location",
+      "cancellationPolicy": "Politique d'annulation",
+      "support": "Assistance",
+      "cities": "Villes : Douala, Yaoundé",
+      "rights": "© {year} RideKmer. Tous droits réservés.",
+      "legalNotice": "Les documents juridiques sont des versions provisoires en attente de validation par un conseil juridique camerounais qualifié."
+    },
+    "actions": {
+      "search": "Rechercher",
+      "submit": "Envoyer",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "back": "Retour",
+      "continue": "Continuer",
+      "retry": "Réessayer",
+      "learnMore": "En savoir plus",
+      "viewAll": "Tout voir",
+      "close": "Fermer",
+      "loading": "Chargement…",
+      "confirm": "Confirmer"
+    },
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "pending": "En attente",
+      "draft": "Brouillon",
+      "verified": "Vérifié",
+      "rejected": "Refusé"
+    },
+    "yes": "Oui",
+    "no": "Non",
+    "optional": "facultatif",
+    "required": "obligatoire",
+    "perDay": "par jour",
+    "from": "à partir de",
+    "seats": "{count, plural, one {# place} other {# places}}",
+    "demoBanner": "Environnement de démonstration : toutes les données sont fictives et les prestataires de paiement sont simulés."
+  },
+  "home": {
+    "metaTitle": "RideKmer — Location de voitures à Douala et Yaoundé",
+    "metaDescription": "Louez une voiture avec ou sans chauffeur au Cameroun. Prix transparents en XAF, paiement Mobile Money, véhicules vérifiés.",
+    "hero": {
+      "eyebrow": "Douala · Yaoundé · d'autres villes bientôt",
+      "title": "La voiture qu'il vous faut, quand il vous la faut.",
+      "subtitle": "Avec ou sans chauffeur, à la journée, à la semaine ou au mois. Véhicules vérifiés, prix transparents en XAF, MTN Mobile Money et Orange Money acceptés.",
+      "cta": "Trouver une voiture",
+      "ctaSecondary": "Confier mon véhicule"
+    },
+    "search": {
+      "title": "Rechercher un véhicule",
+      "city": "Ville",
+      "anyCity": "Toutes les villes",
+      "pickupDate": "Date de prise en charge",
+      "pickupTime": "Heure de prise en charge",
+      "returnDate": "Date de retour",
+      "returnTime": "Heure de retour",
+      "driveType": "Mode de conduite",
+      "selfDrive": "Je conduis",
+      "chauffeur": "Avec chauffeur",
+      "submit": "Voir les voitures disponibles"
+    },
+    "pillars": {
+      "title": "Pourquoi RideKmer",
+      "verified": {
+        "title": "Véhicules vérifiés",
+        "body": "Chaque voiture est contrôlée, assurée et inspectée avant sa mise en ligne. Les documents sont suivis et ceux qui expirent sont signalés automatiquement."
+      },
+      "prices": {
+        "title": "Prix transparents en XAF",
+        "body": "Tarifs journaliers, hebdomadaires et mensuels, caution et frais affichés avant la réservation. Aucune surprise à la prise en charge."
+      },
+      "payments": {
+        "title": "Moyens de paiement locaux",
+        "body": "Payez avec MTN Mobile Money, Orange Money ou une carte bancaire. La caution est remboursée après l'inspection de retour."
+      },
+      "support": {
+        "title": "Assistance en français et en anglais",
+        "body": "Une équipe basée au Cameroun, des contrats bilingues et des rapports d'inspection sur votre téléphone."
+      }
+    },
+    "models": {
+      "title": "Trois façons de rouler avec RideKmer",
+      "owned": {
+        "title": "Flotte RideKmer",
+        "body": "Des véhicules détenus et entretenus par RideKmer, disponibles dans nos agences."
+      },
+      "managed": {
+        "title": "Véhicules confiés",
+        "body": "Des véhicules confiés à RideKmer par des particuliers ou des entreprises ; nous gérons réservations, inspections et versements."
+      },
+      "marketplace": {
+        "title": "Véhicules de la place de marché",
+        "body": "Des véhicules gérés par leurs propriétaires sur la plateforme, avec des responsabilités claires pour chacun."
+      }
+    },
+    "ownerCta": {
+      "title": "Votre voiture dort au garage ?",
+      "body": "Confiez-la à RideKmer ou mettez-la en location vous-même. Suivez réservations, revenus et entretien depuis votre espace propriétaire.",
+      "cta": "Devenir partenaire"
+    }
+  },
+  "cars": {
+    "metaTitle": "Voitures disponibles",
+    "title": "Voitures disponibles",
+    "resultsCount": "{count, plural, =0 {Aucun véhicule ne correspond à votre recherche} one {# véhicule disponible} other {# véhicules disponibles}}",
+    "filters": "Filtres",
+    "category": "Catégorie",
+    "anyCategory": "Toutes les catégories",
+    "transmission": "Boîte de vitesses",
+    "anyTransmission": "Indifférent",
+    "manual": "Manuelle",
+    "automatic": "Automatique",
+    "fuel": "Carburant",
+    "anyFuel": "Indifférent",
+    "minSeats": "Places minimum",
+    "maxDailyPrice": "Prix journalier max (XAF)",
+    "chauffeurOnly": "Avec chauffeur uniquement",
+    "deliveryOnly": "Livraison possible",
+    "instantOnly": "Réservation instantanée",
+    "apply": "Appliquer les filtres",
+    "reset": "Réinitialiser",
+    "empty": "Aucun véhicule n'est encore publié pour ces critères. Les véhicules apparaissent une fois approuvés et leurs documents valides.",
+    "deposit": "Caution {amount}",
+    "viewDetails": "Voir les détails",
+    "catalogueNote": "Le catalogue, les fiches détaillées et la réservation en ligne sont livrés au jalon 3. Cette liste affiche uniquement les véhicules publiés.",
+    "categories": {
+      "ECONOMY": "Économique",
+      "COMPACT": "Compacte",
+      "SEDAN": "Berline",
+      "SUV": "SUV",
+      "PICKUP": "Pick-up",
+      "VAN": "Fourgon",
+      "MINIBUS": "Minibus",
+      "LUXURY": "Luxe",
+      "UTILITY": "Utilitaire"
+    },
+    "fuels": {
+      "PETROL": "Essence",
+      "DIESEL": "Diesel",
+      "HYBRID": "Hybride",
+      "ELECTRIC": "Électrique",
+      "LPG": "GPL"
+    }
+  },
+  "howItWorks": {
+    "metaTitle": "Comment ça marche",
+    "title": "Comment fonctionne RideKmer",
+    "intro": "Quatre étapes, de la recherche au retour, avec tout documenté sur votre téléphone.",
+    "steps": {
+      "search": {
+        "title": "1. Recherchez et comparez",
+        "body": "Choisissez votre ville, vos dates et si vous souhaitez un chauffeur. Comparez prix, cautions et kilométrage inclus."
+      },
+      "verify": {
+        "title": "2. Vérifiez votre identité",
+        "body": "Téléversez une seule fois votre pièce d'identité et votre permis de conduire. Les clients vérifiés peuvent réserver instantanément les véhicules éligibles."
+      },
+      "pay": {
+        "title": "3. Réservez et payez",
+        "body": "Réglez la location et la caution avec MTN Mobile Money, Orange Money ou carte. La réservation n'est confirmée qu'après vérification du paiement."
+      },
+      "drive": {
+        "title": "4. Prise en charge, route, retour",
+        "body": "Une inspection contradictoire avec photos à la prise en charge et au retour protège les deux parties. La caution est libérée après l'inspection de retour."
+      }
+    },
+    "faqLink": "Consulter la foire aux questions"
+  },
+  "partner": {
+    "metaTitle": "Devenir partenaire",
+    "title": "Transformez votre véhicule en revenu",
+    "intro": "Confiez votre véhicule à RideKmer ou gérez-le vous-même sur la place de marché. Dans les deux cas, vous voyez chaque réservation, chaque franc gagné et chaque dépense d'entretien.",
+    "options": {
+      "managed": {
+        "title": "Gestion complète",
+        "body": "RideKmer gère les réservations, le contact client, les inspections, la coordination de l'entretien et les versements. Vous approuvez les dépenses importantes et recevez des relevés mensuels."
+      },
+      "marketplace": {
+        "title": "Place de marché autogérée",
+        "body": "Vous gardez la main sur les remises de clés et le contact client, tandis que RideKmer assure la vérification, l'encaissement, les contrats et les versements."
+      }
+    },
+    "requirements": {
+      "title": "Ce dont nous avons besoin",
+      "items": [
+        "Carte grise et preuve de propriété",
+        "Assurance automobile valide couvrant l'usage locatif",
+        "Certificat de visite technique valide",
+        "Pièce d'identité et justificatif de domicile du propriétaire (RCCM pour les entreprises)",
+        "Consentement à l'installation d'un traceur GPS",
+        "Un compte Mobile Money ou bancaire pour les versements"
+      ]
+    },
+    "earnings": {
+      "title": "Revenus et commissions",
+      "body": "RideKmer retient une commission sur chaque location (configurable selon l'arrangement) et déduit les coûts d'entretien ou de dommages approuvés. Tout est détaillé dans vos relevés."
+    },
+    "cta": "Créer un compte propriétaire",
+    "ctaExisting": "Déjà inscrit ? Se connecter"
+  },
+  "chauffeur": {
+    "metaTitle": "Location avec chauffeur",
+    "title": "Location avec chauffeur",
+    "intro": "Des chauffeurs professionnels qui connaissent Douala, Yaoundé et les routes qui les relient. Idéal pour les déplacements professionnels, les événements, les transferts aéroport et les voyages en province.",
+    "benefits": [
+      "Tarif journalier du chauffeur affiché à l'avance en XAF",
+      "Aucune vérification de permis requise pour le client",
+      "Carburant et péages définis dans le contrat de location",
+      "Chauffeurs bilingues disponibles sur demande"
+    ],
+    "cta": "Rechercher des voitures avec chauffeur"
+  },
+  "corporate": {
+    "metaTitle": "Location pour entreprises",
+    "title": "La mobilité des entreprises et organisations",
+    "intro": "Des véhicules mutualisés pour vos équipes, une facturation mensuelle, un reporting consolidé et une assistance dédiée.",
+    "benefits": [
+      "Accords-cadres avec tarifs négociés",
+      "Factures mensuelles consolidées",
+      "Affectation de chauffeurs et rapports de trajets",
+      "Véhicules avec chauffeur pour dirigeants et visiteurs"
+    ],
+    "cta": "Contacter notre équipe entreprises"
+  },
+  "longTerm": {
+    "metaTitle": "Location longue durée et leasing",
+    "title": "Location longue durée et leasing",
+    "intro": "D'un mois à plusieurs années, avec l'entretien, les renouvellements d'assurance et les visites techniques pris en charge par RideKmer.",
+    "benefits": [
+      "Tarifs mensuels inférieurs aux tarifs journaliers",
+      "Calendrier d'entretien et rappels inclus",
+      "Véhicule de remplacement pendant les réparations majeures (selon disponibilité)",
+      "Inspection de fin de contrat et règlement de la caution clairs"
+    ],
+    "cta": "Demander un devis longue durée"
+  },
+  "faq": {
+    "metaTitle": "Foire aux questions",
+    "title": "Foire aux questions",
+    "items": [
+      {
+        "q": "Quels documents faut-il pour louer ?",
+        "a": "Une pièce d'identité valide (CNI ou passeport) et un permis de conduire d'au moins deux ans pour la conduite sans chauffeur. Les locations avec chauffeur ne nécessitent qu'une pièce d'identité."
+      },
+      {
+        "q": "Comment payer ?",
+        "a": "Avec MTN Mobile Money, Orange Money ou une carte bancaire. La réservation n'est confirmée qu'après vérification du paiement auprès du prestataire, jamais sur une simple redirection."
+      },
+      {
+        "q": "Comment fonctionne la caution ?",
+        "a": "La caution est débitée avec la location et remboursée après l'inspection de retour, déduction faite des retenues convenues. Les cautions Mobile Money sont de vrais débits, pas des pré-autorisations."
+      },
+      {
+        "q": "Puis-je prolonger ma location ?",
+        "a": "Oui, depuis la page de votre réservation, sous réserve de la disponibilité du véhicule et du paiement de la prolongation."
+      },
+      {
+        "q": "Que se passe-t-il en cas de panne ?",
+        "a": "Signalez l'incident depuis l'application. Notre équipe d'exploitation coordonne l'assistance et un véhicule de remplacement si possible."
+      },
+      {
+        "q": "Les véhicules sont-ils géolocalisés ?",
+        "a": "Les véhicules sont équipés de traceurs GPS professionnels pour la sécurité et la récupération. Cela est indiqué dans le contrat de location et la politique de confidentialité. Les données de localisation ne sont accessibles qu'au personnel autorisé et chaque accès est journalisé."
+      },
+      {
+        "q": "Puis-je annuler ?",
+        "a": "Oui. La politique d'annulation décrit la période d'annulation gratuite et les frais applicables ensuite."
+      }
+    ]
+  },
+  "contact": {
+    "metaTitle": "Contact et assistance",
+    "title": "Contact et assistance",
+    "intro": "Écrivez-nous en français ou en anglais. Nous répondons sous un jour ouvré.",
+    "form": {
+      "name": "Votre nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "category": "Objet",
+      "categories": {
+        "booking": "Une réservation",
+        "owner": "Confier mon véhicule",
+        "corporate": "Location entreprise",
+        "incident": "Un incident",
+        "other": "Autre"
+      },
+      "message": "Message",
+      "submit": "Envoyer le message",
+      "success": "Merci. Votre demande {reference} a été enregistrée.",
+      "error": "Votre message n'a pas pu être envoyé. Veuillez réessayer."
+    },
+    "offices": "Agences",
+    "hours": "Du lundi au vendredi de 08h00 à 18h00, le samedi de 09h00 à 15h00 (Africa/Douala)"
+  },
+  "legal": {
+    "placeholderNotice": "Document provisoire. Ce texte doit être relu et validé par un conseil juridique camerounais qualifié avant publication. Voir docs/LEGAL_REVIEW_CHECKLIST.md.",
+    "lastUpdated": "Dernière mise à jour : {date}",
+    "privacy": {
+      "metaTitle": "Politique de confidentialité",
+      "title": "Politique de confidentialité",
+      "sections": [
+        {
+          "title": "Qui sommes-nous",
+          "body": "RideKmer exploite une plateforme de location de voitures, de leasing et de gestion de flotte au Cameroun. Cette politique explique comment nous traitons les données personnelles des clients, propriétaires de véhicules, chauffeurs et membres du personnel."
+        },
+        {
+          "title": "Données collectées",
+          "body": "Identité et coordonnées, pièces d'identité et permis de conduire, références de paiement (jamais les codes PIN Mobile Money ni les numéros complets de carte), historique des réservations, photos d'inspection, rapports d'incident et données de localisation des traceurs GPS."
+        },
+        {
+          "title": "Données de localisation des véhicules",
+          "body": "Les véhicules peuvent être équipés de traceurs GPS professionnels. Les données de localisation servent à la sécurité, à la récupération des véhicules et au traitement des incidents. Seul le personnel autorisé y accède, chaque accès est enregistré et les données sont conservées pendant une durée limitée et configurable."
+        },
+        {
+          "title": "Vos droits",
+          "body": "Vous pouvez demander une copie de vos données ou leur suppression depuis les paramètres de votre compte, sous réserve des obligations légales de conservation des contrats, factures et incidents."
+        },
+        {
+          "title": "Contact",
+          "body": "Demandes relatives à la vie privée : utilisez le formulaire de contact en choisissant l'objet « Autre »."
+        }
+      ]
+    },
+    "terms": {
+      "metaTitle": "Conditions générales",
+      "title": "Conditions générales",
+      "body": "Les conditions générales régissant l'utilisation de RideKmer, les réservations, les paiements, les cautions, la responsabilité et les litiges seront publiées ici après revue juridique."
+    },
+    "rentalPolicy": {
+      "metaTitle": "Politique de location",
+      "title": "Politique de location",
+      "body": "Les conditions d'éligibilité (âge, ancienneté du permis), le kilométrage inclus, la politique carburant, les frais de retard, les frais de nettoyage, les restrictions transfrontalières et les obligations en cas d'incident seront détaillés ici après revue juridique."
+    },
+    "cancellationPolicy": {
+      "metaTitle": "Politique d'annulation",
+      "title": "Politique d'annulation",
+      "body": "Annulation gratuite jusqu'à {hours} heures avant la prise en charge (provisoire). Les annulations tardives retiennent une part configurable de la location. Les non-présentations ne sont pas remboursées. Règles définitives en attente de revue juridique."
+    }
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Connexion",
+      "title": "Connectez-vous à RideKmer",
+      "subtitle": "Utilisez votre e-mail et votre mot de passe, ou recevez un code sur votre téléphone.",
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "submit": "Se connecter",
+      "withPhone": "Se connecter avec mon numéro",
+      "withEmail": "Se connecter avec un e-mail",
+      "forgot": "Mot de passe oublié ?",
+      "noAccount": "Pas encore de compte ?",
+      "register": "Créer un compte",
+      "errorInvalid": "E-mail ou mot de passe incorrect.",
+      "errorSuspended": "Ce compte est suspendu. Veuillez contacter l'assistance.",
+      "errorGeneric": "La connexion a échoué. Veuillez réessayer.",
+      "errorRateLimited": "Trop de tentatives. Patientez une minute puis réessayez."
+    },
+    "phone": {
+      "title": "Connexion avec votre téléphone",
+      "phone": "Numéro de mobile",
+      "phoneHint": "Numéros camerounais : 6XX XXX XXX. Autres pays : commencez par +.",
+      "sendCode": "M'envoyer un code",
+      "code": "Code à 6 chiffres",
+      "verify": "Vérifier",
+      "resend": "Envoyer un nouveau code",
+      "sent": "Un code a été envoyé au {phone}. Il expire dans 5 minutes.",
+      "errorInvalidPhone": "Veuillez saisir un numéro de mobile valide.",
+      "errorInvalidCode": "Le code est incorrect ou a expiré.",
+      "devHint": "Mode développement : le prestataire SMS est simulé. Les codes ne sont pas délivrés ; utilisez la connexion par e-mail ou configurez un prestataire."
+    },
+    "register": {
+      "metaTitle": "Créer un compte",
+      "title": "Créez votre compte RideKmer",
+      "subtitle": "Louez une voiture en quelques minutes. La vérification de vos documents se fait après l'inscription.",
+      "name": "Nom complet",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de mobile",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 10 caractères.",
+      "locale": "Langue préférée",
+      "intentCustomer": "Je souhaite louer des véhicules",
+      "intentOwner": "Je souhaite confier ou louer mon véhicule",
+      "accept": "J'accepte les <terms>conditions générales</terms> et la <privacy>politique de confidentialité</privacy>.",
+      "submit": "Créer mon compte",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "login": "Se connecter",
+      "errorExists": "Un compte existe déjà pour cet e-mail.",
+      "errorGeneric": "L'inscription a échoué. Vérifiez le formulaire et réessayez.",
+      "success": "Compte créé. Consultez votre e-mail pour confirmer votre adresse."
+    },
+    "mfa": {
+      "metaTitle": "Vérification à deux facteurs",
+      "title": "Vérification à deux facteurs",
+      "subtitle": "Saisissez le code à 6 chiffres de votre application d'authentification.",
+      "code": "Code d'authentification",
+      "trust": "Faire confiance à cet appareil pendant 30 jours",
+      "submit": "Vérifier",
+      "useBackup": "Utiliser un code de secours",
+      "backupCode": "Code de secours",
+      "error": "Le code est incorrect."
+    },
+    "forgot": {
+      "metaTitle": "Réinitialiser le mot de passe",
+      "title": "Réinitialiser votre mot de passe",
+      "subtitle": "Saisissez votre adresse e-mail ; si un compte existe, nous enverrons un lien de réinitialisation.",
+      "email": "Adresse e-mail",
+      "submit": "Envoyer le lien",
+      "sent": "Si un compte existe pour cette adresse, un lien de réinitialisation a été envoyé."
+    },
+    "reset": {
+      "metaTitle": "Choisir un nouveau mot de passe",
+      "title": "Choisissez un nouveau mot de passe",
+      "password": "Nouveau mot de passe",
+      "confirm": "Confirmer le mot de passe",
+      "submit": "Mettre à jour le mot de passe",
+      "mismatch": "Les mots de passe ne correspondent pas.",
+      "success": "Votre mot de passe a été mis à jour. Vous pouvez vous connecter.",
+      "invalidToken": "Ce lien de réinitialisation est invalide ou a expiré."
+    },
+    "logout": "Se déconnecter"
+  },
+  "account": {
+    "metaTitle": "Mon compte",
+    "title": "Mon compte",
+    "welcome": "Bienvenue, {name}",
+    "forbidden": "Vous n'avez pas l'autorisation d'accéder à cette page.",
+    "nav": {
+      "overview": "Aperçu",
+      "profile": "Profil",
+      "security": "Sécurité",
+      "bookings": "Mes réservations",
+      "documents": "Mes documents",
+      "notifications": "Notifications"
+    },
+    "overview": {
+      "roles": "Vos rôles",
+      "verification": "Vérification d'identité",
+      "verificationPending": "Non commencée. Téléversez votre pièce d'identité et votre permis pour réserver sans chauffeur (disponible dans la prochaine version).",
+      "nextSteps": "Prochaines étapes",
+      "bookingsSoon": "La réservation en ligne ouvre au jalon 3.",
+      "ownerSpace": "Accéder à l'espace propriétaire",
+      "becomeOwner": "Confier mon véhicule",
+      "becomeOwnerBody": "Activez l'espace propriétaire pour confier ou mettre en location vos véhicules."
+    },
+    "profile": {
+      "title": "Profil",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "locale": "Langue préférée",
+      "save": "Enregistrer les modifications",
+      "saved": "Profil mis à jour."
+    },
+    "security": {
+      "title": "Sécurité",
+      "mfaRequired": "Votre rôle exige l'authentification à deux facteurs. Activez-la ci-dessous pour accéder aux espaces du personnel.",
+      "mfaTitle": "Authentification à deux facteurs (TOTP)",
+      "mfaEnabled": "L'authentification à deux facteurs est activée.",
+      "mfaDisabled": "L'authentification à deux facteurs n'est pas activée.",
+      "enable": "Activer",
+      "disable": "Désactiver",
+      "password": "Confirmez avec votre mot de passe",
+      "scan": "Scannez ce QR code avec une application d'authentification (Google Authenticator, Aegis, Authy…), ou saisissez le secret manuellement.",
+      "secret": "Secret",
+      "enterCode": "Saisissez le code à 6 chiffres pour terminer",
+      "backupCodes": "Codes de secours — conservez-les en lieu sûr. Chacun ne fonctionne qu'une fois.",
+      "done": "Authentification à deux facteurs activée.",
+      "errorPassword": "Mot de passe incorrect.",
+      "errorCode": "Code incorrect.",
+      "sessions": "Sessions actives",
+      "revokeOthers": "Déconnecter les autres appareils",
+      "passwordTitle": "Changer le mot de passe",
+      "currentPassword": "Mot de passe actuel",
+      "newPassword": "Nouveau mot de passe",
+      "changePassword": "Mettre à jour le mot de passe",
+      "passwordChanged": "Mot de passe mis à jour."
+    }
+  },
+  "owner": {
+    "metaTitle": "Espace propriétaire",
+    "title": "Espace propriétaire",
+    "intro": "L'ajout de véhicules, les documents, les revenus et les versements arrivent au jalon 2. Votre profil propriétaire a été créé.",
+    "activated": "Espace propriétaire activé."
+  },
+  "admin": {
+    "metaTitle": "Administration",
+    "title": "Administration",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "vehicles": "Véhicules",
+      "bookings": "Réservations",
+      "documents": "Documents",
+      "finance": "Finance",
+      "settings": "Paramètres",
+      "audit": "Journal d'audit"
+    },
+    "dashboard": {
+      "bookingsToday": "Réservations du jour",
+      "activeRentals": "Locations en cours",
+      "availableVehicles": "Véhicules disponibles",
+      "vehiclesAwaitingApproval": "Véhicules en attente d'approbation",
+      "expiringDocuments": "Documents expirant (30 jours)",
+      "maintenanceDue": "Entretiens à venir",
+      "paymentsToReconcile": "Paiements à rapprocher",
+      "pendingRefunds": "Remboursements en attente",
+      "pendingPayouts": "Versements propriétaires en attente",
+      "openIncidents": "Incidents ouverts",
+      "users": "Utilisateurs inscrits",
+      "mfaNotice": "Obligation MFA du personnel : {state}",
+      "enabled": "activée",
+      "disabled": "désactivée (développement)"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "search": "Rechercher par nom, e-mail ou téléphone",
+      "name": "Nom",
+      "email": "E-mail",
+      "phone": "Téléphone",
+      "roles": "Rôles",
+      "status": "Statut",
+      "mfa": "MFA",
+      "created": "Créé le",
+      "manage": "Gérer",
+      "noResults": "Aucun utilisateur ne correspond.",
+      "detailTitle": "Utilisateur : {name}",
+      "assignRoles": "Rôles",
+      "saveRoles": "Enregistrer les rôles",
+      "rolesSaved": "Rôles mis à jour.",
+      "suspend": "Suspendre le compte",
+      "reinstate": "Réactiver le compte",
+      "suspendReason": "Motif (enregistré dans le journal d'audit)",
+      "suspended": "Compte suspendu.",
+      "reinstated": "Compte réactivé.",
+      "cannotEditSelf": "Vous ne pouvez pas modifier vos propres rôles ou votre statut."
+    },
+    "settings": {
+      "title": "Paramètres",
+      "cities": "Villes et agences",
+      "cityName": "Ville",
+      "region": "Région",
+      "active": "Active",
+      "branches": "Agences",
+      "addCity": "Ajouter une ville",
+      "slug": "Identifiant (URL)",
+      "nameFr": "Nom (français)",
+      "nameEn": "Nom (anglais)",
+      "cityAdded": "Ville ajoutée.",
+      "toggleCity": "Basculer",
+      "systemSettings": "Paramètres système",
+      "key": "Clé",
+      "value": "Valeur",
+      "description": "Description",
+      "update": "Mettre à jour",
+      "settingSaved": "Paramètre enregistré.",
+      "documentTypes": "Types de documents",
+      "mandatory": "Obligatoire",
+      "blocksWhenExpired": "Bloque le véhicule si expiré"
+    },
+    "audit": {
+      "title": "Journal d'audit",
+      "when": "Quand",
+      "actor": "Acteur",
+      "action": "Action",
+      "entity": "Entité",
+      "reason": "Motif",
+      "empty": "Aucune entrée d'audit pour le moment.",
+      "system": "système"
+    }
+  },
+  "errors": {
+    "notFoundTitle": "Page introuvable",
+    "notFoundBody": "La page que vous cherchez n'existe pas ou a été déplacée.",
+    "goHome": "Retour à l'accueil",
+    "genericTitle": "Une erreur est survenue",
+    "genericBody": "Une erreur inattendue s'est produite. Notre équipe a été prévenue.",
+    "offlineTitle": "Vous êtes hors ligne",
+    "offlineBody": "Certaines pages sont indisponibles sans connexion. Reconnectez-vous pour continuer."
+  },
+  "validation": {
+    "required": "Ce champ est obligatoire.",
+    "email": "Saisissez une adresse e-mail valide.",
+    "phone": "Saisissez un numéro de mobile valide.",
+    "passwordMin": "Le mot de passe doit contenir au moins {min} caractères.",
+    "minLength": "Saisissez au moins {min} caractères.",
+    "maxLength": "Saisissez au plus {max} caractères.",
+    "accept": "Vous devez accepter les conditions pour continuer.",
+    "dateOrder": "La date de retour doit être postérieure à la date de prise en charge.",
+    "slug": "Utilisez uniquement des lettres minuscules, des chiffres et des tirets."
+  }
+}

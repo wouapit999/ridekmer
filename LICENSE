@@ -1,0 +1,11 @@
+RideKmer — LICENSE PLACEHOLDER
+
+No licence has been chosen yet. Until the repository owner makes an explicit licensing
+decision, all rights are reserved by the owner (wouapit999) and no permission is granted to
+copy, modify or distribute this software.
+
+Decision required (see docs/OPEN_ITEMS.md):
+  [ ] Proprietary / all rights reserved (keep this file, reword as a proprietary notice)
+  [ ] Open-source licence (e.g. MIT, Apache-2.0, AGPL-3.0) — replace this file with the full text
+
+Third-party dependencies retain their own licences (see node_modules/*/LICENSE).
