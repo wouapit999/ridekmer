@@ -2,8 +2,12 @@
 
 ## Current state (2026-10-15)
 
-- **`wouapit999/ridekmer` (private)** is the canonical repository. `main` and `develop` both
-  hold the full milestone history (Milestone 1 → 8) imported from the development branch.
+- **`wouapit999/ridekmer`** is the canonical repository. `main` and `develop` both hold the
+  full milestone history (Milestone 1 → 8) imported from the development branch. The owner
+  keeps it **public** for now (free plan: branch protection and rulesets are only available on
+  public repositories). Consequences: never commit anything that is not already in
+  `.env.example` with an empty value; the `LICENSE` placeholder (all rights reserved) still
+  applies to a public repository; secret-scanning push protection must stay enabled.
 - **`wouapit999/Ridekmer_main` (public)** is the renamed profile repository where the code was
   first developed (branch `claude/clever-hamilton-yn2ghh`, plus an earlier one-commit
   `develop`). It is public: keep it free of anything sensitive, and archive or delete the
