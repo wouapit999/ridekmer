@@ -20,7 +20,7 @@ export async function register() {
       storageProvider: env.STORAGE_PROVIDER,
       gpsProvider: env.GPS_PROVIDER,
       monitoring: env.MONITORING_PROVIDER,
-      commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+      commit: (process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT_REF)?.slice(0, 7) ?? "local",
     });
   } catch (error) {
     logger.fatal("app.boot.invalid_environment", { error });

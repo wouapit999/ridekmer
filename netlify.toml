@@ -1,0 +1,18 @@
+# Netlify configuration for RideKmer (docs/NETLIFY_SETUP.md).
+# Security headers, redirects and caching come from next.config.ts; nothing is duplicated here.
+
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Playwright's browsers are never needed at build time.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
+# Pinned so a Next.js adapter update never lands unreviewed (Dependabot proposes bumps).
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  node_bundler = "esbuild"

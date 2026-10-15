@@ -351,3 +351,18 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   without forking Prisma. The CI job fails on any new high-severity advisory.
 - Consequences: the overrides are reviewed at every Prisma upgrade and removed once Prisma
   ships the patched versions itself.
+
+## ADR-036 Netlify as primary host, Vercel kept as an alternative
+
+- Decision: the Vercel Hobby plan rejects cron schedules more frequent than daily, which the
+  booking-hold expiry (5 min) and payment reconciliation (15 min) need. RideKmer therefore
+  deploys to Netlify by default: `netlify.toml`, the pinned Next.js adapter, and seven
+  scheduled functions (`netlify/functions/cron-*.ts`) that call the unchanged `/api/cron/*`
+  routes with the cron secret. `vercel.json` stays in the repository and a unit test keeps
+  both schedule lists identical, so switching hosts is a configuration change.
+- Consequences: no business logic moved; Vercel-only settings (`maxDuration`,
+  `VERCEL_GIT_COMMIT_SHA`) are ignored or have fallbacks (`COMMIT_REF`); synchronous function
+  limits on Netlify's free plan (10 s default) make batching and idempotency of the cron
+  routes mandatory (already the case); the storage provider must be S3-compatible rather than
+  Vercel Blob; scheduled functions never run on previews, so cron behaviour is only testable
+  in production or locally with `curl`.

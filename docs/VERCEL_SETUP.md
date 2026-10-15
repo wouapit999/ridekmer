@@ -1,4 +1,8 @@
-# Vercel setup (step by step)
+# Vercel setup
+
+> The Vercel **Hobby** plan limits cron jobs to once per day, so the 5- and 15-minute
+> schedules in `vercel.json` are rejected at import. Use Netlify (`docs/NETLIFY_SETUP.md`,
+> the primary target) or the Vercel Pro plan. (step by step)
 
 For Roland or any administrator of the `wouapit999` GitHub account. No secret values appear in
 this document; generate them where indicated.

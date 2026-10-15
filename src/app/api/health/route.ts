@@ -65,7 +65,8 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(
     {
       status,
-      version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+      version:
+        (process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT_REF)?.slice(0, 7) ?? "local",
       appEnv: getEnv().APP_ENV,
       checks,
       latencyMs: Date.now() - startedAt,

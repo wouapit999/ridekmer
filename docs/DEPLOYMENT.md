@@ -8,8 +8,14 @@
 | Preview     | any non-main branch / PR | separate preview database                    | mock / sandbox only | allowed (never real customer data) |
 | Production  | `main`                   | production PostgreSQL (pooled + direct URLs) | real, once approved | **refused**                        |
 
-Preview deployments must never receive production credentials or customer data; Vercel keeps
-environment variables per environment.
+Preview deployments must never receive production credentials or customer data; both
+Netlify (deploy contexts) and Vercel keep environment variables per environment.
+
+## Hosting
+
+Netlify is the primary target (`netlify.toml`, `docs/NETLIFY_SETUP.md`, ADR-036) because the
+Vercel Hobby plan limits cron jobs to once a day. The code stays host-neutral: the same
+`/api/cron/*` routes are called by Netlify scheduled functions or by Vercel Cron.
 
 ## Build
 
@@ -42,12 +48,11 @@ Optional automation: a GitHub Actions `deploy-migrations.yml` workflow (manual
 `workflow_dispatch`, environment-protected secret `DIRECT_DATABASE_URL`) can run the same two
 commands; it is intentionally not added until the production database exists.
 
-## Vercel deployment checklist
+## Deployment checklist (Netlify; Vercel equivalents in `docs/VERCEL_SETUP.md`)
 
-- [ ] GitHub repository connected (`wouapit999/ridekmer`)
-- [ ] Root directory `.`; framework Next.js detected
-- [ ] Build `pnpm build`; install `pnpm install --frozen-lockfile`; Node 22
-- [ ] Environment variables set per environment (see `docs/VERCEL_SETUP.md`)
+- [ ] GitHub repository connected (`wouapit999/ridekmer`), production branch `main`
+- [ ] Build settings taken from `netlify.toml` (Next.js adapter pinned, Node 22)
+- [ ] Environment variables set per deploy context (see `docs/NETLIFY_SETUP.md`)
 - [ ] Database reachable (`/api/health`)
 - [ ] Migrations applied and status clean
 - [ ] Reference data seeded, demo data disabled in production
@@ -57,12 +62,13 @@ commands; it is intentionally not added until the production database exists.
 - [ ] Rollback procedure tested once (promote previous deployment)
 - [ ] Function logs reviewed for errors after deploy
 - [ ] Payment webhook URLs registered (when providers are live)
-- [ ] Cron schedule `/api/cron/document-expiry` visible in Vercel → Settings → Cron Jobs and `CRON_SECRET` set
-- [ ] `STORAGE_PROVIDER=vercel-blob` (or `s3`) configured; a test upload from the owner wizard succeeds and opens through a signed URL
+- [ ] The seven `cron-*` scheduled functions listed under Functions with `CRON_SECRET` set; one manual run of `cron-housekeeping` turns the deep health check green
+- [ ] `STORAGE_PROVIDER=s3` (S3-compatible bucket) configured; a test upload from the owner wizard succeeds and opens through a signed URL
 
 ## Rollback
 
-Code: promote the previous deployment in Vercel. Database: migrations are forward-only; to
+Code: Netlify → Deploys → pick the previous successful deploy → "Publish deploy" (Vercel:
+promote the previous deployment). Database: migrations are forward-only; to
 undo, write a new migration that reverses the change, or restore from backup
 (`docs/BACKUP_AND_RECOVERY.md`).
 

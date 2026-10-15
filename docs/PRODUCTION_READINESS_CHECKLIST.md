@@ -77,10 +77,11 @@ vendor or counsel) · ⚠️ built but unverified against a live service.
 
 ## Deployment
 
-- ⬜ Repository `wouapit999/ridekmer` created and connected to Vercel
+- ✅ Repository `wouapit999/ridekmer` created, public, branches protected
   (`docs/GITHUB_WORKFLOW.md`)
-- ⬜ Environment variables set per `docs/VERCEL_SETUP.md` (including `CRON_SECRET`,
-  Upstash, storage, `MAP_TILE_URL_TEMPLATE`)
-- ⬜ Custom domain, provider webhook URLs, cron schedules verified in Vercel → Cron Jobs
+- ⬜ Netlify site connected to `main`; environment variables set per `docs/NETLIFY_SETUP.md`
+  (including `CRON_SECRET`, Upstash, S3-compatible storage, `MAP_TILE_URL_TEMPLATE`)
+- ⬜ Custom domain, provider webhook URLs, the seven scheduled functions visible under
+  Netlify → Functions
 - ⬜ First production deployment smoke test: `/api/health` with the cron secret reports every
   check `ok`

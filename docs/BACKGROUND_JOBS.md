@@ -11,10 +11,16 @@ Vercel-compatible workflow/queue service without changing business code.
 ## Mechanics
 
 - Route handlers live under `src/app/api/cron/<job>/route.ts` (from Milestone 2).
-- Vercel sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
+- The scheduler is host-specific but the routes are not:
+  - **Netlify (primary)**: `netlify/functions/cron-<job>.ts` scheduled functions call the
+    route over HTTPS with the secret (`netlify/lib/trigger-cron.ts`); schedules live in each
+    function's `config.schedule` and a unit test keeps them identical to `vercel.json`.
+  - **Vercel**: `vercel.json` schedules call the route directly (Pro plan needed for
+    sub-daily schedules).
+- Every caller sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
 - Each job is idempotent and bounded (processes a batch, records progress in the database) so a
   rerun or timeout is harmless. Function max duration stays within the plan limit.
-- `vercel.json` declares the schedules (first job: document expiry, daily 05:00 UTC = 06:00 Douala).
+- Schedules are expressed in UTC (05:00 UTC = 06:00 Douala).
 
 ## Planned schedule
 
