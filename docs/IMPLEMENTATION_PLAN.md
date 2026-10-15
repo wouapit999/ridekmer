@@ -167,7 +167,24 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] Tests: settlement (unit); contract gating, inspections, settlement, incidents, maintenance,
       reminders (integration)
 
-### Milestone 6 — Ledger, statements, payouts, finance dashboards, reports `[ ]`
+### Milestone 6 — Ledger, statements, payouts, finance dashboards, reports `[x]`
+
+- [x] Double-entry ledger: pure posting rules (rental payment, additional charge, refund,
+      deposit retention, expense, payout, manual adjustment), idempotent writes keyed by
+      source, owner payable accounts created on demand, balances from the ledger
+- [x] Hooks on payment success, refund completion, deposit settlement, expense allocation and
+      payout payment; catch-up job in the reconciliation cron and the monthly statements cron
+- [x] Owner statements: frozen monthly summary with running-balance lines, issued by cron on
+      the 1st or on demand; owner view + CSV download
+- [x] Payouts: owner or finance request from the available balance, approver ≠ requester,
+      dual approval above the threshold, execution through the payment provider (mock Mobile
+      Money) or manual bank transfer marked paid with a reference, ledger posting, notifications
+- [x] Expense allocation by finance (owner / RideKmer / shared / customer) with posting
+- [x] Finance dashboard (monthly KPIs, owner balances, recent entries), ledger browser with
+      adjustments, payouts and expenses queues, reports page with audited CSV exports
+      (formula-injection safe)
+- [x] Tests: posting rules and statement maths (unit); payment → settlement → refund →
+      expense → payout → statement flow (integration)
 
 ### Milestone 7 — GPS / telematics abstraction, fleet map, geofences, access audit `[ ]`
 

@@ -149,8 +149,11 @@ environments never changes a registered URL.
 - Webhook bodies are limited to 64 KB, stored with a SHA-256 hash, and never echoed back.
 - Every state change is audited (`payment.*`, `refund.*`); finance actions require MFA.
 
-## Ledger linkage (M6)
+## Ledger linkage (built in Milestone 6)
 
-Each successful payment will create ledger entries (platform cash ← customer; deposit
-liability from `depositXaf`; commission revenue; owner payable). Refunds and payouts create
-reversing/settling entries. See `docs/DATA_MODEL.md`.
+`applySuccessfulPayment`, `completeRefund`, `settleReturnDeposit`, expense allocation and
+payout payment each post double-entry lines through `src/features/finance/ledger.ts`
+(ADR-024). A successful rental payment debits `platform_cash` and credits
+`customer_deposits_held` (deposit), `owner_payable:<owner>` (owner share), `tax_payable` and
+`platform_revenue`. Refunds reverse the deposit first and then share the rental part
+proportionally (ADR-025). The reconciliation and statements crons post any missing entries.

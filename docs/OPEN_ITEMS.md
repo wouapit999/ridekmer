@@ -60,6 +60,11 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 46  | Customer-disputed inspections and incidents are handled manually by staff; a formal dispute workflow with deadlines is not built                                                                          | post-v1   |
 | 47  | Maintenance expenses are recorded as PENDING and flow into the ledger/statements in Milestone 6                                                                                                           | 6         |
 | 48  | Reminder notifications go by SMS when a number exists, otherwise in-app only (no email variant for reminder templates); confirm channel policy                                                            | owner     |
+| 49  | Confirm the retention policy: damage and return charges credited to the owner net of commission (ADR-025); alternative is full pass-through                                                               | owner     |
+| 50  | Tax: `pricing.tax_bps` is 0; confirm VAT treatment of commission vs rental and who files it before enabling `tax_payable` postings                                                                        | legal     |
+| 51  | Payout execution for Mobile Money uses the mock provider until MTN/Orange disbursement APIs are implemented; bank payouts are manual                                                                      | owner     |
+| 52  | Owner statements are CSV + in-app; a PDF rendering with the RideKmer letterhead is not built                                                                                                              | post-v1   |
+| 53  | Ledger `payout_clearing` and `fees_receivable` accounts are seeded but unused by the v1 rules (direct cash postings)                                                                                      | 6+        |
 
 ## Legal
 

@@ -747,6 +747,7 @@ model OwnerProfile {
   ledgerEntries     LedgerEntry[]
   expenses          Expense[]
   reviews           Review[]           @relation("ReviewedOwner")
+  statements        OwnerStatement[]
 
   @@index([ownerType])
   @@index([identityNumberHash])
@@ -1698,6 +1699,36 @@ model OwnerPayout {
 
   @@index([ownerProfileId, status])
   @@index([status])
+}
+
+enum StatementStatus {
+  DRAFT
+  ISSUED
+}
+
+/// Monthly owner statement: a frozen summary of the owner's ledger activity for a period.
+model OwnerStatement {
+  id                String          @id @default(cuid())
+  ownerProfileId    String
+  ownerProfile      OwnerProfile    @relation(fields: [ownerProfileId], references: [id])
+  key               String          @unique
+  periodStart       DateTime        @db.Date
+  periodEnd         DateTime        @db.Date
+  status            StatementStatus @default(ISSUED)
+  openingBalanceXaf Int
+  earningsXaf       Int             @default(0)
+  deductionsXaf     Int             @default(0)
+  refundsXaf        Int             @default(0)
+  expensesXaf       Int             @default(0)
+  payoutsXaf        Int             @default(0)
+  closingBalanceXaf Int
+  lines             Json
+  entryCount        Int             @default(0)
+  issuedAt          DateTime        @default(now())
+  createdAt         DateTime        @default(now())
+
+  @@unique([ownerProfileId, periodStart])
+  @@index([periodStart])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

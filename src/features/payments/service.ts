@@ -8,6 +8,7 @@ import {
 import { addHours, addMinutes, subHours } from "date-fns";
 
 import { confirmBookingAfterPayment } from "@/features/bookings/service";
+import { postPaymentEntries, tryPost } from "@/features/finance/ledger";
 import { formatIsoDate } from "@/lib/dates";
 import { getEnv } from "@/lib/env";
 import { sha256Hex } from "@/lib/crypto";
@@ -320,6 +321,7 @@ export async function applySuccessfulPayment(input: {
     after: { status: "SUCCESSFUL", amountXaf: payment.amountXaf },
   });
 
+  await tryPost(`payment:${payment.id}`, () => postPaymentEntries(payment.id));
   let confirmedBooking = false;
   if (payment.booking && payment.purpose === "RENTAL") {
     const due = await amountDueForBooking(payment.booking.id);

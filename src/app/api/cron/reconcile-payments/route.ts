@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 
+import { postMissingLedgerEntries } from "@/features/finance/ledger";
 import { reconcilePayments } from "@/features/payments/service";
 import { logger } from "@/lib/logger";
 import { assertCronRequest } from "@/server/cron/auth";
@@ -14,7 +15,8 @@ export async function GET(request: NextRequest) {
   if (denied) return denied;
   try {
     const result = await reconcilePayments(new Date());
-    return NextResponse.json({ ok: true, ...result });
+    const ledger = await postMissingLedgerEntries();
+    return NextResponse.json({ ok: true, ...result, ledger });
   } catch (error) {
     logger.error("cron.reconcile_payments.failed", { error });
     return NextResponse.json({ ok: false }, { status: 500 });

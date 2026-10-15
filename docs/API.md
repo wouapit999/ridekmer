@@ -17,6 +17,9 @@ future native apps is planned (see "Mobile readiness").
 | GET | `/api/cron/expire-holds` | `Authorization: Bearer $CRON_SECRET` | Every 5 minutes: expire checkout holds and unpaid bookings (Milestone 3). |
 | GET | `/api/cron/reconcile-payments` | `Authorization: Bearer $CRON_SECRET` | Every 15 minutes: expire stale payment requests, poll open payments, reconcile settled ones (Milestone 4). |
 | GET | `/api/cron/operations` | `Authorization: Bearer $CRON_SECRET` | Hourly: pickup/return reminders, late-return detection, maintenance reminders (Milestone 5). |
+| GET | `/api/cron/statements` | `Authorization: Bearer $CRON_SECRET` | Monthly: ledger catch-up, then last month's owner statements (Milestone 6). |
+| GET | `/api/admin/reports/{bookings\|payments\|refunds\|payouts\|expenses\|ledger\|statements}?from&to` | Session + `report.export` | CSV export, audited, formula-injection safe (Milestone 6). |
+| GET | `/api/owner/statements/{id}` | Session (owner of the statement) | Owner statement CSV (Milestone 6). |
 | POST | `/api/webhooks/payments/{mtn-momo\|orange-money\|card}` | Provider signature (adapter-specific header, HMAC for the mock) | Payment callbacks. 200 processed/ignored/duplicate, 400 malformed, 401 bad signature, 404 unknown provider, 413 > 64 KB (Milestone 4). |
 | GET | `/api/storage/local/<key>?expires&sig` | HMAC signature | Development-only download route for the local storage provider. |
 

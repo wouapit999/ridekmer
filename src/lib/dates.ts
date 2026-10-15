@@ -48,3 +48,8 @@ export function formatIsoDate(date: Date): string {
 export function isWithinRange(date: Date, start: Date, end: Date): boolean {
   return !isBefore(date, start) && isBefore(date, end);
 }
+
+/** ISO date `days` days from now (server-side defaults for forms; not for use inside render). */
+export function isoDateFromNow(days: number, now: Date = new Date()): string {
+  return formatIsoDate(new Date(now.getTime() + days * 86_400_000));
+}

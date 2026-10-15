@@ -7,6 +7,8 @@ import { getPaymentProvider } from "@/server/payments/registry";
 import type { Prisma } from "@/generated/prisma/client";
 import type { RefundStatus } from "@/generated/prisma/enums";
 
+import { postRefundEntries, tryPost } from "@/features/finance/ledger";
+
 import { getPaymentSettings } from "./settings";
 
 export class RefundError extends Error {
@@ -253,6 +255,7 @@ export async function completeRefund(
       },
     });
   });
+  await tryPost(`refund:${updated.id}`, () => postRefundEntries(updated.id));
   await recordAudit({
     actorId,
     actorType: actorId ? "USER" : "SYSTEM",

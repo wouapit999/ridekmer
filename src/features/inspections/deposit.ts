@@ -1,3 +1,4 @@
+import { postSettlementEntries, tryPost } from "@/features/finance/ledger";
 import { requestRefund } from "@/features/payments/refunds";
 import { PAID_STATUSES } from "@/features/payments/service";
 import { recordAudit } from "@/server/audit";
@@ -77,6 +78,7 @@ export async function settleReturnDeposit(bookingId: string, actorId: string) {
     });
   }
   await db.booking.update({ where: { id: booking.id }, data: { depositSettledAt: new Date() } });
+  await tryPost(`settlement:${booking.id}`, () => postSettlementEntries(booking.id));
   await recordAudit({
     actorId,
     action: "booking.deposit.settle",

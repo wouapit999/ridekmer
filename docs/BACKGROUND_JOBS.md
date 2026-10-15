@@ -25,7 +25,7 @@ Vercel-compatible workflow/queue service without changing business code.
 | Payment reconciliation (`/api/cron/reconcile-payments`, built)                   | every 15 min              | 4         |
 | Pickup / return reminders, late-return detection (`/api/cron/operations`, built) | hourly                    | 5         |
 | Maintenance reminders (date / mileage) (same `/api/cron/operations` job)         | hourly                    | 5         |
-| Owner statement generation                                                       | monthly                   | 6         |
+| Owner statement generation + ledger catch-up (`/api/cron/statements`, built)     | monthly, 1st 03:00 UTC    | 6         |
 | Location-data retention purge                                                    | daily                     | 7         |
 | Notification retry                                                               | every 10 min              | 2         |
 

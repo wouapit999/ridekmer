@@ -2,12 +2,17 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
-export function OwnerNav({ current }: { current: "overview" | "onboarding" | "vehicles" }) {
+export function OwnerNav({
+  current,
+}: {
+  current: "overview" | "onboarding" | "vehicles" | "finance";
+}) {
   const t = useTranslations("owner.nav");
   const items = [
     { key: "overview", href: "/owner" },
     { key: "onboarding", href: "/owner/onboarding" },
     { key: "vehicles", href: "/owner/vehicles" },
+    { key: "finance", href: "/owner/finance" },
   ] as const;
   return (
     <nav aria-label="Owner" className="flex gap-1 overflow-x-auto border-b border-sand-200 pb-px">

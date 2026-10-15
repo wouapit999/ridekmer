@@ -216,3 +216,33 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   `Expense` (owner- or RideKmer-allocated for the ledger in Milestone 6) and rolls the matching
   schedule forward by interval. The vehicle status is untouched, so document compliance and
   owner requests keep their own semantics.
+
+## ADR-024 Ledger: pure posting rules, idempotent by source, balances derived
+
+- Decision: every money event maps to a list of double-entry lines produced by a pure
+  function (`src/features/finance/postings.ts`) that is unit-tested without a database.
+  `postLines` writes a set atomically with idempotency keys `<source>:<type>:<index>`, so a
+  hook and the catch-up job can both run. Balances are always derived from entries (credits −
+  debits); nothing stores a running balance. Owner payable accounts are created on demand.
+- Account model: `platform_cash`, `customer_deposits_held`, `platform_revenue`, `tax_payable`,
+  `fees_receivable`, `adjustments`, `payout_clearing`, `owner_payable:<ownerProfileId>`.
+- Consequences: a business operation never fails because of the ledger (`tryPost` logs
+  failures and the cron catches up); corrections are reversing or adjustment entries, never
+  edits, because `LedgerEntry` is append-only at the database level.
+
+## ADR-025 Refund and retention splits follow the original commission
+
+- Decision: the rental part of a refund is shared between owner and platform in the same
+  proportion as the original earning; retained deposits (damage, fuel, km, late) are credited
+  to the owner net of commission. Expenses reduce the owner payable by their allocated share.
+- Consequences: owner statements stay explainable line by line; the exact policy for damage
+  retention (owner net of commission) is flagged for business confirmation (OPEN_ITEMS).
+
+## ADR-026 Payouts: owner-initiated or finance-initiated, never automatic
+
+- Decision: a payout is requested from the available balance (payable − payouts in flight),
+  approved by someone other than the requester (two approvers at or above the threshold),
+  executed by a `payout.process` holder through the provider or recorded manually for bank
+  transfers, and posted on PAID. No scheduled automatic payouts in v1.
+- Consequences: separation of duties mirrors refunds; `super_administrator` deliberately
+  lacks `payout.process` so execution needs the finance role.

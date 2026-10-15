@@ -203,10 +203,16 @@ export async function transitionMaintenance(input: {
       availabilityBlockId = block.id;
     }
     if ((input.to === "COMPLETED" || input.to === "CANCELLED") && availabilityBlockId) {
-      await tx.vehicleAvailability.updateMany({
-        where: { id: availabilityBlockId, endAt: { gt: now } },
-        data: { endAt: now },
-      });
+      // Release the downtime block: shorten a running block to now, drop one not yet started
+      // (a block must keep startAt < endAt).
+      const block = await tx.vehicleAvailability.findUnique({ where: { id: availabilityBlockId } });
+      if (block && block.endAt > now) {
+        if (block.startAt >= now) {
+          await tx.vehicleAvailability.delete({ where: { id: block.id } });
+        } else {
+          await tx.vehicleAvailability.update({ where: { id: block.id }, data: { endAt: now } });
+        }
+      }
     }
     const u = await tx.maintenanceRecord.update({
       where: { id: record.id },
