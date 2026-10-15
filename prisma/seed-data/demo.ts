@@ -256,6 +256,67 @@ export async function seedDemoData(prisma: PrismaClient) {
       },
     });
   }
+  // Synthetic mock trackers: one commercial GPS per demo vehicle with a few fixes in the city.
+  const fleetManager = await prisma.user.findUniqueOrThrow({
+    where: { email: "demo.fleet@ridekmer.test" },
+  });
+  for (const [index, v] of vehicles.entries()) {
+    const vehicle = await prisma.vehicle.findUniqueOrThrow({
+      where: { registrationNumber: v.registrationNumber },
+    });
+    const externalDeviceId = `MOCK-DEMO-${String(index + 1).padStart(3, "0")}`;
+    const device = await prisma.trackerDevice.upsert({
+      where: { provider_externalDeviceId: { provider: "mock-gps", externalDeviceId } },
+      update: {},
+      create: {
+        type: "COMMERCIAL_GPS",
+        provider: "mock-gps",
+        externalDeviceId,
+        model: "MOCK-GPS-1",
+        status: "ACTIVE",
+        installedAt: new Date(),
+        installedBy: fleetManager.id,
+        installationNotes: "Synthetic demo tracker — no real device.",
+        registeredById: fleetManager.id,
+        lastSeenAt: new Date(),
+        powerStatus: "EXTERNAL",
+      },
+    });
+    const assigned = await prisma.vehicleTrackerAssignment.findFirst({
+      where: { deviceId: device.id, unassignedAt: null },
+    });
+    if (!assigned) {
+      await prisma.vehicleTrackerAssignment.create({
+        data: {
+          vehicleId: vehicle.id,
+          deviceId: device.id,
+          ownerConsentAt: v.ownershipModel === "RIDEKMER_OWNED" ? null : new Date(),
+          consentNotes: v.ownershipModel === "RIDEKMER_OWNED" ? null : "Demo consent (synthetic)",
+          assignedBy: fleetManager.id,
+        },
+      });
+    }
+    const fixes = await prisma.trackingEvent.count({ where: { deviceId: device.id } });
+    if (fixes === 0) {
+      const base = { latitude: vehicle.latitude ?? 4.0511, longitude: vehicle.longitude ?? 9.7679 };
+      for (let i = 0; i < 6; i += 1) {
+        await prisma.trackingEvent.create({
+          data: {
+            deviceId: device.id,
+            vehicleId: vehicle.id,
+            type: "LOCATION",
+            recordedAt: new Date(Date.now() - (6 - i) * 10 * 60_000),
+            latitude: base.latitude + i * 0.002,
+            longitude: base.longitude + i * 0.0015,
+            speedKmh: i === 5 ? 0 : 25,
+            ignitionOn: i !== 5,
+            powerStatus: "EXTERNAL",
+            providerEventId: `demo-${externalDeviceId}-${i}`,
+          },
+        });
+      }
+    }
+  }
   console.log(
     `Demo accounts created (password: ${DEMO_PASSWORD}) — SYNTHETIC DATA, non-production only.`,
   );

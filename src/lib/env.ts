@@ -101,6 +101,8 @@ const serverSchema = z.object({
   GPS_PROVIDER_API_KEY: optionalString,
   GPS_WEBHOOK_SECRET: optionalString,
   GPS_LOCATION_RETENTION_DAYS: z.coerce.number().int().positive().default(90),
+  /** Raster tile template for the admin fleet map ({z}/{x}/{y}); no key, served over https. */
+  MAP_TILE_URL_TEMPLATE: z.string().url().default("https://tile.openstreetmap.org/{z}/{x}/{y}.png"),
 
   MONITORING_PROVIDER: z.enum(["none", "sentry"]).default("none"),
   SENTRY_DSN: optionalString,

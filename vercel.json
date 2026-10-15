@@ -20,6 +20,10 @@
     {
       "path": "/api/cron/statements",
       "schedule": "0 3 1 * *"
+    },
+    {
+      "path": "/api/cron/tracking-retention",
+      "schedule": "0 4 * * *"
     }
   ]
 }

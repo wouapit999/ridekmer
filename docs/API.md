@@ -18,13 +18,15 @@ future native apps is planned (see "Mobile readiness").
 | GET | `/api/cron/reconcile-payments` | `Authorization: Bearer $CRON_SECRET` | Every 15 minutes: expire stale payment requests, poll open payments, reconcile settled ones (Milestone 4). |
 | GET | `/api/cron/operations` | `Authorization: Bearer $CRON_SECRET` | Hourly: pickup/return reminders, late-return detection, maintenance reminders (Milestone 5). |
 | GET | `/api/cron/statements` | `Authorization: Bearer $CRON_SECRET` | Monthly: ledger catch-up, then last month's owner statements (Milestone 6). |
+| GET | `/api/cron/tracking-retention` | `Authorization: Bearer $CRON_SECRET` | Daily: purge location history beyond the retention period (Milestone 7). |
+| POST | `/api/webhooks/gps/generic` | HMAC-SHA256 of the raw body (`x-ridekmer-signature`, `x-mock-gps-signature` for the mock) | Telematics push: JSON array of events in the RideKmer format. 200 processed, 400 malformed, 401 bad signature (Milestone 7). |
+| GET | `/api/admin/tracking/{vehicleId}/export?from&to&reason` | Session + `tracking.export` | Location history CSV; the reason is mandatory and logged (Milestone 7). |
 | GET | `/api/admin/reports/{bookings\|payments\|refunds\|payouts\|expenses\|ledger\|statements}?from&to` | Session + `report.export` | CSV export, audited, formula-injection safe (Milestone 6). |
 | GET | `/api/owner/statements/{id}` | Session (owner of the statement) | Owner statement CSV (Milestone 6). |
 | POST | `/api/webhooks/payments/{mtn-momo\|orange-money\|card}` | Provider signature (adapter-specific header, HMAC for the mock) | Payment callbacks. 200 processed/ignored/duplicate, 400 malformed, 401 bad signature, 404 unknown provider, 413 > 64 KB (Milestone 4). |
 | GET | `/api/storage/local/<key>?expires&sig` | HMAC signature | Development-only download route for the local storage provider. |
 
-Planned (later milestones): `/api/cron/*` for other jobs, `/api/webhooks/gps/<provider>`,
-`/api/v1/*` (mobile).
+Planned: `/api/v1/*` (mobile), post-v1.
 
 ## Server actions (Milestone 1)
 

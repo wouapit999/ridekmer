@@ -45,6 +45,7 @@ export default async function AdminLayout({
       href: "/admin/refunds",
       show: p.has("refund.request") || p.has("refund.approve"),
     },
+    { key: "fleet", href: "/admin/fleet", show: p.has("tracking.view_current") },
     { key: "incidents", href: "/admin/incidents", show: p.has("incident.manage") },
     { key: "maintenance", href: "/admin/maintenance", show: p.has("maintenance.manage") },
     { key: "contracts", href: "/admin/contracts", show: p.has("contract.view_all") },

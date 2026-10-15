@@ -40,6 +40,14 @@ export const PERMISSIONS = {
     category: "tracking",
     description: "Register and assign tracker devices",
   },
+  "immobilisation.request": {
+    category: "tracking",
+    description: "Request a remote immobilisation (never automatic; interface only)",
+  },
+  "immobilisation.approve": {
+    category: "tracking",
+    description: "Approve an immobilisation request (two distinct approvers required)",
+  },
   // Documents and verification
   "document.verify": { category: "document", description: "Verify or reject documents" },
   "document.configure_types": { category: "document", description: "Configure document types" },
@@ -196,6 +204,9 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       "incident.resolve",
       "tracking.view_history",
       "tracking.manage_devices",
+      "tracking.export",
+      "immobilisation.request",
+      "immobilisation.approve",
       "document.override_block",
       "report.export",
     ],

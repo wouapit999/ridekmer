@@ -16,6 +16,7 @@ import { startInspectionAction } from "@/features/inspections/actions";
 import { listInspectionsForVehicle } from "@/features/inspections/service";
 import { RecordForm, RecordTransitionForm, ScheduleForm } from "@/features/maintenance/forms";
 import { listMaintenanceForVehicle } from "@/features/maintenance/service";
+import { activeAssignmentForVehicle } from "@/features/tracking/devices";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
@@ -50,6 +51,8 @@ export default async function AdminVehicleDetailPage({
     listInspectionsForVehicle(vehicle.id, 10),
   ]);
   const canMaintain = access.permissions.has("maintenance.manage");
+  const tracker = await activeAssignmentForVehicle(vehicle.id);
+  const tt = await getTranslations("tracking.vehicle");
   const ts = await getTranslations("owner.vehicles.status");
   const ta = await getTranslations("owner.wizard.arrangement");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
@@ -181,6 +184,36 @@ export default async function AdminVehicleDetailPage({
             </li>
           ))}
         </ul>
+      </section>
+      <section className="space-y-2 rounded-xl border border-sand-200 bg-white p-5 text-sm">
+        <h2 className="text-lg font-semibold">{tt("title")}</h2>
+        {tracker ? (
+          <p>
+            {tt(`types.${tracker.device.type}`)} ·{" "}
+            <Badge tone={tracker.device.status === "ACTIVE" ? "good" : "warn"}>
+              {tracker.device.status}
+            </Badge>
+            {tracker.device.lastSeenAt
+              ? ` · ${tt("lastSeen", { date: format.dateTime(tracker.device.lastSeenAt, "full") })}`
+              : ""}
+            {tracker.ownerConsentAt
+              ? ` · ${tt("consentOn", { date: format.dateTime(tracker.ownerConsentAt, "short") })}`
+              : ""}
+            {access.permissions.has("tracking.view_history") ? (
+              <>
+                {" · "}
+                <Link
+                  href={`/admin/fleet/${vehicle.id}`}
+                  className="text-brand-700 hover:underline"
+                >
+                  {tt("history")}
+                </Link>
+              </>
+            ) : null}
+          </p>
+        ) : (
+          <p className="text-sand-600">{tt("none")}</p>
+        )}
       </section>
       <section id="maintenance" className="space-y-3">
         <h2 className="text-lg font-semibold">{tm("sectionTitle")}</h2>

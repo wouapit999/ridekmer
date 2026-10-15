@@ -246,3 +246,43 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   transfers, and posted on PAID. No scheduled automatic payouts in v1.
 - Consequences: separation of duties mirrors refunds; `super_administrator` deliberately
   lacks `payout.process` so execution needs the finance role.
+
+## ADR-027 Telematics: push contract owned by RideKmer, no vendor pulls until documented
+
+- Decision: the application never depends on pulling a vendor API. Vendors (or an integration
+  middleware) push signed JSON events in RideKmer's documented format to
+  `/api/webhooks/gps/generic`; the mock provider speaks the same format. The generic REST
+  adapter validates its configuration and refuses every pull method with `NOT_IMPLEMENTED`
+  until the vendor's official documentation exists. Positions are always read from
+  `TrackingEvent`.
+- Consequences: no invented vendor endpoints; switching vendors changes a signing secret and a
+  middleware mapping, not business code.
+
+## ADR-028 Location data: logged access, mandatory reason, bounded range, retention purge
+
+- Decision: `tracking.view_current` reads log one `VIEW_CURRENT` entry per fleet view;
+  `tracking.view_history` and `tracking.export` require a written reason, are capped at 31 days
+  per request and are logged with range, IP and user agent. A daily cron deletes events older
+  than `tracking.location_retention_days` (setting) or `GPS_LOCATION_RETENTION_DAYS`.
+- Consequences: auditors can answer "who looked at this vehicle and why"; customers are never
+  shown live tracking of other people; the owner page shows installation and consent only.
+
+## ADR-029 Immobilisation stays an interface; the request workflow exists, the command does not
+
+- Decision: `ImmobilisationRequest` enforces reason → stationary confirmation from the latest
+  fix (≤ 10 min, no speed, ignition off, re-checked at execution) → two approvals from users
+  other than the requester → provider acknowledgement. `getImmobilisationProvider()` returns
+  `null`; execution therefore closes the request as `UNAVAILABLE` and audits that nothing was
+  sent. Registering a real provider is a deliberate, reviewed change behind that single hook.
+- Consequences: the process and audit trail exist and are tested before any provider does; no
+  path in the code can immobilise a vehicle automatically.
+
+## ADR-030 Fleet map without client-side map libraries
+
+- Decision: the admin map renders raster tiles from a configurable template
+  (`MAP_TILE_URL_TEMPLATE`, OpenStreetMap by default) inside an SVG with markers and a track
+  polyline, as a server component. No third-party script is loaded, so the strict CSP and the
+  no-external-JS posture hold.
+- Consequences: no pan/zoom interaction (a link opens the area on OpenStreetMap); a paid tile
+  provider must be chosen before launch (OPEN_ITEMS) because the OSM public tiles are for
+  light use only.

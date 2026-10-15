@@ -4,7 +4,6 @@ import type {
   DeviceInfo,
   DeviceLocation,
   TrackingProvider,
-  TrackingWebhookEvent,
   TrackingWebhookRequest,
   TripSummary,
 } from "../types";
@@ -96,28 +95,8 @@ export class MockTrackingProvider implements TrackingProvider {
       provided.length === expected.length &&
       timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
     if (!signatureValid) return { signatureValid, events: [] };
-    const payload = JSON.parse(request.rawBody) as Array<{
-      id: string;
-      device: string;
-      type: TrackingWebhookEvent["type"];
-      at: string;
-      lat?: number;
-      lng?: number;
-      speed?: number;
-      ignition?: boolean;
-    }>;
-    const events: TrackingWebhookEvent[] = payload.map((e) => ({
-      providerEventId: e.id,
-      externalDeviceId: e.device,
-      type: e.type,
-      recordedAt: new Date(e.at),
-      location:
-        e.lat !== undefined && e.lng !== undefined
-          ? { latitude: e.lat, longitude: e.lng, speedKmh: e.speed, ignitionOn: e.ignition }
-          : undefined,
-      raw: e,
-    }));
-    return { signatureValid, events };
+    const { parseRideKmerEvents } = await import("./generic-rest");
+    return { signatureValid, events: parseRideKmerEvents(request.rawBody) };
   }
 }
 

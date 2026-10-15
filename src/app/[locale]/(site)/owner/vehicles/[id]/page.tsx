@@ -13,6 +13,7 @@ import { VehicleError, getOwnedVehicle } from "@/features/vehicles/service";
 import { BlockDatesForm, OwnerRequestForm } from "@/features/vehicles/wizard-forms";
 import { OwnerMaintenanceDecision } from "@/features/maintenance/forms";
 import { listMaintenanceForVehicle } from "@/features/maintenance/service";
+import { activeAssignmentForVehicle } from "@/features/tracking/devices";
 import { formatXaf } from "@/lib/money";
 
 const TONE: Record<string, "neutral" | "brand" | "warn" | "danger" | "good"> = {
@@ -48,6 +49,8 @@ export default async function OwnerVehicleDetailPage({
   }
   const { vehicle } = data;
   const maintenance = await listMaintenanceForVehicle(vehicle.id);
+  const tracker = await activeAssignmentForVehicle(vehicle.id);
+  const tt = await getTranslations("tracking.vehicle");
   const canRequest = ["ACTIVE", "APPROVED", "SUSPENDED", "UNAVAILABLE_DOCUMENTS"].includes(
     vehicle.status,
   );
@@ -185,6 +188,23 @@ export default async function OwnerVehicleDetailPage({
           </section>
         </div>
         <aside className="space-y-4">
+          <section className="space-y-1 rounded-xl border border-sand-200 bg-white p-5 text-sm">
+            <h2 className="font-semibold">{tt("title")}</h2>
+            {tracker ? (
+              <p className="text-sand-700">
+                {tt(`types.${tracker.device.type}`)}
+                {tracker.device.installedAt
+                  ? ` · ${tt("installedOn", { date: format.dateTime(tracker.device.installedAt, "short") })}`
+                  : ""}
+                {tracker.ownerConsentAt
+                  ? ` · ${tt("consentOn", { date: format.dateTime(tracker.ownerConsentAt, "short") })}`
+                  : ""}
+              </p>
+            ) : (
+              <p className="text-sand-600">{tt("none")}</p>
+            )}
+            <p className="text-xs text-sand-500">{tt("ownerNotice")}</p>
+          </section>
           <section className="space-y-2 rounded-xl border border-sand-200 bg-white p-5 text-sm">
             <h2 className="font-semibold">{tm("sectionTitle")}</h2>
             {maintenance.records.length === 0 ? (

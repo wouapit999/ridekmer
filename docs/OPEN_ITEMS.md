@@ -43,7 +43,7 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 24  | Phone verification flow in the account area (number added at sign-up is unverified)                                                                                                                       | 2         |
 | 25  | Admin UI for document-type editing (read-only table today)                                                                                                                                                | 2         |
 | 26  | Vehicle images: upload pipeline and optimisation                                                                                                                                                          | 2         |
-| 27  | Generic REST GPS adapter, webhook receiver, fleet map                                                                                                                                                     | 7         |
+| 27  | Telematics built (push contract, webhook, fleet map); vendor pull adapter and vendor-side middleware mapping still depend on the chosen vendor's documentation                                            | owner     |
 | 28  | Key-rotation script for field encryption                                                                                                                                                                  | 8         |
 | 29  | Public JSON API (`/api/v1`) for native apps                                                                                                                                                               | post-v1   |
 | 30  | Static rendering of public pages (currently dynamic because the layout reads the session)                                                                                                                 | 8         |
@@ -65,6 +65,11 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 51  | Payout execution for Mobile Money uses the mock provider until MTN/Orange disbursement APIs are implemented; bank payouts are manual                                                                      | owner     |
 | 52  | Owner statements are CSV + in-app; a PDF rendering with the RideKmer letterhead is not built                                                                                                              | post-v1   |
 | 53  | Ledger `payout_clearing` and `fees_receivable` accounts are seeded but unused by the v1 rules (direct cash postings)                                                                                      | 6+        |
+| 54  | Choose and contract a telematics vendor in Cameroon; obtain official API documentation; implement the generic-rest pull methods and the vendor → RideKmer event mapping (middleware or direct)            | owner     |
+| 55  | Choose a map tile provider with a commercial licence (OSM public tiles are for light use); set `MAP_TILE_URL_TEMPLATE`                                                                                    | owner     |
+| 56  | Immobilisation: no provider is registered; registering one requires legal review of the conditions (ADR-029) and a signed vendor contract that supports acknowledgements                                  | legal     |
+| 57  | Staff alerts for geofence exits, tamper and power loss are in-app notifications only; decide SMS/WhatsApp escalation and on-call routing                                                                  | owner     |
+| 58  | Geofence evaluation uses planar ray casting on lat/lng, adequate for city-scale fences; polygons crossing the antimeridian are unsupported                                                                | post-v1   |
 
 ## Legal
 

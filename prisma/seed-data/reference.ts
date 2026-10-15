@@ -190,6 +190,23 @@ export async function seedReferenceData(
     await prisma.ledgerAccount.upsert({ where: { key: account.key }, update: {}, create: account });
   }
 
+  log("Seeding city geofences…");
+  for (const city of await prisma.city.findMany()) {
+    if (city.latitude === null || city.longitude === null) continue;
+    const name = `${city.nameEn} (city)`;
+    const existing = await prisma.geofence.findFirst({ where: { type: "CITY", cityId: city.id } });
+    const geometry = {
+      kind: "circle",
+      center: { latitude: city.latitude, longitude: city.longitude },
+      radiusMeters: 25_000,
+    };
+    if (!existing) {
+      await prisma.geofence.create({
+        data: { name, type: "CITY", cityId: city.id, geometry, alertOnExit: true, isActive: true },
+      });
+    }
+  }
+
   log("Seeding contract templates…");
   await seedContractTemplates(prisma);
 }

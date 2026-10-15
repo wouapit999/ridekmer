@@ -416,6 +416,17 @@ enum TrackingAccessType {
   EXPORT
 }
 
+enum ImmobilisationStatus {
+  REQUESTED
+  STATIONARY_CONFIRMED
+  APPROVED
+  SENT_TO_PROVIDER
+  ACKNOWLEDGED
+  REJECTED
+  CANCELLED
+  UNAVAILABLE
+}
+
 enum GeofenceType {
   CITY
   BRANCH
@@ -558,6 +569,7 @@ model User {
   expensesApproved       Expense[]                 @relation("ExpenseApprover")
   deviceRegistrations    TrackerDevice[]           @relation("DeviceRegistrar")
   paymentProviderConfigs PaymentProviderConfig[]   @relation("PaymentProviderConfigEditor")
+  immobilisationRequests ImmobilisationRequest[]   @relation("ImmobilisationRequester")
 
   @@index([status])
   @@index([createdAt])
@@ -1027,25 +1039,26 @@ model Vehicle {
   updatedAt          DateTime                 @updatedAt
   deletedAt          DateTime?
 
-  managementConfig    VehicleManagementConfig?
-  features            VehicleFeature[]
-  images              VehicleImage[]
-  availabilityBlocks  VehicleAvailability[]
-  documents           VehicleDocument[]
-  documentOverrides   DocumentOverride[]
-  trackerAssignments  VehicleTrackerAssignment[]
-  trackingEvents      TrackingEvent[]
-  bookings            Booking[]
-  reservationHolds    ReservationHold[]
-  inspections         Inspection[]
-  damages             VehicleDamage[]
-  maintenanceSchedule MaintenanceSchedule[]
-  maintenanceRecords  MaintenanceRecord[]
-  expenses            Expense[]
-  incidents           Incident[]
-  reviews             Review[]                   @relation("ReviewedVehicle")
-  ledgerEntries       LedgerEntry[]
-  pricingRules        PricingRule[]
+  managementConfig       VehicleManagementConfig?
+  features               VehicleFeature[]
+  images                 VehicleImage[]
+  availabilityBlocks     VehicleAvailability[]
+  documents              VehicleDocument[]
+  documentOverrides      DocumentOverride[]
+  trackerAssignments     VehicleTrackerAssignment[]
+  trackingEvents         TrackingEvent[]
+  bookings               Booking[]
+  reservationHolds       ReservationHold[]
+  inspections            Inspection[]
+  damages                VehicleDamage[]
+  maintenanceSchedule    MaintenanceSchedule[]
+  maintenanceRecords     MaintenanceRecord[]
+  expenses               Expense[]
+  incidents              Incident[]
+  reviews                Review[]                   @relation("ReviewedVehicle")
+  ledgerEntries          LedgerEntry[]
+  pricingRules           PricingRule[]
+  immobilisationRequests ImmobilisationRequest[]
 
   @@index([status, cityId])
   @@index([ownerProfileId])
@@ -1228,6 +1241,8 @@ model TrackingEvent {
   tamper          Boolean?
   rawPayload      Json?
   providerEventId String?
+  geofenceId      String?
+  insideGeofences String[]          @default([])
 
   @@unique([deviceId, providerEventId])
   @@index([vehicleId, recordedAt])
@@ -1264,6 +1279,35 @@ model Geofence {
   alertOnExit Boolean      @default(true)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+/// Remote immobilisation is NEVER automatic (ADR-010). A request records who asked, why, the
+/// stationary confirmation, two distinct approvals and the provider acknowledgement. Without a
+/// configured ImmobilisationProvider the request ends in UNAVAILABLE and nothing is sent.
+model ImmobilisationRequest {
+  id                    String               @id @default(cuid())
+  vehicleId             String
+  vehicle               Vehicle              @relation(fields: [vehicleId], references: [id])
+  bookingId             String?
+  status                ImmobilisationStatus @default(REQUESTED)
+  reason                String
+  requestedById         String
+  requestedBy           User                 @relation("ImmobilisationRequester", fields: [requestedById], references: [id])
+  stationaryConfirmedAt DateTime?
+  stationaryConfirmedBy String?
+  lastSpeedKmh          Float?
+  lastLocationAt        DateTime?
+  providerId            String?
+  providerReference     String?
+  providerMessage       String?
+  executedAt            DateTime?
+  executedById          String?
+  closedAt              DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  @@index([vehicleId, status])
+  @@index([status, createdAt])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

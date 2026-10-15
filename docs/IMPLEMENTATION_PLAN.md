@@ -186,7 +186,27 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] Tests: posting rules and statement maths (unit); payment → settlement → refund →
       expense → payout → statement flow (integration)
 
-### Milestone 7 — GPS / telematics abstraction, fleet map, geofences, access audit `[ ]`
+### Milestone 7 — GPS / telematics abstraction, fleet map, geofences, access audit `[x]`
+
+- [x] `@ridekmer/tracking`: RideKmer push contract (signed JSON events) shared by the mock and
+      the generic REST shell; vendor pull methods refuse to run until documented; geofence
+      maths (circle / polygon, transitions), track distance, stationary check
+- [x] Registry (mock refused in production), webhook `/api/webhooks/gps/generic`, ingestion
+      with dedupe, device health, geofence enter/exit events and staff alerts (exit, restricted
+      entry, tamper, power loss)
+- [x] Devices: register (encrypted serial/SIM), assign with mandatory owner consent for owner
+      vehicles, unassign; consumer tags recorded as secondary recovery devices only
+- [x] Geofences: seeded city circles, admin CRUD (circle or polygon)
+- [x] Fleet map (tile-based static map, no client JS, CSP-compatible), vehicle history with a
+      mandatory reason, trips, CSV export; every read logged in `TrackingAccessLog`; access log
+      page; daily retention purge cron
+- [x] Immobilisation requests: reason, stationary confirmation from the latest fix, two distinct
+      approvers, execution closes as UNAVAILABLE because no provider is registered (interface
+      only, never automatic)
+- [x] Owner vehicle page shows installation + consent (no location); demo seed adds mock
+      trackers with synthetic fixes
+- [x] Tests: geo maths and push parser (unit); devices, ingestion, geofences, access log,
+      retention, immobilisation (integration); fleet pages (e2e)
 
 ### Milestone 8 — Hardening, accessibility, performance, PWA, full test-suite, readiness `[ ]`
 
