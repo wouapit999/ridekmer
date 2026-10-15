@@ -27,6 +27,8 @@ export default defineConfig({
     : {
         command: "pnpm start",
         url: baseURL,
+        // Many registrations/logins from one IP in a few seconds: relax per-IP auth limits.
+        env: { AUTH_RATE_LIMIT_MULTIPLIER: "20" },
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
       },

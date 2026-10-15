@@ -8,6 +8,7 @@ import {
 } from "../../src/server/auth/permissions";
 import { DOCUMENT_TYPE_SEED } from "./document-types";
 import { SYSTEM_SETTINGS_SEED } from "./system-settings";
+import { seedContractTemplates } from "./contract-templates";
 
 /* eslint-disable no-console */
 export async function seedReferenceData(
@@ -188,4 +189,7 @@ export async function seedReferenceData(
   for (const account of ledgerAccounts) {
     await prisma.ledgerAccount.upsert({ where: { key: account.key }, update: {}, create: account });
   }
+
+  log("Seeding contract templates…");
+  await seedContractTemplates(prisma);
 }

@@ -30,7 +30,8 @@ and password-reset requests, 10/min for OTP and TOTP verification. Limits are pe
 deliberately generous because many users in Cameroon share carrier-grade NAT addresses;
 per-account lockout for password sign-in is an open item (Milestone 8). TOTP verification
 locks after repeated failures (`TwoFactor.failedVerificationCount`, `lockedUntil`). Clients
-receive HTTP 429 and show a localised "too many attempts" message.
+receive HTTP 429 and show a localised "too many attempts" message. `AUTH_RATE_LIMIT_MULTIPLIER`
+relaxes the limits for automated test runs and is refused in production.
 
 ## Roles and permissions
 

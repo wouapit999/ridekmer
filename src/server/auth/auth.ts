@@ -13,6 +13,7 @@ import { assignDefaultRole } from "./rbac";
 
 const env = getEnv();
 const OTP_MINUTES = 5;
+const m = env.APP_ENV === "production" ? 1 : env.AUTH_RATE_LIMIT_MULTIPLIER;
 
 function localeFor(user: { preferredLocale?: string | null } | undefined): "fr" | "en" {
   return user?.preferredLocale === "en" ? "en" : "fr";
@@ -85,12 +86,12 @@ export const auth = betterAuth({
     // Per-IP limits are deliberately generous because many Cameroonian users share carrier-grade
     // NAT addresses; per-account lockout is tracked in docs/OPEN_ITEMS.md (Milestone 8).
     customRules: {
-      "/sign-in/email": { window: 60, max: 20 },
-      "/sign-up/email": { window: 60, max: 10 },
-      "/phone-number/send-otp": { window: 60, max: 5 },
-      "/phone-number/verify": { window: 60, max: 10 },
-      "/two-factor/verify-totp": { window: 60, max: 10 },
-      "/request-password-reset": { window: 60, max: 5 },
+      "/sign-in/email": { window: 60, max: 20 * m },
+      "/sign-up/email": { window: 60, max: 10 * m },
+      "/phone-number/send-otp": { window: 60, max: 5 * m },
+      "/phone-number/verify": { window: 60, max: 10 * m },
+      "/two-factor/verify-totp": { window: 60, max: 10 * m },
+      "/request-password-reset": { window: 60, max: 5 * m },
     },
   },
   user: {

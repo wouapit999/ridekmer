@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toggleCity } from "@/features/admin/actions";
 import { getSettingsPageData } from "@/features/admin/queries";
 import { CityForm, SettingRow } from "@/features/admin/settings-forms";
+import { DocumentTypeForm } from "@/features/admin/review-forms";
 import { requirePermission } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -12,7 +13,7 @@ type Props = { params: Promise<{ locale: string }> };
 export default async function AdminSettingsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  await requirePermission("settings.manage", "/admin/settings");
+  const { access } = await requirePermission("settings.manage", "/admin/settings");
   const t = await getTranslations("admin.settings");
   const currentLocale = await getLocale();
   const { cities, settings, documentTypes } = await getSettingsPageData();
@@ -94,7 +95,7 @@ export default async function AdminSettingsPage({ params }: Props) {
             </thead>
             <tbody className="divide-y divide-sand-200">
               {documentTypes.map((d) => (
-                <tr key={d.id}>
+                <tr key={d.id} className={d.isActive ? "" : "opacity-60"}>
                   <td className="px-4 py-3 font-mono text-xs">{d.key}</td>
                   <td className="px-4 py-3">
                     <Badge>{d.subjectType}</Badge> {name(d)}
@@ -106,6 +107,7 @@ export default async function AdminSettingsPage({ params }: Props) {
             </tbody>
           </table>
         </div>
+        {access.permissions.has("document.configure_types") ? <DocumentTypeForm /> : null}
       </section>
     </div>
   );

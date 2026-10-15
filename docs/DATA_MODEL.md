@@ -31,7 +31,7 @@ initial migration (`prisma/migrations/*_init/migration.sql`). This page explains
 ### Vehicles and documents
 
 `Vehicle` (all attributes from the brief, `ownershipModel`, `status`, pricing, deposit,
-allowances, `documentsValid`, `version`), `VehicleManagementConfig` (who does what for
+allowances, `documentsValid`, `version`), `Vehicle` also carries `ownerRequestType/Reason/At` (owner suspension or withdrawal requests) and `submittedAt`. `VehicleManagementConfig` (who does what for
 self-managed vehicles), `VehicleFeature`, `VehicleImage`, `VehicleAvailability` (blocks),
 `DocumentType` (configurable, seeded with 14 types), `VehicleDocument` (versioned via
 `previousVersionId`, status lifecycle DRAFT→…→VERIFIED/REJECTED/EXPIRED/REPLACED, alert

@@ -29,6 +29,8 @@ const serverSchema = z.object({
     .string()
     .default("true")
     .transform((v) => v === "true"),
+  /** Multiplies per-IP auth rate limits; > 1 is only honoured outside production (e2e runs). */
+  AUTH_RATE_LIMIT_MULTIPLIER: z.coerce.number().int().min(1).max(100).default(1),
 
   APP_ENCRYPTION_KEY: z.string().min(32, "APP_ENCRYPTION_KEY must be a 32-byte base64 key"),
   APP_ENCRYPTION_KEY_ID: z.string().default("v1"),
@@ -148,6 +150,9 @@ function assertProductionSafety(env: ServerEnv) {
   }
   if (/localhost|127\.0\.0\.1/.test(env.DATABASE_URL)) {
     problems.push("DATABASE_URL points at localhost in production.");
+  }
+  if (env.AUTH_RATE_LIMIT_MULTIPLIER !== 1) {
+    problems.push("AUTH_RATE_LIMIT_MULTIPLIER must be 1 in production.");
   }
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
     problems.push("Upstash Redis is required in production for distributed rate limiting.");

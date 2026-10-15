@@ -36,4 +36,14 @@ describe("environment validation", () => {
       /STORAGE_PROVIDER=local[\s\S]*ALLOW_DEMO_SEED[\s\S]*localhost[\s\S]*Upstash/,
     );
   });
+
+  it("refuses a relaxed rate-limit multiplier in production", () => {
+    Object.assign(process.env, {
+      NODE_ENV: "production",
+      APP_ENV: "production",
+      AUTH_RATE_LIMIT_MULTIPLIER: "20",
+    });
+    resetEnvCache();
+    expect(() => getEnv()).toThrow(/AUTH_RATE_LIMIT_MULTIPLIER/);
+  });
 });

@@ -14,7 +14,7 @@ Vercel-compatible workflow/queue service without changing business code.
 - Vercel sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
 - Each job is idempotent and bounded (processes a batch, records progress in the database) so a
   rerun or timeout is harmless. Function max duration stays within the plan limit.
-- `vercel.json` declares the schedules; it is added when the first job ships.
+- `vercel.json` declares the schedules (first job: document expiry, daily 05:00 UTC = 06:00 Douala).
 
 ## Planned schedule
 

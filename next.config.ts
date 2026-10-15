@@ -8,6 +8,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: {
+    // Document and photo uploads go through server actions. Vercel's request limit is ~4.5 MB,
+    // so STORAGE_MAX_FILE_SIZE_BYTES must stay below that until direct-to-storage uploads land (M8).
+    serverActions: { bodySizeLimit: "12mb" },
+  },
   transpilePackages: [
     "@ridekmer/payments",
     "@ridekmer/notifications",

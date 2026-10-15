@@ -18,8 +18,9 @@ see `docs/LEGAL_REVIEW_CHECKLIST.md`.
 5. **Retention** — configurable via `SystemSetting` (`tracking.location_retention_days`,
    `privacy.customer_document_retention_days`); purge jobs run from Vercel Cron (M7/M8).
 6. **Rights** — `DataRequest` records export and deletion requests; a self-service form is
-   delivered in M8. Deletion respects statutory retention of contracts, invoices and incident
-   records (pseudonymisation instead of physical deletion where required).
+   delivered in M8. Deletion is implemented as anonymisation of the `User` row (name, email,
+   phone replaced, documents purged) rather than physical deletion: audit, ledger and
+   contract rows are append-only and must keep their references for statutory retention.
 7. **Security** — see `docs/SECURITY.md` (encryption, redaction, signed URLs).
 
 ## Processing inventory (initial)

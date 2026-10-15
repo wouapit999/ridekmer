@@ -33,12 +33,13 @@ Milestone 1 status is shown; the list is re-evaluated at every milestone. ✅ do
 - ⬜ Card provider — **mock**; provider not selected
 - ⬜ SMS / email / WhatsApp — **log providers**; vendors not selected
 - ⬜ GPS — **mock**; telematics provider not contracted
-- ⬜ Object storage — local dev only; Vercel Blob/S3 adapter in M2
+- ⬜ Object storage — Vercel Blob / S3 adapters implemented, pending verification against a live store
 
 ## Product
 
 - ✅ French and English interfaces, XAF formatting, Africa/Douala time zone
 - ✅ Mobile-first layout, keyboard-accessible forms, visible focus, skip link
+- ✅ Owner onboarding, vehicle onboarding, document lifecycle, vehicle approval (M2)
 - 🔜 Booking, payments, contracts, inspections, ledger, telematics (M3–M7)
 - 🔜 Service worker, offline page, update notification (M8)
 

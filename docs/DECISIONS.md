@@ -92,3 +92,21 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   target repository `wouapit999/ridekmer` must be created by the owner; the exact commands are
   in `docs/GITHUB_WORKFLOW.md`. Branch model: `main` (production), `develop` (integration),
   `feature/*`.
+
+## ADR-012 Uploads through server actions in v1
+
+- Context: Vercel serverless requests are limited to roughly 4.5 MB; document scans and
+  phone photos fit, large originals do not.
+- Decision: v1 uploads go through server actions (`bodySizeLimit` 12 MB locally, enforced to
+  `STORAGE_MAX_FILE_SIZE_BYTES` ≤ 4 MB on Vercel) so that validation, malware-scan hook,
+  checksum and audit run server-side in one place. Direct-to-storage client uploads with
+  signed tokens are planned for Milestone 8 (OPEN_ITEMS #32).
+- Consequences: simple, fully audited pipeline now; larger files need the later change.
+
+## ADR-013 Document expiry handled by a daily cron, not request-time checks only
+
+- Decision: `processDocumentExpiry` runs daily (Vercel Cron). It marks expired documents,
+  sends threshold alerts once each (recorded in `lastAlertDaysBefore` and deduplicated
+  notifications) and recomputes `Vehicle.documentsValid`/status. Uploads, reviews and
+  overrides also trigger `recomputeVehicleCompliance` immediately so the catalogue never
+  shows a vehicle with missing mandatory documents between runs.

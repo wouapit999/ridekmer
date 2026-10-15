@@ -2,12 +2,17 @@ import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 
-export function AccountNav({ current }: { current: "overview" | "profile" | "security" }) {
+export function AccountNav({
+  current,
+}: {
+  current: "overview" | "profile" | "security" | "documents";
+}) {
   const t = useTranslations("account.nav");
   const items = [
     { key: "overview", href: "/account" },
     { key: "profile", href: "/account/profile" },
     { key: "security", href: "/account/security" },
+    { key: "documents", href: "/account/documents" },
   ] as const;
   return (
     <nav aria-label="Account" className="flex gap-1 overflow-x-auto border-b border-sand-200 pb-px">

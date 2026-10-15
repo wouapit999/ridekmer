@@ -57,7 +57,8 @@ commands; it is intentionally not added until the production database exists.
 - [ ] Rollback procedure tested once (promote previous deployment)
 - [ ] Function logs reviewed for errors after deploy
 - [ ] Payment webhook URLs registered (when providers are live)
-- [ ] Cron schedules visible in Vercel → Settings → Cron Jobs (when added)
+- [ ] Cron schedule `/api/cron/document-expiry` visible in Vercel → Settings → Cron Jobs and `CRON_SECRET` set
+- [ ] `STORAGE_PROVIDER=vercel-blob` (or `s3`) configured; a test upload from the owner wizard succeeds and opens through a signed URL
 
 ## Rollback
 

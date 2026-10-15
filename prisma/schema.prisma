@@ -78,6 +78,11 @@ enum OwnershipModel {
   SELF_MANAGED_MARKETPLACE_VEHICLE
 }
 
+enum VehicleOwnerRequestType {
+  SUSPENSION
+  WITHDRAWAL
+}
+
 enum VehicleStatus {
   DRAFT
   SUBMITTED
@@ -997,18 +1002,22 @@ model Vehicle {
   descriptionFr       String?
   existingDamageNotes String?
 
-  publishedAt      DateTime?
-  reviewedAt       DateTime?
-  reviewerId       String?
-  reviewer         User?     @relation("VehicleReviewer", fields: [reviewerId], references: [id])
-  rejectionReason  String?
-  suspensionReason String?
-  documentsValid   Boolean   @default(false)
-  onboardingStep   String    @default("basics")
-  version          Int       @default(1)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime?
+  publishedAt        DateTime?
+  reviewedAt         DateTime?
+  reviewerId         String?
+  reviewer           User?                    @relation("VehicleReviewer", fields: [reviewerId], references: [id])
+  rejectionReason    String?
+  suspensionReason   String?
+  documentsValid     Boolean                  @default(false)
+  ownerRequestType   VehicleOwnerRequestType?
+  ownerRequestReason String?
+  ownerRequestedAt   DateTime?
+  submittedAt        DateTime?
+  onboardingStep     String                   @default("basics")
+  version            Int                      @default(1)
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  deletedAt          DateTime?
 
   managementConfig    VehicleManagementConfig?
   features            VehicleFeature[]

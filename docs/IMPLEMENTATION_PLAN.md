@@ -83,14 +83,26 @@ ridekmer/                      (repository root = Vercel root directory)
 - [x] `pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build` green
 - [x] Commit + push (branch `claude/clever-hamilton-yn2ghh` of `wouapit999/wouapit999`; migration to `wouapit999/ridekmer` pending — docs/GITHUB_WORKFLOW.md)
 
-### Milestone 2 — Owner and vehicle onboarding `[ ]`
+### Milestone 2 — Owner and vehicle onboarding `[x]` (2026-10-15)
 
-- Owner registration and KYC (individual / company), payout details
-- Vehicle onboarding wizard with draft saving, photos, documents, ownership model selection
-- Document management (configurable types, versions, verification workflow, expiry alerts,
-  automatic unavailability, administrator override with reason + audit)
-- Vehicle review / approval / suspension in the administration portal
-- Owner agreement acceptance (contract package)
+- [x] Owner onboarding wizard with draft progress: profile (individual / company), payout
+      details (encrypted bank account), KYC documents, owner agreement (immutable generated
+      contract + click-to-accept evidence)
+- [x] Vehicle onboarding wizard (8 steps, draft saving): basics, equipment, location,
+      pricing, photos, documents, management arrangement (fully managed / self-managed with
+      responsibility matrix), review and submit with completeness validation
+- [x] Document management: configurable types (admin editor), versioned uploads, verify /
+      reject with reason, expiry alerts at 60/30/14/7/0 days (cron), automatic
+      `UNAVAILABLE_DOCUMENTS`, administrator override with reason + expiry + audit
+- [x] Private file storage: Vercel Blob / S3 adapters, dev local provider, validation,
+      checksums, short-lived signed URLs, sensitive-access audit
+- [x] Vehicle review workflow: list by status, detail with documents/photos, start review,
+      approve (requires verified mandatory documents) and publish, reject, suspend,
+      reinstate, withdraw; owner suspension/withdrawal requests; blocked dates
+- [x] Customer identity + driving-licence upload and verification queue (customer/owner/KYB)
+- [x] Cron route `/api/cron/document-expiry` + `vercel.json` schedule
+- [x] Tests: lifecycle + schema unit tests, onboarding/approval/expiry integration test,
+      full owner → admin e2e flow
 
 ### Milestone 3 — Catalogue, search, pricing and booking `[ ]`
 

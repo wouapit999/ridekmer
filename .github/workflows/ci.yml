@@ -105,6 +105,7 @@ jobs:
           --health-retries 10
     env:
       ALLOW_DEMO_SEED: "true"
+      AUTH_RATE_LIMIT_MULTIPLIER: "20"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

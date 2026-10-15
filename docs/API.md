@@ -13,8 +13,11 @@ future native apps is planned (see "Mobile readiness").
 | GET      | `/api/health`                                          | none        | Liveness + database probe (`{ status, database, latencyMs }`).                    |
 | GET      | `/manifest.webmanifest`, `/robots.txt`, `/sitemap.xml` | none        | PWA / SEO metadata.                                                               |
 
-Planned (later milestones): `/api/cron/*` (Bearer `CRON_SECRET`), `/api/webhooks/payments/<provider>`,
-`/api/webhooks/gps/<provider>`, `/api/storage/*` (signed access), `/api/v1/*` (mobile).
+| GET | `/api/cron/document-expiry` | `Authorization: Bearer $CRON_SECRET` | Daily document-expiry job (Milestone 2). |
+| GET | `/api/storage/local/<key>?expires&sig` | HMAC signature | Development-only download route for the local storage provider. |
+
+Planned (later milestones): `/api/cron/*` for other jobs, `/api/webhooks/payments/<provider>`,
+`/api/webhooks/gps/<provider>`, `/api/v1/*` (mobile).
 
 ## Server actions (Milestone 1)
 

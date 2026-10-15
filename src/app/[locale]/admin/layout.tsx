@@ -24,6 +24,13 @@ export default async function AdminLayout({
   const p = access.permissions;
   const items = [
     { key: "dashboard", href: "/admin", show: true },
+    { key: "vehicles", href: "/admin/vehicles", show: p.has("vehicle.view_all") },
+    { key: "documents", href: "/admin/documents", show: p.has("document.verify") },
+    {
+      key: "verifications",
+      href: "/admin/verifications",
+      show: p.has("customer.verify") || p.has("owner.verify"),
+    },
     { key: "users", href: "/admin/users", show: p.has("user.view_all") },
     { key: "settings", href: "/admin/settings", show: p.has("settings.manage") },
     { key: "audit", href: "/admin/audit", show: p.has("audit.view") },
