@@ -1,40 +1,25 @@
 # GitHub workflow
 
-## Current state (important)
+## Current state (2026-10-15)
 
-The code was developed in a Claude Code cloud session whose GitHub access was limited to the
-profile repository `wouapit999/wouapit999`, branch `claude/clever-hamilton-yn2ghh`. The
-intended repository **`wouapit999/ridekmer` does not exist yet** and could not be created from
-the session (invalid CLI token, repository scope). Nothing was fabricated: the commands below
-create it.
+- **`wouapit999/ridekmer` (private)** is the canonical repository. `main` and `develop` both
+  hold the full milestone history (Milestone 1 → 8) imported from the development branch.
+- **`wouapit999/Ridekmer_main` (public)** is the renamed profile repository where the code was
+  first developed (branch `claude/clever-hamilton-yn2ghh`, plus an earlier one-commit
+  `develop`). It is public: keep it free of anything sensitive, and archive or delete the
+  RideKmer branches there once Vercel is connected to `wouapit999/ridekmer`.
 
-## Moving the code into `wouapit999/ridekmer`
+### Remaining owner actions on GitHub
 
-Run on your machine (requires `gh auth login` with the `wouapit999` account):
+1. Settings → Branches: protect `main` and `develop` (require a pull request, require the
+   `CI / quality` check, no force pushes).
+2. Settings → Code security: enable Dependabot alerts and secret scanning (push protection).
+3. Review `.github/CODEOWNERS` and the issue / pull-request templates.
+4. Optional clean-up of the public repository:
 
-```bash
-# 1. Get the code
-git clone --branch claude/clever-hamilton-yn2ghh https://github.com/wouapit999/wouapit999 ridekmer
-cd ridekmer
-
-# 2. Start a clean history for the new repository (keeps the files, drops the profile-repo commit)
-git checkout --orphan main
-git add -A
-git commit -m "RideKmer: Milestone 1 foundation"
-
-# 3. Create the private repository and push main
-gh repo create wouapit999/ridekmer --private --source=. --remote=origin --push
-
-# 4. Integration branch
-git checkout -b develop && git push -u origin develop
-
-# 5. (Optional) clean up the profile repository branch once the import is verified
-git push https://github.com/wouapit999/wouapit999 --delete claude/clever-hamilton-yn2ghh
-```
-
-Then in GitHub → Settings → Branches add protection rules for `main` and `develop` (require
-the `CI / quality` check, require a pull request, no force pushes), enable Dependabot alerts
-and secret scanning, and review `.github/CODEOWNERS`.
+   ```bash
+   git push https://github.com/wouapit999/Ridekmer_main --delete claude/clever-hamilton-yn2ghh develop
+   ```
 
 ## Branch model
 
