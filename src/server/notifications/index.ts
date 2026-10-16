@@ -1,6 +1,8 @@
 import {
   GenericHttpSmsProvider,
   LogNotificationProvider,
+  ResendEmailProvider,
+  SmtpEmailProvider,
   findTemplate,
   renderTemplate,
   type EmailProvider,
@@ -20,13 +22,41 @@ import { db } from "@/server/db";
  */
 const logProvider = new LogNotificationProvider();
 
+let emailProvider: EmailProvider | null = null;
+
+/**
+ * Resolve the e-mail provider once per process. `resend` needs RESEND_API_KEY and `smtp`
+ * needs SMTP_HOST/USER/PASSWORD; anything incomplete falls back to the log provider and is
+ * reported by /api/health (`email:log`). Credentials never leave the environment.
+ */
 export function getEmailProvider(): EmailProvider {
+  if (emailProvider) return emailProvider;
   const env = getEnv();
-  switch (env.EMAIL_PROVIDER) {
-    // Resend / SMTP adapters are added when credentials exist (docs/OPEN_ITEMS.md).
-    default:
-      return logProvider;
+  emailProvider = logProvider;
+  if (env.EMAIL_PROVIDER === "resend" && env.RESEND_API_KEY) {
+    emailProvider = new ResendEmailProvider({ apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM });
+  } else if (env.EMAIL_PROVIDER === "smtp" && env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASSWORD) {
+    emailProvider = new SmtpEmailProvider({
+      host: env.SMTP_HOST,
+      port: env.SMTP_PORT ?? 587,
+      user: env.SMTP_USER,
+      password: env.SMTP_PASSWORD,
+      from: env.EMAIL_FROM,
+    });
+  } else if (env.EMAIL_PROVIDER !== "log") {
+    logger.warn("notifications.email_provider_incomplete", { provider: env.EMAIL_PROVIDER });
   }
+  return emailProvider;
+}
+
+/** True when e-mails are really delivered (not only logged). */
+export function emailDeliveryConfigured(): boolean {
+  return getEmailProvider().name !== "log";
+}
+
+/** Tests only: forget the cached provider so a changed environment is re-read. */
+export function resetNotificationProviders() {
+  emailProvider = null;
 }
 
 export function getSmsProvider(): SmsProvider {

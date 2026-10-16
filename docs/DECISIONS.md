@@ -397,3 +397,31 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   pauses schedules after 60 days without repository activity, re-enabled with one click);
   two repository secrets are required; the schedule table now has four consumers kept in
   sync by one unit test (jobs table, GitHub workflow, Netlify functions, optional Vercel).
+
+## ADR-039 Real e-mail adapters and a one-shot administrator bootstrap
+
+**Context.** The log e-mail provider was the only implementation, so the first administrator
+had to be promoted with SQL and nobody could receive a password-reset or verification mail.
+Setting up the production database from a personal Windows machine also proved fragile.
+
+**Decision.**
+
+- `@ridekmer/notifications` gains `ResendEmailProvider` (HTTP API, no SDK) and
+  `SmtpEmailProvider` (nodemailer). `getEmailProvider()` picks them from `EMAIL_PROVIDER`
+  plus their credentials and falls back to the log provider, which `/api/health` reports.
+- `bootstrapSuperAdmin()` (`src/server/auth/bootstrap-admin.ts`) applies the reference data,
+  creates the account with a scrypt hash from Better Auth's own `hashPassword`, grants
+  `super_administrator`, audits the action and e-mails a 20-character temporary password
+  (template `admin_credentials`, body never persisted). It refuses when an administrator
+  already exists and grants the role to an existing account instead of creating a second one.
+- Exposed three ways with the same code path: `POST /api/admin/bootstrap` behind the cron
+  secret, the manual **Database** GitHub workflow (migrate, seed, bootstrap; Neon reachable
+  from the runner) and `pnpm admin:bootstrap` for operators with a terminal.
+- Sign-up no longer fails when the verification e-mail cannot be sent, and the register
+  form shows the server's reason next to the generic message.
+
+**Consequences.** A password travelling by e-mail is weaker than a set-password link; it is
+accepted for the single bootstrap because the account must change it and enable TOTP
+before the administration area opens, and the mail tells the recipient to delete it
+(OPEN_ITEMS #72). Without a configured provider the password is returned once to the
+holder of the cron secret, which is why the workflow prints the outcome but never the body.

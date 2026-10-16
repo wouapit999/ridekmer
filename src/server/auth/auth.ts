@@ -61,15 +61,21 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
       if (user.email.endsWith("@phone.ridekmer.invalid")) return; // phone-only accounts
-      await sendTemplatedNotification({
-        templateKey: "account_verification",
-        channel: "EMAIL",
-        locale: localeFor(user as { preferredLocale?: string }),
-        to: user.email,
-        userId: user.id,
-        variables: { name: user.name, url },
-        sensitive: true,
-      });
+      try {
+        await sendTemplatedNotification({
+          templateKey: "account_verification",
+          channel: "EMAIL",
+          locale: localeFor(user as { preferredLocale?: string }),
+          to: user.email,
+          userId: user.id,
+          variables: { name: user.name, url },
+          sensitive: true,
+        });
+      } catch (error) {
+        // A misconfigured e-mail provider must not block sign-up; the Notification row and
+        // /api/health (`email:log`) expose the problem, and the user can re-request later.
+        logger.error("auth.verification_email_failed", { userId: user.id, error });
+      }
     },
   },
   session: {
