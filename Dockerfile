@@ -25,22 +25,22 @@ ARG NEXT_PUBLIC_DEFAULT_LOCALE=fr
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV NEXT_PUBLIC_APP_NAME=$NEXT_PUBLIC_APP_NAME
 ENV NEXT_PUBLIC_DEFAULT_LOCALE=$NEXT_PUBLIC_DEFAULT_LOCALE
-# Build-time placeholders so configuration validation can run while prerendering. They never
-# reach the runtime image; real values come from the host's environment.
-ENV BETTER_AUTH_SECRET=build-time-placeholder-not-a-secret-0123456789
-ENV APP_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-ENV CRON_SECRET=build-time-placeholder-0123456789
-ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
-ENV APP_ENV=development
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages ./packages
 COPY prisma ./prisma
 COPY prisma.config.ts tsconfig.json ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm build
-# Drop development dependencies; the generated Prisma client stays under src/generated.
-RUN pnpm prune --prod
+# Build-time placeholders (not secrets) so configuration validation can run while
+# prerendering. Scoped to this single command: they never reach the runtime image.
+RUN APP_ENV=development \
+    DATABASE_URL=postgresql://build:build@localhost:5432/build \
+    BETTER_AUTH_SECRET=build-time-placeholder-not-a-secret-0123456789 \
+    APP_ENCRYPTION_KEY=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA= \
+    CRON_SECRET=build-time-placeholder-0123456789 \
+    pnpm build
+# Drop development dependencies (CI=true: pnpm needs it to prune without a TTY).
+RUN CI=true pnpm prune --prod
 
 # ---------- runtime ----------
 FROM base AS runner
