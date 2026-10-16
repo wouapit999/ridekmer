@@ -77,6 +77,8 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 65  | Web push notifications (`PushSubscription` model exists; no VAPID keys, no subscription UI, service worker has no push handler)                                                                                                                    | post-v1   |
 | 66  | Netlify free plan: synchronous functions (route handlers, server actions, cron routes) are limited to 10 s (26 s on request); confirm the limit on the real site and ask support to raise it if `statements` or `reconcile-payments` get cut short | owner     |
 | 67  | Netlify function body limit (6 MB): keep `STORAGE_MAX_FILE_SIZE_BYTES` at or below 5 MB until direct uploads exist                                                                                                                                 | owner     |
+| 68  | Railway: the in-process scheduler and the memory rate limiter assume one replica; before scaling out, move to Upstash and S3 and run the scheduler on a single service                                                                             | owner     |
+| 69  | Railway volume holds the uploads (`STORAGE_LOCAL_ROOT=/data`): add a volume backup job and decide when to move to S3-compatible storage                                                                                                            | owner     |
 
 ## Legal
 

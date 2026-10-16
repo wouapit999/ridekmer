@@ -13,9 +13,17 @@ Netlify (deploy contexts) and Vercel keep environment variables per environment.
 
 ## Hosting
 
-Netlify is the primary target (`netlify.toml`, `docs/NETLIFY_SETUP.md`, ADR-036) because the
-Vercel Hobby plan limits cron jobs to once a day. The code stays host-neutral: the same
-`/api/cron/*` routes are called by Netlify scheduled functions or by Vercel Cron.
+Railway is the default target (`Dockerfile`, `railway.json`, `docs/RAILWAY_SETUP.md`,
+ADR-037): one container, PostgreSQL and a volume in the same project, cron jobs scheduled
+inside the process (`CRON_MODE=in-process`). Netlify (`docs/NETLIFY_SETUP.md`, ADR-036) and
+Vercel (`docs/VERCEL_SETUP.md`) remain supported; the code is host-neutral and the same
+`/api/cron/*` routes are called by whichever scheduler the host provides.
+
+| Host    | Scheduler                       | Storage                             | Rate limits                   | Migrations                          |
+| ------- | ------------------------------- | ----------------------------------- | ----------------------------- | ----------------------------------- |
+| Railway | in-process (`CRON_MODE`)        | volume (`STORAGE_LOCAL_ROOT`) or S3 | memory (1 replica) or Upstash | pre-deploy command (`railway.json`) |
+| Netlify | scheduled functions             | S3-compatible                       | Upstash                       | operator / CI                       |
+| Vercel  | Vercel Cron (Pro for sub-daily) | Vercel Blob or S3                   | Upstash                       | operator / CI                       |
 
 ## Build
 
@@ -24,7 +32,8 @@ so type checks work right after install. The generated client is git-ignored.
 
 ## Database migrations (controlled, never automatic in functions)
 
-Migrations are applied by an operator or a CI step, **never** by serverless function code:
+Migrations are applied by an operator, a CI step or the host's pre-deploy hook (Railway),
+**never** by request-handling code:
 
 ```bash
 # from a machine/CI with network access to the database

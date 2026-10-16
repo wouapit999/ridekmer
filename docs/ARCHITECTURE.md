@@ -2,7 +2,7 @@
 
 ## Overview
 
-RideKmer is a **modular monolith**: one Next.js 16 application (App Router) deployed to Netlify (or Vercel),
+RideKmer is a **modular monolith**: one Next.js 16 application (App Router) deployed as a container on Railway (or to Netlify / Vercel),
 backed by a managed PostgreSQL database, with provider-agnostic packages for everything that
 talks to the outside world. See `docs/DECISIONS.md` for the reasoning behind each choice.
 
@@ -54,12 +54,12 @@ Dependencies point downwards only: routes → features → server/lib → packag
 4. `recordAudit()` stores before/after state, the reason, IP and user agent.
 5. `revalidatePath` refreshes the page.
 
-## Runtime model on serverless hosts (Netlify, Vercel)
+## Runtime model (container on Railway; serverless on Netlify / Vercel)
 
 - Serverless functions (Node.js runtime) for pages, actions and route handlers. No in-memory
   state is shared between requests; rate limiting uses the database (Better Auth) or Upstash.
 - `proxy.ts` runs at the edge for locale negotiation only.
-- Scheduled work: Netlify scheduled functions or Vercel Cron → authenticated route handlers (`docs/BACKGROUND_JOBS.md`).
+- Scheduled work: in-process scheduler (Railway), Netlify scheduled functions or Vercel Cron → authenticated route handlers (`docs/BACKGROUND_JOBS.md`).
 - Files: private object storage with short-lived signed URLs (`packages/storage`).
 - Migrations: run explicitly with `prisma migrate deploy` using the direct connection, never
   from function code (`docs/DEPLOYMENT.md`).

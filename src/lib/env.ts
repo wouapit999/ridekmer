@@ -40,8 +40,19 @@ const serverSchema = z.object({
 
   UPSTASH_REDIS_REST_URL: optionalString,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
+  /**
+   * `auto`: Upstash when configured, in-memory otherwise (dev/tests). `memory` opts a
+   * single-replica deployment (Railway, a VM) out of Redis; production refuses it with more
+   * than one replica. `upstash` requires the Upstash variables.
+   */
+  RATE_LIMIT_BACKEND: z.enum(["auto", "upstash", "memory"]).default("auto"),
 
   STORAGE_PROVIDER: z.enum(["local", "vercel-blob", "s3"]).default("local"),
+  /**
+   * Directory for the local provider. Required in production (a persistent volume, e.g. a
+   * Railway volume mounted at /data); defaults to ./.ridekmer-local-storage elsewhere.
+   */
+  STORAGE_LOCAL_ROOT: optionalString,
   BLOB_READ_WRITE_TOKEN: optionalString,
   S3_ENDPOINT: optionalString,
   S3_REGION: optionalString,
@@ -111,6 +122,10 @@ const serverSchema = z.object({
   SENTRY_DSN: optionalString,
 
   CRON_SECRET: z.string().min(16, "CRON_SECRET must be at least 16 characters"),
+  /** `external` (Vercel Cron, Netlify scheduled functions) or `in-process` (Railway, a VM). */
+  CRON_MODE: z.enum(["external", "in-process"]).default("external"),
+  /** Base URL the in-process scheduler calls; defaults to http://127.0.0.1:$PORT. */
+  CRON_BASE_URL: optionalString,
 
   ALLOW_DEMO_SEED: z
     .string()
@@ -145,9 +160,9 @@ export function getEnv(): ServerEnv {
 
 function assertProductionSafety(env: ServerEnv) {
   const problems: string[] = [];
-  if (env.STORAGE_PROVIDER === "local") {
+  if (env.STORAGE_PROVIDER === "local" && !env.STORAGE_LOCAL_ROOT?.startsWith("/")) {
     problems.push(
-      "STORAGE_PROVIDER=local is not allowed in production (no persistent disk on Vercel).",
+      "STORAGE_PROVIDER=local in production requires STORAGE_LOCAL_ROOT set to an absolute path on a persistent volume (serverless hosts have no persistent disk).",
     );
   }
   if (env.ALLOW_DEMO_SEED) {
@@ -159,8 +174,21 @@ function assertProductionSafety(env: ServerEnv) {
   if (env.AUTH_RATE_LIMIT_MULTIPLIER !== 1) {
     problems.push("AUTH_RATE_LIMIT_MULTIPLIER must be 1 in production.");
   }
-  if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) {
-    problems.push("Upstash Redis is required in production for distributed rate limiting.");
+  if (
+    env.RATE_LIMIT_BACKEND !== "memory" &&
+    (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN)
+  ) {
+    problems.push(
+      "Upstash Redis is required in production for distributed rate limiting (or set RATE_LIMIT_BACKEND=memory on a single-replica deployment).",
+    );
+  }
+  if (
+    env.RATE_LIMIT_BACKEND === "upstash" &&
+    (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN)
+  ) {
+    problems.push(
+      "RATE_LIMIT_BACKEND=upstash requires UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN.",
+    );
   }
   if (problems.length > 0) {
     throw new Error(

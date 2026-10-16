@@ -7,9 +7,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * DEVELOPMENT ONLY: serves files from the local-disk storage provider after verifying the
- * HMAC signature embedded in the signed URL. Production uses the object-storage provider's
- * own presigned URLs and never hits this route.
+ * Serves files from the local-disk storage provider after verifying the HMAC signature
+ * embedded in the signed URL. Used in development and on single-server hosts with a
+ * persistent volume (STORAGE_LOCAL_ROOT); object-storage providers use their own presigned
+ * URLs and never hit this route.
  */
 export async function GET(request: NextRequest, context: { params: Promise<{ key: string[] }> }) {
   const provider = getStorageProvider();

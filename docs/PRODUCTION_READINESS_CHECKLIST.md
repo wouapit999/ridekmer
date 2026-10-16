@@ -79,9 +79,9 @@ vendor or counsel) · ⚠️ built but unverified against a live service.
 
 - ✅ Repository `wouapit999/ridekmer` created, public, branches protected
   (`docs/GITHUB_WORKFLOW.md`)
-- ⬜ Netlify site connected to `main`; environment variables set per `docs/NETLIFY_SETUP.md`
-  (including `CRON_SECRET`, Upstash, S3-compatible storage, `MAP_TILE_URL_TEMPLATE`)
-- ⬜ Custom domain, provider webhook URLs, the seven scheduled functions visible under
-  Netlify → Functions
+- ⬜ Railway project connected to `main`; PostgreSQL service, `/data` volume and variables
+  set per `docs/RAILWAY_SETUP.md`; deep health check reports `cron: in-process (7 jobs)`
+- ⬜ Custom domain and provider webhook URLs configured
+- ⬜ Volume backups scheduled (uploads) in addition to database backups
 - ⬜ First production deployment smoke test: `/api/health` with the cron secret reports every
   check `ok`

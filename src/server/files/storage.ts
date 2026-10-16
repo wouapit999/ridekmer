@@ -42,9 +42,11 @@ export function getStorageProvider(): StorageProvider {
     }
     default:
       provider = new LocalDiskStorageProvider(
-        path.resolve(process.cwd(), ".ridekmer-local-storage"),
+        env.STORAGE_LOCAL_ROOT ?? path.resolve(process.cwd(), ".ridekmer-local-storage"),
         env.BETTER_AUTH_SECRET,
         env.NEXT_PUBLIC_APP_URL,
+        // A persistent volume (STORAGE_LOCAL_ROOT) is the only production-safe local root.
+        { allowInProduction: Boolean(env.STORAGE_LOCAL_ROOT) },
       );
   }
   return provider;

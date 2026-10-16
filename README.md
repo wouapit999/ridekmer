@@ -14,7 +14,7 @@ owners, chauffeur-driven vehicles and long-term rentals.
 
 Next.js 16 (App Router, Turbopack) · React 19 · TypeScript · Tailwind CSS 4 · Prisma 7 +
 PostgreSQL · Better Auth (email/password, phone OTP, TOTP MFA) · next-intl · Zod · Vitest ·
-Playwright · pnpm workspace · GitHub Actions · Netlify (primary) or Vercel.
+Playwright · pnpm workspace · GitHub Actions · Docker on Railway (default), Netlify or Vercel.
 
 ## Repository layout
 

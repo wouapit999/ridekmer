@@ -366,3 +366,19 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   routes mandatory (already the case); the storage provider must be S3-compatible rather than
   Vercel Blob; scheduled functions never run on previews, so cron behaviour is only testable
   in production or locally with `curl`.
+
+## ADR-037 Railway (single long-running container) as the default host; in-process scheduler
+
+- Decision: after Vercel's Hobby cron limit and the Netlify dashboard friction, RideKmer
+  ships a `Dockerfile` and `railway.json` and runs as one Node process on Railway. The seven
+  cron jobs live in `src/server/cron/jobs.ts` (shared with the Netlify functions and
+  `vercel.json`, kept identical by a unit test) and, when `CRON_MODE=in-process`, an
+  in-process scheduler (croner, UTC, overlap protection) calls the application's own cron
+  routes with the cron secret. Two production-safety rules gained explicit opt-outs for
+  single-replica hosts: `STORAGE_PROVIDER=local` is allowed when `STORAGE_LOCAL_ROOT` points
+  to a mounted volume, and `RATE_LIMIT_BACKEND=memory` replaces Upstash. Migrations and the
+  reference seed run as Railway's pre-deploy command, never from request handlers.
+- Consequences: no function time limits and no framework adapter; the scheduler and the
+  memory limiter require exactly one replica (documented; scaling out means Upstash + S3 and
+  `CRON_MODE` on a single service); uploads on a volume need their own backup; the image is
+  built and validated in CI; Vercel and Netlify stay available through configuration only.

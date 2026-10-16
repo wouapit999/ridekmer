@@ -6,6 +6,8 @@ import { logger } from "@/lib/logger";
 import { db } from "@/server/db";
 import { getStorageProvider } from "@/server/files/storage";
 import { listAvailableMethods } from "@/server/payments/registry";
+import { commitSha } from "@/instrumentation";
+import { activeScheduler } from "@/server/cron/scheduler";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,8 +67,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(
     {
       status,
-      version:
-        (process.env.VERCEL_GIT_COMMIT_SHA ?? process.env.COMMIT_REF)?.slice(0, 7) ?? "local",
+      version: commitSha(),
       appEnv: getEnv().APP_ENV,
       checks,
       latencyMs: Date.now() - startedAt,
@@ -130,19 +131,25 @@ async function paymentsCheck(): Promise<Check> {
   }
 }
 
-/** Cron freshness: the hold-expiry job runs every five minutes and leaves an audit trail. */
+/** Cron freshness: the daily housekeeping job leaves an audit trail; in-process mode also reports the scheduler. */
 async function cronCheck(): Promise<Check> {
+  const env = getEnv();
+  const scheduler = activeScheduler();
+  if (env.CRON_MODE === "in-process" && !scheduler) {
+    return { state: "failed", detail: "CRON_MODE=in-process but the scheduler is not running" };
+  }
+  const mode = scheduler ? `in-process (${scheduler.jobs.length} jobs)` : "external";
   try {
     const last = await db.auditLog.findFirst({
       where: { actorType: { in: ["SYSTEM", "CRON"] }, action: { startsWith: "cron." } },
       orderBy: { createdAt: "desc" },
       select: { action: true, createdAt: true },
     });
-    if (!last) return { state: "degraded", detail: "no cron run recorded yet" };
+    if (!last) return { state: "degraded", detail: `${mode}; no cron run recorded yet` };
     const ageMinutes = Math.round((Date.now() - last.createdAt.getTime()) / 60_000);
     return {
       state: ageMinutes > 26 * 60 ? "degraded" : "ok",
-      detail: `${last.action} ${ageMinutes} min ago`,
+      detail: `${mode}; ${last.action} ${ageMinutes} min ago`,
     };
   } catch {
     return { state: "skipped" };

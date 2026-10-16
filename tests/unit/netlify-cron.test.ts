@@ -4,14 +4,19 @@ import path from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { cronRequest, triggerCron } from "../../netlify/lib/trigger-cron";
+import { CRON_JOBS } from "@/server/cron/jobs";
 
 const root = path.resolve(__dirname, "../..");
 
 describe("Netlify scheduled functions", () => {
-  it("mirror every vercel.json cron with the same schedule", () => {
+  it("mirror every job in CRON_JOBS and vercel.json with the same schedule", () => {
     const vercel = JSON.parse(readFileSync(path.join(root, "vercel.json"), "utf8")) as {
       crons: Array<{ path: string; schedule: string }>;
     };
+    expect(vercel.crons.length).toBe(CRON_JOBS.length);
+    for (const job of CRON_JOBS) {
+      expect(vercel.crons.find((c) => c.path === job.path)?.schedule, job.path).toBe(job.schedule);
+    }
     const dir = path.join(root, "netlify/functions");
     const netlify = new Map<string, string>();
     for (const file of readdirSync(dir).filter((f) => f.startsWith("cron-"))) {
