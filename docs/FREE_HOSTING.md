@@ -47,8 +47,11 @@ to Path B.
 2. Storage → Create → Blob → connect it to the project; Vercel adds `BLOB_READ_WRITE_TOKEN`.
 3. Deploy. The first build takes about 2 minutes. The project URL replaces `<project>` above;
    update the three URL variables and redeploy once.
-4. Apply the migrations and seed the reference data **from your machine** (Vercel never runs
-   them):
+4. Apply the migrations and the reference data. Vercel never runs them; the easiest way is
+   the **Database** GitHub workflow: add the repository secret `DIRECT_DATABASE_URL` (Neon
+   direct, non-pooled URL), then _Actions → Database → Run workflow_ with migrate and seed
+   ticked. The same workflow can create the first administrator (step 6). From a machine
+   with Node 22 the equivalent is:
 
    ```bash
    DIRECT_DATABASE_URL="<Neon direct URL>" pnpm db:migrate:deploy
@@ -58,8 +61,11 @@ to Path B.
 5. GitHub → repository → Settings → Secrets and variables → Actions → New repository secret:
    `CRON_TARGET_URL=https://<project>.vercel.app` and `CRON_SECRET=<same value>`. Then
    Actions → "Scheduled jobs" → Run workflow → `housekeeping` to test it.
-6. `curl -s https://<project>.vercel.app/api/health`, then sign in and create the first
-   administrator (`docs/OPERATIONS_RUNBOOK.md`).
+6. `curl -s https://<project>.vercel.app/api/health`, then create the first administrator:
+   set `EMAIL_PROVIDER` (resend or smtp) with its credentials and `EMAIL_FROM` on Vercel,
+   redeploy, and run the **Database** workflow again with only _bootstrap_admin_email_
+   filled (or `POST /api/admin/bootstrap`, see `docs/OPERATIONS_RUNBOOK.md`). The temporary
+   password arrives by e-mail; sign in, change it and enable TOTP.
 
 ## Path B — Render free web service (no non-commercial clause)
 

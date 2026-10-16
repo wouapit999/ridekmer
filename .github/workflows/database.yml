@@ -1,0 +1,101 @@
+# Manual database operations for hosts that cannot run them at deploy time (Vercel, Netlify).
+#
+# Run it from Actions → "Database" → Run workflow. GitHub's runner reaches Neon directly, so
+# nothing has to be installed on a personal computer.
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   DIRECT_DATABASE_URL   Neon *direct* (non-pooled) connection string — migrations and seed
+#   CRON_TARGET_URL       e.g. https://ridekmer.vercel.app (no trailing slash) — bootstrap step
+#   CRON_SECRET           same value as on the host — bootstrap step
+#
+# Demo accounts are never created here (ALLOW_DEMO_SEED is forced to false).
+name: Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      migrate:
+        description: "Apply pending migrations (prisma migrate deploy)"
+        type: boolean
+        default: true
+      seed:
+        description: "Apply reference data (roles, permissions, settings, templates)"
+        type: boolean
+        default: true
+      bootstrap_admin_email:
+        description: "Create the first super administrator and e-mail the temporary password to this address (leave empty to skip)"
+        type: string
+        required: false
+        default: ""
+
+permissions: {}
+
+concurrency:
+  group: database
+  cancel-in-progress: false
+
+jobs:
+  database:
+    name: Migrate and seed
+    if: ${{ inputs.migrate || inputs.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check the secret
+        env:
+          URL: ${{ secrets.DIRECT_DATABASE_URL }}
+        run: |
+          if [ -z "$URL" ]; then
+            echo "DIRECT_DATABASE_URL secret is required" >&2; exit 1
+          fi
+      - name: Apply migrations
+        if: ${{ inputs.migrate }}
+        env:
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+        run: pnpm db:migrate:deploy
+      - name: Apply reference data
+        if: ${{ inputs.seed }}
+        env:
+          DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
+          APP_ENV: production
+          ALLOW_DEMO_SEED: "false"
+        run: pnpm db:seed
+
+  bootstrap:
+    name: Create the first administrator
+    needs: database
+    if: ${{ always() && needs.database.result != 'failure' && needs.database.result != 'cancelled' && inputs.bootstrap_admin_email != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call /api/admin/bootstrap
+        env:
+          TARGET: ${{ secrets.CRON_TARGET_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+          EMAIL: ${{ inputs.bootstrap_admin_email }}
+        run: |
+          if [ -z "$TARGET" ] || [ -z "$SECRET" ]; then
+            echo "CRON_TARGET_URL and CRON_SECRET secrets are required" >&2; exit 1
+          fi
+          body=$(jq -cn --arg email "$EMAIL" '{email: $email}')
+          status=$(curl --silent --show-error --output response.json --write-out '%{http_code}' \
+            --retry 2 --retry-delay 20 --retry-all-errors --connect-timeout 60 --max-time 300 \
+            -X POST -H "Authorization: Bearer $SECRET" -H "Content-Type: application/json" \
+            -d "$body" "$TARGET/api/admin/bootstrap")
+          echo "HTTP $status"
+          # Never print the response verbatim: it carries the temporary password when no
+          # e-mail provider is configured on the host.
+          jq -r '"outcome=\(.outcome // .error) delivery=\(.delivery // "-") email=\(.email // "-")"' response.json
+          if jq -e '.temporaryPassword' response.json >/dev/null; then
+            echo "::warning::No e-mail provider is configured on the host, so the password could not be sent. Set EMAIL_PROVIDER (resend or smtp) and its credentials, delete this account from Administration → Users, and run again — or run 'pnpm admin:bootstrap' locally."
+          fi
+          case "$status" in 200|201) exit 0 ;; 409) echo "An administrator already exists; nothing changed."; exit 0 ;; *) exit 1 ;; esac

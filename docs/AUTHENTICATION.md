@@ -63,10 +63,12 @@ Changing roles or status is itself audited and cannot be done on one's own accou
 
 ## First administrator in production
 
-Demo accounts are never created in production. Bootstrap procedure
-(`docs/OPERATIONS_RUNBOOK.md` → "Create the first super administrator"): register normally,
-then grant the role with a one-off SQL statement or the `scripts/grant-role.ts` helper
-(Milestone 2), and enable TOTP before using the administration area.
+Demo accounts are never created in production. The first super administrator is created by
+the one-shot bootstrap (`POST /api/admin/bootstrap` behind the cron secret, the "Database"
+GitHub workflow, or `pnpm admin:bootstrap`; see `docs/OPERATIONS_RUNBOOK.md`). It creates the
+account with a scrypt-hashed temporary password, e-mails it through the configured provider,
+writes an audit entry and refuses once an administrator exists. TOTP must be enabled before
+the administration area opens.
 
 ## Legal note
 

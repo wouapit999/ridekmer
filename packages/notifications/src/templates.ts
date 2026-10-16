@@ -63,6 +63,34 @@ export const NOTIFICATION_TEMPLATES: TemplateDefinition[] = [
     },
   },
   {
+    key: "admin_credentials",
+    variables: ["name", "email", "password", "url"],
+    email: {
+      fr: {
+        subject: "Votre accès administrateur RideKmer",
+        body: "Bonjour {{name}}, votre compte super administrateur RideKmer est prêt.\n\nIdentifiant : {{email}}\nMot de passe temporaire : {{password}}\n\nConnectez-vous ici : {{url}}\n\nDès la première connexion : changez ce mot de passe (Compte → Sécurité), puis activez la double authentification (TOTP), obligatoire pour l'espace d'administration. Ne transférez pas ce message ; supprimez-le une fois le mot de passe changé.",
+      },
+      en: {
+        subject: "Your RideKmer administrator access",
+        body: "Hello {{name}}, your RideKmer super administrator account is ready.\n\nSign-in: {{email}}\nTemporary password: {{password}}\n\nSign in here: {{url}}\n\nOn first sign-in: change this password (Account → Security), then enable two-factor authentication (TOTP), which is mandatory for the administration area. Do not forward this message; delete it once the password is changed.",
+      },
+    },
+  },
+  {
+    key: "admin_role_granted",
+    variables: ["name", "email", "url"],
+    email: {
+      fr: {
+        subject: "Rôle super administrateur RideKmer attribué",
+        body: "Bonjour {{name}}, le rôle super administrateur a été attribué à votre compte RideKmer existant ({{email}}). Connectez-vous avec votre mot de passe habituel : {{url}} puis activez la double authentification (TOTP) sous Compte → Sécurité.",
+      },
+      en: {
+        subject: "RideKmer super administrator role granted",
+        body: "Hello {{name}}, the super administrator role was granted to your existing RideKmer account ({{email}}). Sign in with your usual password: {{url}} then enable two-factor authentication (TOTP) under Account → Security.",
+      },
+    },
+  },
+  {
     key: "vehicle_submitted",
     variables: ["ownerName", "vehicle"],
     email: {
