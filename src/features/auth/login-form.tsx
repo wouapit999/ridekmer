@@ -32,12 +32,19 @@ export function LoginForm({ returnTo, smsIsMock }: { returnTo?: string; smsIsMoc
     });
     setPending(false);
     if (err) {
+      // Unknown failures carry the server's reason (status + message) so a configuration
+      // problem is visible to the tester instead of a generic message.
+      const reason = [err.status, err.message].filter(Boolean).join(" ");
       setError(
         err.code === "INVALID_EMAIL_OR_PASSWORD"
           ? t("errorInvalid")
           : err.code === "FAILED_TO_CREATE_SESSION"
             ? t("errorSuspended")
-            : t("errorGeneric"),
+            : err.status === 429
+              ? t("errorRateLimited")
+              : reason
+                ? `${t("errorGeneric")} (${reason})`
+                : t("errorGeneric"),
       );
       return;
     }
