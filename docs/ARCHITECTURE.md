@@ -59,7 +59,7 @@ Dependencies point downwards only: routes → features → server/lib → packag
 - Serverless functions (Node.js runtime) for pages, actions and route handlers. No in-memory
   state is shared between requests; rate limiting uses the database (Better Auth) or Upstash.
 - `proxy.ts` runs at the edge for locale negotiation only.
-- Scheduled work: in-process scheduler (Railway), Netlify scheduled functions or Vercel Cron → authenticated route handlers (`docs/BACKGROUND_JOBS.md`).
+- Scheduled work: GitHub Actions workflow, in-process scheduler (Railway), Netlify scheduled functions or Vercel Cron → authenticated route handlers (`docs/BACKGROUND_JOBS.md`).
 - Files: private object storage with short-lived signed URLs (`packages/storage`).
 - Migrations: run explicitly with `prisma migrate deploy` using the direct connection, never
   from function code (`docs/DEPLOYMENT.md`).

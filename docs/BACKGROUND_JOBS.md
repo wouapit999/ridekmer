@@ -18,9 +18,12 @@ Vercel-compatible workflow/queue service without changing business code.
     on `http://127.0.0.1:$PORT` with the secret. Run it on one replica only.
   - **Netlify**: `netlify/functions/cron-<job>.ts` scheduled functions call the route over
     HTTPS with the secret (`netlify/lib/trigger-cron.ts`).
-  - **Vercel**: `vercel.json` schedules call the route directly (Pro plan needed for
-    sub-daily schedules).
-  - A unit test keeps the three lists identical to `CRON_JOBS`.
+  - **GitHub Actions (any host, free)**: `.github/workflows/cron.yml` calls the routes over
+    HTTPS using the `CRON_TARGET_URL` and `CRON_SECRET` repository secrets; used for Vercel
+    Hobby and Render free, and as a fallback anywhere (`docs/FREE_HOSTING.md`).
+  - **Vercel Pro**: a `crons` array in `vercel.json` built from `CRON_JOBS` may replace the
+    GitHub workflow.
+  - A unit test keeps every list identical to `CRON_JOBS`.
 - Every caller sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
 - Each job is idempotent and bounded (processes a batch, records progress in the database) so a
   rerun or timeout is harmless. Function max duration stays within the plan limit.

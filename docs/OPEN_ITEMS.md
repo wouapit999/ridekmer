@@ -79,6 +79,8 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 67  | Netlify function body limit (6 MB): keep `STORAGE_MAX_FILE_SIZE_BYTES` at or below 5 MB until direct uploads exist                                                                                                                                 | owner     |
 | 68  | Railway: the in-process scheduler and the memory rate limiter assume one replica; before scaling out, move to Upstash and S3 and run the scheduler on a single service                                                                             | owner     |
 | 69  | Railway volume holds the uploads (`STORAGE_LOCAL_ROOT=/data`): add a volume backup job and decide when to move to S3-compatible storage                                                                                                            | owner     |
+| 70  | GitHub Actions scheduler: runs can lag by a few minutes and GitHub pauses schedules after 60 days without repository activity; acceptable while assembling, revisit (Vercel Pro cron, in-process scheduler on an always-on host) before launch     | owner     |
+| 71  | Vercel Hobby is non-commercial: move to Pro, Render Starter or Railway before real bookings                                                                                                                                                        | owner     |
 
 ## Legal
 

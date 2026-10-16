@@ -9,14 +9,34 @@ import { CRON_JOBS } from "@/server/cron/jobs";
 const root = path.resolve(__dirname, "../..");
 
 describe("Netlify scheduled functions", () => {
-  it("mirror every job in CRON_JOBS and vercel.json with the same schedule", () => {
-    const vercel = JSON.parse(readFileSync(path.join(root, "vercel.json"), "utf8")) as {
-      crons: Array<{ path: string; schedule: string }>;
-    };
-    expect(vercel.crons.length).toBe(CRON_JOBS.length);
-    for (const job of CRON_JOBS) {
-      expect(vercel.crons.find((c) => c.path === job.path)?.schedule, job.path).toBe(job.schedule);
+  it("GitHub Actions, Netlify and (if present) Vercel schedules match CRON_JOBS", () => {
+    // GitHub Actions workflow: one `- cron: "<schedule>" # <job>` line per job.
+    const workflow = readFileSync(path.join(root, ".github/workflows/cron.yml"), "utf8");
+    const actions = new Map<string, string>();
+    for (const m of workflow.matchAll(/- cron: "([^"]+)" # ([a-z-]+)/g)) {
+      actions.set(`/api/cron/${m[2]}`, m[1]!);
     }
+    expect(actions.size).toBe(CRON_JOBS.length);
+    for (const job of CRON_JOBS) {
+      expect(actions.get(job.path), job.path).toBe(job.schedule);
+      // The resolve step must map the schedule back to the job name.
+      expect(workflow).toContain(`"${job.schedule}")`);
+    }
+
+    // Vercel: optional (Hobby rejects sub-daily schedules); when present it must match.
+    const vercel = JSON.parse(readFileSync(path.join(root, "vercel.json"), "utf8")) as {
+      crons?: Array<{ path: string; schedule: string }>;
+    };
+    if (vercel.crons) {
+      expect(vercel.crons.length).toBe(CRON_JOBS.length);
+      for (const job of CRON_JOBS) {
+        expect(vercel.crons.find((c) => c.path === job.path)?.schedule, job.path).toBe(
+          job.schedule,
+        );
+      }
+    }
+
+    // Netlify: one scheduled function per job.
     const dir = path.join(root, "netlify/functions");
     const netlify = new Map<string, string>();
     for (const file of readdirSync(dir).filter((f) => f.startsWith("cron-"))) {
@@ -27,9 +47,9 @@ describe("Netlify scheduled functions", () => {
       expect(schedule, file).toBeDefined();
       netlify.set(route!, schedule!);
     }
-    expect(netlify.size).toBe(vercel.crons.length);
-    for (const cron of vercel.crons) {
-      expect(netlify.get(cron.path), cron.path).toBe(cron.schedule);
+    expect(netlify.size).toBe(CRON_JOBS.length);
+    for (const job of CRON_JOBS) {
+      expect(netlify.get(job.path), job.path).toBe(job.schedule);
     }
   });
 

@@ -382,3 +382,18 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   memory limiter require exactly one replica (documented; scaling out means Upstash + S3 and
   `CRON_MODE` on a single service); uploads on a volume need their own backup; the image is
   built and validated in CI; Vercel and Netlify stay available through configuration only.
+
+## ADR-038 GitHub Actions as a host-independent scheduler; free-tier deployment paths
+
+- Decision: `.github/workflows/cron.yml` runs the seven schedules (free on the public
+  repository) and calls the application's cron routes with the cron secret. It is the
+  default scheduler for hosts whose free plans cannot schedule sub-daily jobs (Vercel Hobby)
+  or that sleep when idle (Render free), and it works unchanged on any host with
+  `CRON_MODE=external`. `vercel.json` carries no cron schedules anymore so the Hobby import
+  succeeds. `render.yaml` describes the free Render web service built from the Dockerfile.
+  `docs/FREE_HOSTING.md` documents the two fully free paths (Vercel Hobby + Neon + Blob,
+  Render free + Neon + R2).
+- Consequences: schedules are enforced by GitHub (runs may lag by a few minutes; GitHub
+  pauses schedules after 60 days without repository activity, re-enabled with one click);
+  two repository secrets are required; the schedule table now has four consumers kept in
+  sync by one unit test (jobs table, GitHub workflow, Netlify functions, optional Vercel).

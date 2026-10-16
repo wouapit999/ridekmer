@@ -1,0 +1,51 @@
+# Render blueprint (docs/FREE_HOSTING.md). Free web service built from the Dockerfile.
+# The free instance sleeps after 15 minutes without traffic, so the cron jobs are driven by
+# .github/workflows/cron.yml (CRON_MODE=external) rather than the in-process scheduler.
+services:
+  - type: web
+    name: ridekmer
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: CRON_MODE
+        value: external
+      - key: RATE_LIMIT_BACKEND
+        value: memory
+      - key: STORAGE_PROVIDER
+        value: s3
+      - key: ALLOW_DEMO_SEED
+        value: "false"
+      - key: NEXT_PUBLIC_APP_NAME
+        value: RideKmer
+      # Set in the dashboard (sync: false = Render asks for the value at blueprint creation):
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: BETTER_AUTH_URL
+        sync: false
+      - key: AUTH_TRUSTED_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_DATABASE_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: APP_ENCRYPTION_KEY
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_REGION
+        sync: false
+      - key: S3_BUCKET
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false

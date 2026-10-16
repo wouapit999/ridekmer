@@ -19,11 +19,14 @@ inside the process (`CRON_MODE=in-process`). Netlify (`docs/NETLIFY_SETUP.md`, A
 Vercel (`docs/VERCEL_SETUP.md`) remain supported; the code is host-neutral and the same
 `/api/cron/*` routes are called by whichever scheduler the host provides.
 
-| Host    | Scheduler                       | Storage                             | Rate limits                   | Migrations                          |
-| ------- | ------------------------------- | ----------------------------------- | ----------------------------- | ----------------------------------- |
-| Railway | in-process (`CRON_MODE`)        | volume (`STORAGE_LOCAL_ROOT`) or S3 | memory (1 replica) or Upstash | pre-deploy command (`railway.json`) |
-| Netlify | scheduled functions             | S3-compatible                       | Upstash                       | operator / CI                       |
-| Vercel  | Vercel Cron (Pro for sub-daily) | Vercel Blob or S3                   | Upstash                       | operator / CI                       |
+| Host        | Scheduler                                       | Storage                             | Rate limits                   | Migrations                          |
+| ----------- | ----------------------------------------------- | ----------------------------------- | ----------------------------- | ----------------------------------- |
+| Railway     | in-process (`CRON_MODE`)                        | volume (`STORAGE_LOCAL_ROOT`) or S3 | memory (1 replica) or Upstash | pre-deploy command (`railway.json`) |
+| Netlify     | scheduled functions or GitHub Actions           | S3-compatible                       | Upstash                       | operator / CI                       |
+| Vercel      | GitHub Actions (`cron.yml`); Vercel Cron on Pro | Vercel Blob or S3                   | memory (Hobby) or Upstash     | operator / CI                       |
+| Render free | GitHub Actions (`cron.yml`)                     | S3-compatible (R2)                  | memory                        | operator / CI                       |
+
+Free-tier combinations are described step by step in `docs/FREE_HOSTING.md`.
 
 ## Build
 
