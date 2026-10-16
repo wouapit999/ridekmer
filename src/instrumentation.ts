@@ -20,12 +20,33 @@ export async function register() {
       storageProvider: env.STORAGE_PROVIDER,
       gpsProvider: env.GPS_PROVIDER,
       monitoring: env.MONITORING_PROVIDER,
-      commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+      cronMode: env.CRON_MODE,
+      commit: commitSha(),
     });
+    if (env.CRON_MODE === "in-process") {
+      // Long-running hosts (Railway, a VM): schedule the cron routes from inside the process.
+      const { startInProcessScheduler } = await import("@/server/cron/scheduler");
+      startInProcessScheduler({
+        baseUrl: env.CRON_BASE_URL ?? `http://127.0.0.1:${process.env.PORT ?? "3000"}`,
+        secret: env.CRON_SECRET,
+      });
+    }
   } catch (error) {
     logger.fatal("app.boot.invalid_environment", { error });
     throw error;
   }
+}
+
+/** Git commit of the running build, whichever host provides it. */
+export function commitSha(): string {
+  return (
+    (
+      process.env.VERCEL_GIT_COMMIT_SHA ??
+      process.env.COMMIT_REF ??
+      process.env.RAILWAY_GIT_COMMIT_SHA ??
+      process.env.SOURCE_COMMIT
+    )?.slice(0, 7) ?? "local"
+  );
 }
 
 export const onRequestError: Instrumentation.onRequestError = async (error, request, context) => {

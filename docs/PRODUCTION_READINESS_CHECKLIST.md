@@ -77,10 +77,13 @@ vendor or counsel) · ⚠️ built but unverified against a live service.
 
 ## Deployment
 
-- ⬜ Repository `wouapit999/ridekmer` created and connected to Vercel
+- ✅ Repository `wouapit999/ridekmer` created, public, branches protected
   (`docs/GITHUB_WORKFLOW.md`)
-- ⬜ Environment variables set per `docs/VERCEL_SETUP.md` (including `CRON_SECRET`,
-  Upstash, storage, `MAP_TILE_URL_TEMPLATE`)
-- ⬜ Custom domain, provider webhook URLs, cron schedules verified in Vercel → Cron Jobs
+- ⬜ Host chosen and connected to `main` (free tiers: `docs/FREE_HOSTING.md`; Railway:
+  `docs/RAILWAY_SETUP.md`); variables set; deep health check green
+- ⬜ GitHub secrets `CRON_TARGET_URL` and `CRON_SECRET` set; "Scheduled jobs" workflow run
+  once by hand and green (when not using the in-process scheduler)
+- ⬜ Custom domain and provider webhook URLs configured
+- ⬜ Backups for uploads (volume or bucket) in addition to database backups
 - ⬜ First production deployment smoke test: `/api/health` with the cron secret reports every
   check `ok`

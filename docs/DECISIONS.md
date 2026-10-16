@@ -351,3 +351,49 @@ Staff`) on top of Better Auth. Authorisation (roles/permissions) is entirely Rid
   without forking Prisma. The CI job fails on any new high-severity advisory.
 - Consequences: the overrides are reviewed at every Prisma upgrade and removed once Prisma
   ships the patched versions itself.
+
+## ADR-036 Netlify as primary host, Vercel kept as an alternative
+
+- Decision: the Vercel Hobby plan rejects cron schedules more frequent than daily, which the
+  booking-hold expiry (5 min) and payment reconciliation (15 min) need. RideKmer therefore
+  deploys to Netlify by default: `netlify.toml`, the pinned Next.js adapter, and seven
+  scheduled functions (`netlify/functions/cron-*.ts`) that call the unchanged `/api/cron/*`
+  routes with the cron secret. `vercel.json` stays in the repository and a unit test keeps
+  both schedule lists identical, so switching hosts is a configuration change.
+- Consequences: no business logic moved; Vercel-only settings (`maxDuration`,
+  `VERCEL_GIT_COMMIT_SHA`) are ignored or have fallbacks (`COMMIT_REF`); synchronous function
+  limits on Netlify's free plan (10 s default) make batching and idempotency of the cron
+  routes mandatory (already the case); the storage provider must be S3-compatible rather than
+  Vercel Blob; scheduled functions never run on previews, so cron behaviour is only testable
+  in production or locally with `curl`.
+
+## ADR-037 Railway (single long-running container) as the default host; in-process scheduler
+
+- Decision: after Vercel's Hobby cron limit and the Netlify dashboard friction, RideKmer
+  ships a `Dockerfile` and `railway.json` and runs as one Node process on Railway. The seven
+  cron jobs live in `src/server/cron/jobs.ts` (shared with the Netlify functions and
+  `vercel.json`, kept identical by a unit test) and, when `CRON_MODE=in-process`, an
+  in-process scheduler (croner, UTC, overlap protection) calls the application's own cron
+  routes with the cron secret. Two production-safety rules gained explicit opt-outs for
+  single-replica hosts: `STORAGE_PROVIDER=local` is allowed when `STORAGE_LOCAL_ROOT` points
+  to a mounted volume, and `RATE_LIMIT_BACKEND=memory` replaces Upstash. Migrations and the
+  reference seed run as Railway's pre-deploy command, never from request handlers.
+- Consequences: no function time limits and no framework adapter; the scheduler and the
+  memory limiter require exactly one replica (documented; scaling out means Upstash + S3 and
+  `CRON_MODE` on a single service); uploads on a volume need their own backup; the image is
+  built and validated in CI; Vercel and Netlify stay available through configuration only.
+
+## ADR-038 GitHub Actions as a host-independent scheduler; free-tier deployment paths
+
+- Decision: `.github/workflows/cron.yml` runs the seven schedules (free on the public
+  repository) and calls the application's cron routes with the cron secret. It is the
+  default scheduler for hosts whose free plans cannot schedule sub-daily jobs (Vercel Hobby)
+  or that sleep when idle (Render free), and it works unchanged on any host with
+  `CRON_MODE=external`. `vercel.json` carries no cron schedules anymore so the Hobby import
+  succeeds. `render.yaml` describes the free Render web service built from the Dockerfile.
+  `docs/FREE_HOSTING.md` documents the two fully free paths (Vercel Hobby + Neon + Blob,
+  Render free + Neon + R2).
+- Consequences: schedules are enforced by GitHub (runs may lag by a few minutes; GitHub
+  pauses schedules after 60 days without repository activity, re-enabled with one click);
+  two repository secrets are required; the schedule table now has four consumers kept in
+  sync by one unit test (jobs table, GitHub workflow, Netlify functions, optional Vercel).

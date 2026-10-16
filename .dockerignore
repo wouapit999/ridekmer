@@ -1,0 +1,14 @@
+.git
+node_modules
+**/node_modules
+.next
+coverage
+playwright-report
+test-results
+.ridekmer-local-storage
+.env
+.env.*
+!.env.example
+docs
+tests
+*.log

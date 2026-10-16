@@ -8,8 +8,25 @@
 | Preview     | any non-main branch / PR | separate preview database                    | mock / sandbox only | allowed (never real customer data) |
 | Production  | `main`                   | production PostgreSQL (pooled + direct URLs) | real, once approved | **refused**                        |
 
-Preview deployments must never receive production credentials or customer data; Vercel keeps
-environment variables per environment.
+Preview deployments must never receive production credentials or customer data; both
+Netlify (deploy contexts) and Vercel keep environment variables per environment.
+
+## Hosting
+
+Railway is the default target (`Dockerfile`, `railway.json`, `docs/RAILWAY_SETUP.md`,
+ADR-037): one container, PostgreSQL and a volume in the same project, cron jobs scheduled
+inside the process (`CRON_MODE=in-process`). Netlify (`docs/NETLIFY_SETUP.md`, ADR-036) and
+Vercel (`docs/VERCEL_SETUP.md`) remain supported; the code is host-neutral and the same
+`/api/cron/*` routes are called by whichever scheduler the host provides.
+
+| Host        | Scheduler                                       | Storage                             | Rate limits                   | Migrations                          |
+| ----------- | ----------------------------------------------- | ----------------------------------- | ----------------------------- | ----------------------------------- |
+| Railway     | in-process (`CRON_MODE`)                        | volume (`STORAGE_LOCAL_ROOT`) or S3 | memory (1 replica) or Upstash | pre-deploy command (`railway.json`) |
+| Netlify     | scheduled functions or GitHub Actions           | S3-compatible                       | Upstash                       | operator / CI                       |
+| Vercel      | GitHub Actions (`cron.yml`); Vercel Cron on Pro | Vercel Blob or S3                   | memory (Hobby) or Upstash     | operator / CI                       |
+| Render free | GitHub Actions (`cron.yml`)                     | S3-compatible (R2)                  | memory                        | operator / CI                       |
+
+Free-tier combinations are described step by step in `docs/FREE_HOSTING.md`.
 
 ## Build
 
@@ -18,7 +35,8 @@ so type checks work right after install. The generated client is git-ignored.
 
 ## Database migrations (controlled, never automatic in functions)
 
-Migrations are applied by an operator or a CI step, **never** by serverless function code:
+Migrations are applied by an operator, a CI step or the host's pre-deploy hook (Railway),
+**never** by request-handling code:
 
 ```bash
 # from a machine/CI with network access to the database
@@ -42,12 +60,11 @@ Optional automation: a GitHub Actions `deploy-migrations.yml` workflow (manual
 `workflow_dispatch`, environment-protected secret `DIRECT_DATABASE_URL`) can run the same two
 commands; it is intentionally not added until the production database exists.
 
-## Vercel deployment checklist
+## Deployment checklist (Netlify; Vercel equivalents in `docs/VERCEL_SETUP.md`)
 
-- [ ] GitHub repository connected (`wouapit999/ridekmer`)
-- [ ] Root directory `.`; framework Next.js detected
-- [ ] Build `pnpm build`; install `pnpm install --frozen-lockfile`; Node 22
-- [ ] Environment variables set per environment (see `docs/VERCEL_SETUP.md`)
+- [ ] GitHub repository connected (`wouapit999/ridekmer`), production branch `main`
+- [ ] Build settings taken from `netlify.toml` (Next.js adapter pinned, Node 22)
+- [ ] Environment variables set per deploy context (see `docs/NETLIFY_SETUP.md`)
 - [ ] Database reachable (`/api/health`)
 - [ ] Migrations applied and status clean
 - [ ] Reference data seeded, demo data disabled in production
@@ -57,12 +74,13 @@ commands; it is intentionally not added until the production database exists.
 - [ ] Rollback procedure tested once (promote previous deployment)
 - [ ] Function logs reviewed for errors after deploy
 - [ ] Payment webhook URLs registered (when providers are live)
-- [ ] Cron schedule `/api/cron/document-expiry` visible in Vercel → Settings → Cron Jobs and `CRON_SECRET` set
-- [ ] `STORAGE_PROVIDER=vercel-blob` (or `s3`) configured; a test upload from the owner wizard succeeds and opens through a signed URL
+- [ ] The seven `cron-*` scheduled functions listed under Functions with `CRON_SECRET` set; one manual run of `cron-housekeeping` turns the deep health check green
+- [ ] `STORAGE_PROVIDER=s3` (S3-compatible bucket) configured; a test upload from the owner wizard succeeds and opens through a signed URL
 
 ## Rollback
 
-Code: promote the previous deployment in Vercel. Database: migrations are forward-only; to
+Code: Netlify → Deploys → pick the previous successful deploy → "Publish deploy" (Vercel:
+promote the previous deployment). Database: migrations are forward-only; to
 undo, write a new migration that reverses the change, or restore from backup
 (`docs/BACKUP_AND_RECOVERY.md`).
 

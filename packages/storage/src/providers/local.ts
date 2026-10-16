@@ -16,9 +16,16 @@ export class LocalDiskStorageProvider implements StorageProvider {
     private readonly rootDir: string,
     private readonly signingSecret: string,
     private readonly baseUrl: string,
+    options: { allowInProduction?: boolean } = {},
   ) {
-    if (process.env.NODE_ENV === "production" && process.env.APP_ENV === "production") {
-      throw new Error("LocalDiskStorageProvider must not be used in production");
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.APP_ENV === "production" &&
+      !options.allowInProduction
+    ) {
+      throw new Error(
+        "LocalDiskStorageProvider must not be used in production without a persistent volume",
+      );
     }
   }
 

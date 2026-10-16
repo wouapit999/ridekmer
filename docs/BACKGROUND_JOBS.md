@@ -11,10 +11,23 @@ Vercel-compatible workflow/queue service without changing business code.
 ## Mechanics
 
 - Route handlers live under `src/app/api/cron/<job>/route.ts` (from Milestone 2).
-- Vercel sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
+- The schedules live once, in `src/server/cron/jobs.ts`; the scheduler is host-specific but
+  the routes are not:
+  - **Railway / any long-running host (default)**: `CRON_MODE=in-process` starts
+    `src/server/cron/scheduler.ts` (croner, UTC, no overlapping runs) which calls each route
+    on `http://127.0.0.1:$PORT` with the secret. Run it on one replica only.
+  - **Netlify**: `netlify/functions/cron-<job>.ts` scheduled functions call the route over
+    HTTPS with the secret (`netlify/lib/trigger-cron.ts`).
+  - **GitHub Actions (any host, free)**: `.github/workflows/cron.yml` calls the routes over
+    HTTPS using the `CRON_TARGET_URL` and `CRON_SECRET` repository secrets; used for Vercel
+    Hobby and Render free, and as a fallback anywhere (`docs/FREE_HOSTING.md`).
+  - **Vercel Pro**: a `crons` array in `vercel.json` built from `CRON_JOBS` may replace the
+    GitHub workflow.
+  - A unit test keeps every list identical to `CRON_JOBS`.
+- Every caller sends `Authorization: Bearer $CRON_SECRET`; handlers reject anything else.
 - Each job is idempotent and bounded (processes a batch, records progress in the database) so a
   rerun or timeout is harmless. Function max duration stays within the plan limit.
-- `vercel.json` declares the schedules (first job: document expiry, daily 05:00 UTC = 06:00 Douala).
+- Schedules are expressed in UTC (05:00 UTC = 06:00 Douala).
 
 ## Planned schedule
 
