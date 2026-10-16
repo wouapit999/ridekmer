@@ -1,7 +1,7 @@
 /**
  * Create the first super administrator from a terminal (docs/OPERATIONS_RUNBOOK.md).
  *
- *   pnpm admin:bootstrap --email support@example.com [--name "Support RideKmer"] [--locale fr]
+ *   pnpm admin:bootstrap --email support@example.com [--name "Support RideKmer"] [--locale fr] [--reseed]
  *
  * Needs DATABASE_URL (or DIRECT_DATABASE_URL) plus the usual application variables
  * (BETTER_AUTH_SECRET, APP_ENCRYPTION_KEY, NEXT_PUBLIC_APP_URL …), e.g. from `.env`.
@@ -28,7 +28,12 @@ async function main() {
   }
   const locale = arg("locale") === "en" ? "en" : "fr";
   const { bootstrapSuperAdmin } = await import("../src/server/auth/bootstrap-admin");
-  const result = await bootstrapSuperAdmin({ email, name: arg("name"), locale });
+  const result = await bootstrapSuperAdmin({
+    email,
+    name: arg("name"),
+    locale,
+    reseed: process.argv.includes("--reseed"),
+  });
   switch (result.outcome) {
     case "already_configured":
       console.log(`A super administrator already exists (${result.email}); nothing changed.`);

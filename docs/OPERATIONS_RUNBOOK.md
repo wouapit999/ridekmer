@@ -35,7 +35,9 @@ Pick one of the three ways:
    ```
 
    `201` created (password e-mailed), `200` role granted to an existing account, `409` an
-   administrator already exists. When the host has no e-mail provider the `201` body carries
+   administrator already exists, `500` with a `detail` field naming the host-side error. The
+   reference data is applied only when the roles are missing; pass `"reseed": true` (or
+   `--reseed` on the script) to force it. When the host has no e-mail provider the `201` body carries
    `temporaryPassword` once; treat that response as a secret.
 
 3. **Locally** with the production variables in the shell: `pnpm admin:bootstrap --email

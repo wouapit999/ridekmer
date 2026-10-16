@@ -9,13 +9,15 @@ import { db } from "@/server/db";
 import { emailDeliveryConfigured, sendTemplatedNotification } from "@/server/notifications";
 
 import { seedReferenceData } from "../../../prisma/seed-data/reference";
-import { SUPER_ADMIN_ROLE } from "./permissions";
+import { ROLE_DEFINITIONS, SUPER_ADMIN_ROLE } from "./permissions";
 import { assignRole } from "./rbac";
 
 export interface BootstrapAdminInput {
   email: string;
   name?: string;
   locale?: "fr" | "en";
+  /** Re-apply the reference data even when the roles already exist (slow on serverless). */
+  reseed?: boolean;
 }
 
 export type BootstrapAdminResult =
@@ -81,7 +83,14 @@ export async function bootstrapSuperAdmin(
   const env = getEnv();
   const loginUrl = `${env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "")}/${locale}/login`;
 
-  await seedReferenceData(db, (msg) => logger.info("bootstrap.reference_data", { msg }));
+  // The reference data takes a minute of sequential upserts; a serverless function only
+  // applies it when the roles are missing (fresh database) or when explicitly asked.
+  const roleCount = await db.role.count();
+  if (input.reseed || roleCount < ROLE_DEFINITIONS.length) {
+    await seedReferenceData(db, (msg) => logger.info("bootstrap.reference_data", { msg }));
+  } else {
+    logger.info("bootstrap.reference_data_present", { roles: roleCount });
+  }
 
   const existingAdmin = await activeSuperAdmin();
   if (existingAdmin) {
