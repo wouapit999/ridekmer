@@ -63,6 +63,7 @@ let redisLimiters: Map<string, Ratelimit> | undefined;
 
 function upstash(): Redis | null {
   const env = getEnv();
+  if (env.RATE_LIMIT_BACKEND === "memory") return null;
   if (!env.UPSTASH_REDIS_REST_URL || !env.UPSTASH_REDIS_REST_TOKEN) return null;
   return new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN });
 }

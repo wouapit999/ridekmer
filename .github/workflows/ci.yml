@@ -120,6 +120,8 @@ jobs:
     env:
       ALLOW_DEMO_SEED: "true"
       AUTH_RATE_LIMIT_MULTIPLIER: "20"
+      # Demo staff accounts have no TOTP; the e2e flows exercise the staff areas directly.
+      AUTH_REQUIRE_STAFF_MFA: "false"
       CRON_SECRET: ci-only-cron-secret-0123456789
     steps:
       - uses: actions/checkout@v4
@@ -146,3 +148,19 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  docker:
+    name: Container image (Railway / Docker hosts)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the production image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

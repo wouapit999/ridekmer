@@ -10,6 +10,8 @@ const DEMO_PASSWORD = "RideKmer-Demo-2026!";
  */
 async function scan(page: Page, path: string) {
   await page.goto(path);
+  // Freeze CSS transitions so axe never samples a colour halfway through a hover/focus fade.
+  await page.addStyleTag({ content: "*, *::before, *::after { transition: none !important; }" });
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .exclude("iframe")

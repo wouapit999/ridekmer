@@ -1,33 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/api/cron/document-expiry",
-      "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/cron/expire-holds",
-      "schedule": "*/5 * * * *"
-    },
-    {
-      "path": "/api/cron/reconcile-payments",
-      "schedule": "*/15 * * * *"
-    },
-    {
-      "path": "/api/cron/operations",
-      "schedule": "0 * * * *"
-    },
-    {
-      "path": "/api/cron/statements",
-      "schedule": "0 3 1 * *"
-    },
-    {
-      "path": "/api/cron/tracking-retention",
-      "schedule": "0 4 * * *"
-    },
-    {
-      "path": "/api/cron/housekeeping",
-      "schedule": "30 2 * * *"
-    }
-  ]
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }

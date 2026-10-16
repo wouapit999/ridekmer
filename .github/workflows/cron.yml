@@ -1,0 +1,85 @@
+# Host-independent scheduler (docs/FREE_HOSTING.md, ADR-038).
+#
+# GitHub runs these schedules for free on a public repository and calls the application's
+# cron routes with the cron secret. It replaces Vercel Cron (Hobby: daily only), Netlify
+# scheduled functions, or the in-process scheduler on hosts that sleep when idle (Render free).
+#
+# Required repository secrets (Settings → Secrets and variables → Actions):
+#   CRON_TARGET_URL   e.g. https://ridekmer.vercel.app  (no trailing slash)
+#   CRON_SECRET       same value as the CRON_SECRET environment variable on the host
+#
+# Schedules are UTC and must match src/server/cron/jobs.ts (a unit test checks this).
+# GitHub may delay a run by a few minutes and pauses schedules on repositories with no
+# activity for 60 days (re-enable under Actions).
+name: Scheduled jobs
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # expire-holds
+    - cron: "*/15 * * * *" # reconcile-payments
+    - cron: "0 * * * *" # operations
+    - cron: "30 2 * * *" # housekeeping
+    - cron: "0 3 1 * *" # statements
+    - cron: "0 4 * * *" # tracking-retention
+    - cron: "0 5 * * *" # document-expiry
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Job to run now"
+        required: true
+        type: choice
+        options:
+          - expire-holds
+          - reconcile-payments
+          - operations
+          - housekeeping
+          - statements
+          - tracking-retention
+          - document-expiry
+
+permissions: {}
+
+concurrency:
+  group: cron-${{ github.event.schedule || inputs.job }}
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    name: Call the cron route
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Resolve the job from the schedule that fired
+        id: resolve
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          MANUAL: ${{ inputs.job }}
+        run: |
+          case "${MANUAL:-$SCHEDULE}" in
+            expire-holds|"*/5 * * * *")            job=expire-holds ;;
+            reconcile-payments|"*/15 * * * *")     job=reconcile-payments ;;
+            operations|"0 * * * *")                job=operations ;;
+            housekeeping|"30 2 * * *")             job=housekeeping ;;
+            statements|"0 3 1 * *")                job=statements ;;
+            tracking-retention|"0 4 * * *")        job=tracking-retention ;;
+            document-expiry|"0 5 * * *")           job=document-expiry ;;
+            *) echo "Unknown schedule '${MANUAL:-$SCHEDULE}'" >&2; exit 1 ;;
+          esac
+          echo "job=$job" >> "$GITHUB_OUTPUT"
+
+      - name: Call /api/cron/${{ steps.resolve.outputs.job }}
+        env:
+          TARGET: ${{ secrets.CRON_TARGET_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+          JOB: ${{ steps.resolve.outputs.job }}
+        run: |
+          if [ -z "$TARGET" ] || [ -z "$SECRET" ]; then
+            echo "CRON_TARGET_URL and CRON_SECRET secrets are required" >&2; exit 1
+          fi
+          # Long connect/read timeouts: a free host that sleeps when idle needs ~1 min to wake.
+          status=$(curl --silent --show-error --output response.json --write-out '%{http_code}' \
+            --retry 3 --retry-delay 20 --retry-all-errors --connect-timeout 60 --max-time 600 \
+            -H "Authorization: Bearer $SECRET" -H "User-Agent: ridekmer-github-cron" \
+            "$TARGET/api/cron/$JOB")
+          echo "HTTP $status"; head -c 2000 response.json; echo
+          [ "$status" = "200" ]

@@ -1,4 +1,9 @@
-# Vercel setup (step by step)
+# Vercel setup
+
+> The Vercel **Hobby** plan limits cron jobs to once per day, so `vercel.json` carries no
+> schedules: the GitHub Actions workflow `.github/workflows/cron.yml` runs them instead
+> (`docs/FREE_HOSTING.md`, Path A). Hobby is for non-commercial use only; Pro (about 20 USD
+> a month) is required before taking real bookings. (step by step)
 
 For Roland or any administrator of the `wouapit999` GitHub account. No secret values appear in
 this document; generate them where indicated.
