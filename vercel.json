@@ -1,4 +1,3 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "_comment": "Cron schedules are driven by .github/workflows/cron.yml (free on every plan). On Vercel Pro you may instead add a crons array built from src/server/cron/jobs.ts."
+  "$schema": "https://openapi.vercel.sh/vercel.json"
 }
