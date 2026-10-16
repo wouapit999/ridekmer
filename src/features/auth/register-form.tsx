@@ -52,7 +52,15 @@ export function RegisterForm({ intent }: { intent?: string }) {
     });
     if (err) {
       setPending(false);
-      setError(err.code === "USER_ALREADY_EXISTS" ? t("errorExists") : t("errorGeneric"));
+      // Surface the server's reason (e.g. "Invalid origin", "Password too short") so a
+      // configuration problem is visible to the tester instead of a generic message.
+      setError(
+        err.code === "USER_ALREADY_EXISTS"
+          ? t("errorExists")
+          : err.message
+            ? `${t("errorGeneric")} (${err.message})`
+            : t("errorGeneric"),
+      );
       return;
     }
     if (wantsOwner) {

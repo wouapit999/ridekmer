@@ -12,18 +12,37 @@
 
 ## Create the first super administrator (production)
 
-1. Register a normal account through `/fr/register` with the administrator's email.
-2. Grant the role with the direct database URL (one-off):
+Demo accounts are never created in production. The bootstrap is a one-shot operation that
+applies the reference data (roles, permissions, settings, templates), creates the account
+with a temporary password and e-mails it, and refuses as soon as a super administrator
+exists. Further administrators are granted from _Administration → Users_ (audited).
 
-   ```sql
-   INSERT INTO "UserRole" ("userId", "roleId", "assignedBy")
-   SELECT u.id, r.id, 'bootstrap' FROM "User" u, "Role" r
-   WHERE u.email = 'admin@example.com' AND r.key = 'super_administrator'
-   ON CONFLICT DO NOTHING;
+Prerequisite for the e-mail: `EMAIL_PROVIDER=resend` (+ `RESEND_API_KEY`, verified sender
+domain) or `EMAIL_PROVIDER=smtp` (+ `SMTP_HOST/PORT/USER/PASSWORD`), and `EMAIL_FROM`.
+Without one, the temporary password is returned to the caller once instead (see below).
+
+Pick one of the three ways:
+
+1. **GitHub Actions** (no tools on your computer): _Actions → Database → Run workflow_, tick
+   migrate and seed, fill _bootstrap_admin_email_. The run calls `POST /api/admin/bootstrap`
+   on the host with `CRON_TARGET_URL` and `CRON_SECRET` and prints only the outcome.
+2. **HTTP** from any terminal that has the cron secret:
+
+   ```bash
+   curl -X POST -H "Authorization: Bearer $CRON_SECRET" -H "Content-Type: application/json" \
+     -d '{"email":"support@example.com","name":"Support","locale":"fr"}' \
+     https://<host>/api/admin/bootstrap
    ```
 
-3. Sign in, go to _Account → Security_, enable TOTP (mandatory for staff), store backup codes.
-4. From _Administration → Users_ grant further roles; never share the super administrator.
+   `201` created (password e-mailed), `200` role granted to an existing account, `409` an
+   administrator already exists. When the host has no e-mail provider the `201` body carries
+   `temporaryPassword` once; treat that response as a secret.
+
+3. **Locally** with the production variables in the shell: `pnpm admin:bootstrap --email
+support@example.com` prints the password once when no e-mail provider is configured.
+
+Then sign in, change the temporary password (_Account → Security_), enable TOTP (mandatory
+for staff), store the backup codes, and delete the e-mail.
 
 ## Suspend a user / vehicle
 

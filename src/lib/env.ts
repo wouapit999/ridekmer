@@ -74,6 +74,8 @@ const serverSchema = z.object({
   SMTP_PORT: z.coerce.number().int().optional(),
   SMTP_USER: optionalString,
   SMTP_PASSWORD: optionalString,
+  /** Address that `POST /api/admin/bootstrap` / `pnpm admin:bootstrap` use by default. */
+  BOOTSTRAP_ADMIN_EMAIL: z.string().email().optional(),
 
   SMS_PROVIDER: z.enum(["log", "generic-http"]).default("log"),
   SMS_SENDER_ID: z.string().default("RideKmer"),
