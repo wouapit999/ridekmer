@@ -1,0 +1,21 @@
+name: Diagnose production (temporary)
+
+on:
+  push:
+    branches: [assets/showcase-photos]
+    paths: [.github/workflows/diagnose-production.yml]
+
+permissions: {}
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Detailed health (storage, migrations, environment)
+        env:
+          TARGET: ${{ secrets.CRON_TARGET_URL }}
+          SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          TARGET="${TARGET%/}"
+          curl -sS -m 60 -H "Authorization: Bearer $SECRET" "$TARGET/api/health" | jq '.checks // .'
