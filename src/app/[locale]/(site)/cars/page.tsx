@@ -13,7 +13,7 @@ import { getCurrentSession } from "@/server/auth/session";
 import { isSamplePlate, samplePhotoUrl } from "@/features/vehicles/showcase-data";
 import { VehiclePhoto } from "@/features/vehicles/vehicle-photo";
 import { findReferenceImages } from "@/server/vehicles/reference-image";
-import { signedDownloadUrl } from "@/server/files/service";
+import { trySignedDownloadUrl } from "@/server/files/service";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -42,11 +42,10 @@ export default async function CarsPage({ params, searchParams }: Props) {
   const photoUrls = new Map<string, string>();
   await Promise.all(
     result.vehicles.map(async (v) => {
-      if (v.images[0])
-        photoUrls.set(
-          v.id,
-          await signedDownloadUrl({ storageKey: v.images[0].storageKey, ttlSeconds: 3600 }),
-        );
+      const stored = v.images[0]
+        ? await trySignedDownloadUrl({ storageKey: v.images[0].storageKey, ttlSeconds: 3600 })
+        : null;
+      if (stored) photoUrls.set(v.id, stored);
       else if (samplePhotoUrl(v.registrationNumber))
         photoUrls.set(v.id, samplePhotoUrl(v.registrationNumber)!);
     }),

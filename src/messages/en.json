@@ -76,7 +76,8 @@
       "reload": "Update now",
       "dismiss": "Later",
       "offlineBanner": "You are offline. Some pages may be unavailable."
-    }
+    },
+    "fileUnavailable": "File temporarily unavailable"
   },
   "home": {
     "metaTitle": "RideKmer — Car rental in Douala and Yaoundé",
@@ -945,7 +946,8 @@
       "company": "Legal name and representative are required.",
       "mobile": "Mobile Money number required.",
       "bank": "Bank name and account are required.",
-      "RESERVED_PLATE": "Plates starting with EX- are reserved for example cars. Enter the real registration number."
+      "RESERVED_PLATE": "Plates starting with EX- are reserved for example cars. Enter the real registration number.",
+      "STORAGE_UNAVAILABLE": "The file could not be saved: file storage is not available right now. Your other details are kept; please try again later or contact support."
     }
   },
   "admin": {
@@ -987,7 +989,9 @@
       "users": "Registered users",
       "mfaNotice": "Staff MFA enforcement: {state}",
       "enabled": "enabled",
-      "disabled": "disabled (development)"
+      "disabled": "disabled (development)",
+      "storageDownTitle": "File storage is not working",
+      "storageDownBody": "Document, photo and contract uploads fail. Storage is set to “{provider}” but its configuration is missing. On Vercel: Storage → Create → Blob → connect it to this project (this adds BLOB_READ_WRITE_TOKEN), then redeploy."
     },
     "users": {
       "title": "Users",
@@ -1940,7 +1944,8 @@
       "PICKUP_MISSING": "A submitted pickup inspection is required before the return.",
       "ALREADY_SETTLED": "The deposit was already settled.",
       "NOTE_REQUIRED": "Explain why you dispute.",
-      "REFUND_ERROR": "The refund request could not be created."
+      "REFUND_ERROR": "The refund request could not be created.",
+      "STORAGE_UNAVAILABLE": "The photo could not be saved: file storage is not available right now."
     },
     "diagram": {
       "front": "FRONT",
@@ -1998,7 +2003,8 @@
       "DISPUTED": "Marked as disputed.",
       "RESOLVED": "Resolved.",
       "CLOSED": "Closed.",
-      "RATE_LIMITED": "Too many reports. Please wait a moment and try again."
+      "RATE_LIMITED": "Too many reports. Please wait a moment and try again.",
+      "STORAGE_UNAVAILABLE": "The photo could not be saved: file storage is not available right now."
     },
     "admin": {
       "title": "Incidents",

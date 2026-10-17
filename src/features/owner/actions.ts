@@ -7,7 +7,7 @@ import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 
 import { DocumentError, uploadVerificationDocument } from "@/features/documents/service";
-import { FileRejectedError } from "@/server/files/service";
+import { FileRejectedError, StorageUnavailableError } from "@/server/files/service";
 import { getCurrentSession } from "@/server/auth/session";
 import { issuesToErrors, formToObject } from "@/features/vehicles/schemas";
 
@@ -39,6 +39,7 @@ function fail(error: unknown): OwnerActionResult {
   if (error instanceof DocumentError) return { ok: false, message: error.code };
   if (error instanceof FileRejectedError)
     return { ok: false, message: `FILE_${error.reason.code}` };
+  if (error instanceof StorageUnavailableError) return { ok: false, message: error.code };
   throw error;
 }
 

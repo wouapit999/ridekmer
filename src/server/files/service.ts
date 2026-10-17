@@ -46,6 +46,43 @@ export class FileRejectedError extends Error {
   }
 }
 
+/**
+ * The storage provider is missing its configuration (e.g. STORAGE_PROVIDER=vercel-blob without
+ * BLOB_READ_WRITE_TOKEN) or did not answer. Actions turn it into a clear message instead of
+ * crashing the page; the administration dashboard warns staff (see storageStatus()).
+ */
+export class StorageUnavailableError extends Error {
+  readonly code = "STORAGE_UNAVAILABLE";
+  constructor(cause: unknown) {
+    super("File storage is unavailable", { cause });
+    this.name = "StorageUnavailableError";
+  }
+}
+
+async function withStorage<T>(operation: string, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    logger.error("storage.unavailable", {
+      operation,
+      provider: getEnv().STORAGE_PROVIDER,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    throw new StorageUnavailableError(error);
+  }
+}
+
+/** Cheap configuration check (no network): is the storage provider usable at all? */
+export function storageStatus(): { ok: boolean; provider: string } {
+  const provider = getEnv().STORAGE_PROVIDER;
+  try {
+    getStorageProvider();
+    return { ok: true, provider };
+  } catch {
+    return { ok: false, provider };
+  }
+}
+
 const EXTENSIONS: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
@@ -79,12 +116,14 @@ export async function storeFile(input: StoreFileInput): Promise<StoredFile> {
     extension: EXTENSIONS[mimeType] ?? "bin",
   });
   const access = input.access ?? (PUBLIC_SCOPES.includes(input.scope) ? "public" : "private");
-  const result = await getStorageProvider().put({
-    key: storageKey,
-    body,
-    contentType: mimeType,
-    access,
-  });
+  const result = await withStorage("put", () =>
+    getStorageProvider().put({
+      key: storageKey,
+      body,
+      contentType: mimeType,
+      access,
+    }),
+  );
 
   await recordAudit({
     actorId: input.actorId,
@@ -130,10 +169,12 @@ export async function signedDownloadUrl(input: {
   ttlSeconds?: number;
 }): Promise<string> {
   const env = getEnv();
-  const url = await getStorageProvider().getSignedReadUrl(input.storageKey, {
-    expiresInSeconds: input.ttlSeconds ?? env.STORAGE_SIGNED_URL_TTL_SECONDS,
-    fileName: input.fileName,
-  });
+  const url = await withStorage("signedReadUrl", () =>
+    getStorageProvider().getSignedReadUrl(input.storageKey, {
+      expiresInSeconds: input.ttlSeconds ?? env.STORAGE_SIGNED_URL_TTL_SECONDS,
+      fileName: input.fileName,
+    }),
+  );
   if (input.sensitive) {
     await recordAudit({
       actorId: input.actorId,
@@ -151,4 +192,16 @@ export async function signedDownloadUrl(input: {
 export async function deleteStoredFile(storageKey: string, actorId?: string | null): Promise<void> {
   await getStorageProvider().delete(storageKey);
   await recordAudit({ actorId, action: "file.delete", entityType: "File", entityId: storageKey });
+}
+
+/** Like signedDownloadUrl, but returns null when storage is unavailable (pages stay usable). */
+export async function trySignedDownloadUrl(
+  input: Parameters<typeof signedDownloadUrl>[0],
+): Promise<string | null> {
+  try {
+    return await signedDownloadUrl(input);
+  } catch (error) {
+    if (error instanceof StorageUnavailableError) return null;
+    throw error;
+  }
 }

@@ -76,7 +76,8 @@
       "reload": "Mettre à jour",
       "dismiss": "Plus tard",
       "offlineBanner": "Vous êtes hors ligne. Certaines pages peuvent être indisponibles."
-    }
+    },
+    "fileUnavailable": "Fichier momentanément indisponible"
   },
   "home": {
     "metaTitle": "RideKmer — Location de voitures à Douala et Yaoundé",
@@ -945,7 +946,8 @@
       "company": "Raison sociale et représentant sont obligatoires.",
       "mobile": "Numéro Mobile Money obligatoire.",
       "bank": "Banque et numéro de compte sont obligatoires.",
-      "RESERVED_PLATE": "Les immatriculations commençant par EX- sont réservées aux voitures d'exemple. Saisissez la vraie immatriculation."
+      "RESERVED_PLATE": "Les immatriculations commençant par EX- sont réservées aux voitures d'exemple. Saisissez la vraie immatriculation.",
+      "STORAGE_UNAVAILABLE": "Le fichier n'a pas pu être enregistré : le stockage des fichiers est indisponible pour le moment. Vos autres informations sont conservées ; réessayez plus tard ou contactez le support."
     }
   },
   "admin": {
@@ -987,7 +989,9 @@
       "users": "Utilisateurs inscrits",
       "mfaNotice": "Obligation MFA du personnel : {state}",
       "enabled": "activée",
-      "disabled": "désactivée (développement)"
+      "disabled": "désactivée (développement)",
+      "storageDownTitle": "Le stockage des fichiers ne fonctionne pas",
+      "storageDownBody": "Les téléversements de documents, de photos et de contrats échouent. Le stockage est réglé sur « {provider} » mais sa configuration manque. Sur Vercel : Storage → Create → Blob → le connecter à ce projet (cela ajoute BLOB_READ_WRITE_TOKEN), puis redéployer."
     },
     "users": {
       "title": "Utilisateurs",
@@ -1940,7 +1944,8 @@
       "PICKUP_MISSING": "Une inspection de prise en charge soumise est requise avant le retour.",
       "ALREADY_SETTLED": "La caution a déjà été réglée.",
       "NOTE_REQUIRED": "Expliquez pourquoi vous contestez.",
-      "REFUND_ERROR": "La demande de remboursement n'a pas pu être créée."
+      "REFUND_ERROR": "La demande de remboursement n'a pas pu être créée.",
+      "STORAGE_UNAVAILABLE": "La photo n'a pas pu être enregistrée : le stockage des fichiers est indisponible pour le moment."
     },
     "diagram": {
       "front": "AVANT",
@@ -1998,7 +2003,8 @@
       "DISPUTED": "Marqué comme contesté.",
       "RESOLVED": "Résolu.",
       "CLOSED": "Clôturé.",
-      "RATE_LIMITED": "Trop de signalements. Patientez un instant puis réessayez."
+      "RATE_LIMITED": "Trop de signalements. Patientez un instant puis réessayez.",
+      "STORAGE_UNAVAILABLE": "La photo n'a pas pu être enregistrée : le stockage des fichiers est indisponible pour le moment."
     },
     "admin": {
       "title": "Incidents",
