@@ -60,6 +60,7 @@ export async function initiatePaymentAction(
       userId: current.user.id,
       method: parsed.data.method,
       payerPhone: parsed.data.payerPhone || current.user.phoneNumber,
+      transactionId: parsed.data.transactionId,
       locale: current.user.preferredLocale,
       returnUrl: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/${current.user.preferredLocale}/account/bookings/${parsed.data.bookingId}/pay`,
     });

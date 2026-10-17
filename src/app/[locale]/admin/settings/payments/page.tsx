@@ -15,6 +15,12 @@ const SETTING_KEYS = [
   "payment.bank_transfer_instructions_en",
   "payment.mobile_money_expiry_minutes",
   "payment.bank_transfer_expiry_hours",
+  "payment.manual_mobile_money_enabled",
+  "payment.manual_mtn_momo_number",
+  "payment.manual_orange_money_number",
+  "payment.manual_mobile_money_account_name",
+  "payment.manual_whatsapp_number",
+  "payment.manual_mobile_money_expiry_hours",
   "finance.dual_approval_threshold_xaf",
   "booking.payment_timeout_minutes",
 ];

@@ -11,6 +11,7 @@ export const initiatePaymentSchema = z.object({
   bookingId: z.string().min(1),
   method: z.enum(customerPaymentMethods),
   payerPhone: z.string().trim().max(32).optional(),
+  transactionId: z.string().trim().max(80).optional(),
 });
 
 export const manualPaymentSchema = z.object({

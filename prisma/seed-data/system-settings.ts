@@ -198,6 +198,62 @@ export const SYSTEM_SETTINGS_SEED: SystemSettingSeed[] = [
     category: "payment",
   },
   {
+    key: "payment.manual_mobile_money_enabled",
+    valueType: "BOOLEAN",
+    value: "true",
+    descriptionEn:
+      "While the MTN/Orange API is not configured, customers send Mobile Money by hand to the numbers below and enter the transaction ID",
+    descriptionFr:
+      "Tant que l'API MTN/Orange n'est pas configurée, les clients envoient le Mobile Money à la main aux numéros ci-dessous et saisissent l'ID de transaction",
+    category: "payment",
+  },
+  {
+    key: "payment.manual_mtn_momo_number",
+    valueType: "STRING",
+    value: "+237677550803",
+    descriptionEn: "MTN Mobile Money number customers send payments to",
+    descriptionFr: "Numéro MTN Mobile Money auquel les clients envoient leurs paiements",
+    category: "payment",
+    isPublic: true,
+  },
+  {
+    key: "payment.manual_orange_money_number",
+    valueType: "STRING",
+    value: "+237699949027",
+    descriptionEn: "Orange Money number customers send payments to",
+    descriptionFr: "Numéro Orange Money auquel les clients envoient leurs paiements",
+    category: "payment",
+    isPublic: true,
+  },
+  {
+    key: "payment.manual_mobile_money_account_name",
+    valueType: "STRING",
+    value: "WOUAPIT MBAIMOUN NJI ROLAND",
+    descriptionEn: "Account holder name shown with both Mobile Money numbers",
+    descriptionFr: "Nom du titulaire affiché avec les deux numéros Mobile Money",
+    category: "payment",
+    isPublic: true,
+  },
+  {
+    key: "payment.manual_whatsapp_number",
+    valueType: "STRING",
+    value: "+258878275656",
+    descriptionEn: "WhatsApp number customers send their transaction ID to",
+    descriptionFr: "Numéro WhatsApp auquel les clients envoient leur ID de transaction",
+    category: "payment",
+    isPublic: true,
+  },
+  {
+    key: "payment.manual_mobile_money_expiry_hours",
+    valueType: "INTEGER",
+    value: "24",
+    descriptionEn:
+      "Hours a hand-made Mobile Money transfer may stay unconfirmed before the booking expires",
+    descriptionFr:
+      "Heures pendant lesquelles un transfert Mobile Money manuel peut rester non confirmé avant expiration",
+    category: "payment",
+  },
+  {
     key: "documents.alert_days",
     valueType: "JSON",
     value: "[60,30,14,7,0]",
