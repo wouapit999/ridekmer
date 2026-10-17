@@ -28,6 +28,7 @@ export class VehicleError extends Error {
       | "FORBIDDEN"
       | "INVALID_STATUS"
       | "DUPLICATE_REGISTRATION"
+      | "DUPLICATE_VIN"
       | "INCOMPLETE"
       | "NOT_EDITABLE",
     public readonly details?: string[],
@@ -104,6 +105,7 @@ export async function createVehicleDraft(userId: string, input: BasicsInput) {
     where: { registrationNumber: input.registrationNumber },
   });
   if (existing) throw new VehicleError("DUPLICATE_REGISTRATION");
+  await assertVinAvailable(input.vin);
   const vehicle = await db.vehicle.create({
     data: {
       ...basicsToData(input),
@@ -123,6 +125,16 @@ export async function createVehicleDraft(userId: string, input: BasicsInput) {
     after: { registrationNumber: input.registrationNumber },
   });
   return vehicle;
+}
+
+/** The VIN is unique (vinHash): refuse it with a clear error instead of a database crash. */
+async function assertVinAvailable(vin: string | undefined | null, ownVehicleId?: string) {
+  if (!vin) return;
+  const taken = await db.vehicle.findUnique({
+    where: { vinHash: hashForLookup(vin) },
+    select: { id: true },
+  });
+  if (taken && taken.id !== ownVehicleId) throw new VehicleError("DUPLICATE_VIN");
 }
 
 function basicsToData(input: BasicsInput) {
@@ -159,6 +171,7 @@ export async function updateVehicleBasics(vehicleId: string, userId: string, inp
     });
     if (dup) throw new VehicleError("DUPLICATE_REGISTRATION");
   }
+  await assertVinAvailable(input.vin, vehicle.id);
   return db.vehicle.update({
     where: { id: vehicleId },
     data: {
