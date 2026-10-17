@@ -18,6 +18,7 @@ import { getPaymentForAdmin, listApprovalsForRefunds } from "@/features/payments
 import { refundableAmount } from "@/features/payments/refunds";
 import { OPEN_PAYMENT_STATUSES } from "@/features/payments/service";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 import { db } from "@/server/db";
@@ -33,6 +34,9 @@ export default async function AdminPaymentDetailPage({
   const payment = await getPaymentForAdmin(id);
   if (!payment) notFound();
   const t = await getTranslations("payments.admin");
+  const te = await getTranslations("enums");
+  const tpay = await getTranslations("payments");
+  const tenv = await getTranslations("admin.settings.payments");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const p = access.permissions;
@@ -85,7 +89,7 @@ export default async function AdminPaymentDetailPage({
             {payment.provider}{" "}
             {payment.providerEnvironment ? (
               <Badge tone={payment.providerEnvironment === "production" ? "good" : "warn"}>
-                {payment.providerEnvironment}
+                {enumLabel(tenv, "environments", payment.providerEnvironment)}
               </Badge>
             ) : null}
             <span className="block font-mono text-xs text-sand-600">
@@ -181,7 +185,12 @@ export default async function AdminPaymentDetailPage({
                     </p>
                     {mine.length > 0 ? (
                       <p className="text-xs text-sand-600">
-                        {mine.map((a) => `${a.approver.name}: ${a.decision}`).join(" · ")}
+                        {mine
+                          .map(
+                            (a) =>
+                              `${a.approver.name}: ${enumLabel(te, "approvalDecision", a.decision)}`,
+                          )
+                          .join(" · ")}
                       </p>
                     ) : null}
                     <RefundDecisionForm refundId={r.id} canDecide={canDecide} />
@@ -200,7 +209,8 @@ export default async function AdminPaymentDetailPage({
             <ul className="mt-2 space-y-1 text-xs text-sand-700">
               {payment.attempts.map((a) => (
                 <li key={a.id}>
-                  #{a.attemptNumber} · {a.status} · {format.dateTime(a.startedAt, "full")}
+                  #{a.attemptNumber} · {enumLabel(tpay, "statuses", a.status)} ·{" "}
+                  {format.dateTime(a.startedAt, "full")}
                   {a.errorMessage ? ` · ${a.errorMessage}` : ""}
                 </li>
               ))}
@@ -214,7 +224,8 @@ export default async function AdminPaymentDetailPage({
             <ul className="mt-2 space-y-1 text-xs text-sand-700">
               {payment.webhookEvents.map((e) => (
                 <li key={e.id}>
-                  {format.dateTime(e.receivedAt, "full")} · {e.eventType} · {e.status}
+                  {format.dateTime(e.receivedAt, "full")} · {e.eventType} ·{" "}
+                  {enumLabel(te, "webhookStatus", e.status)}
                   {e.signatureValid ? "" : ` · ${t("invalidSignature")}`}
                   {e.error ? ` · ${e.error}` : ""}
                 </li>

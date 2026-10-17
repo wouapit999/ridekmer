@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
+import { enumLabel } from "@/lib/i18n-enum";
 
 import { saveUserRoles, setUserStatus, type AdminActionResult } from "./actions";
 
@@ -29,6 +30,7 @@ export function UserAdminForms({
   canSuspend,
 }: Props) {
   const t = useTranslations("admin.users");
+  const te = useTranslations("enums");
   const [rolesState, rolesAction, rolesPending] = useActionState(saveUserRoles, {
     ok: false,
   } as AdminActionResult);
@@ -57,11 +59,8 @@ export function UserAdminForms({
                     value={r.id}
                     defaultChecked={assignedRoleIds.includes(r.id)}
                   />
-                  <span className="font-medium">{r.name}</span>
-                  <span className="text-xs text-sand-500">
-                    {r.key}
-                    {r.requiresMfa ? " · MFA" : ""}
-                  </span>
+                  <span className="font-medium">{enumLabel(te, "role", r.key)}</span>
+                  {r.requiresMfa ? <span className="text-xs text-sand-500">MFA</span> : null}
                 </label>
               </li>
             ))}

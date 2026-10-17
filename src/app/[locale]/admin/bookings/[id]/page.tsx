@@ -1,4 +1,4 @@
-import { getFormatter, getTranslations, setRequestLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/alert";
@@ -13,6 +13,7 @@ import type { Settlement } from "@/features/inspections/settlement";
 import { ManualPaymentForm } from "@/features/payments/admin-forms";
 import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
 import { getPaymentSettings } from "@/features/payments/settings";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { StaffTransitionForm } from "@/features/bookings/admin-forms";
 import { BookingStatusBadge } from "@/features/bookings/booking-badge";
@@ -32,6 +33,8 @@ export default async function AdminBookingDetailPage({
   const booking = await getBookingForAdmin(id);
   if (!booking) notFound();
   const t = await getTranslations("admin.bookings");
+  const te = await getTranslations("enums");
+  const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const tp = await getTranslations("payments.admin");
   const tc = await getTranslations("contracts");
   const ti = await getTranslations("inspections");
@@ -114,7 +117,8 @@ export default async function AdminBookingDetailPage({
             {format.dateTime(booking.startAt, "full")} → {format.dateTime(booking.endAt, "full")}
             <br />
             <span className="text-xs text-sand-600">
-              {booking.type} · {booking.pickupMode}
+              {enumLabel(te, "bookingType", booking.type)} ·{" "}
+              {enumLabel(te, "handoverMode", booking.pickupMode)}
               {booking.pickupAddress ? ` · ${booking.pickupAddress}` : ""}
             </span>
           </dd>
@@ -174,7 +178,7 @@ export default async function AdminBookingDetailPage({
                     · {format.dateTime(i.performedAt, "full")} · {i.inspector?.name ?? ""} ·{" "}
                     {i._count.photos} {ti("photosShort")} · {i._count.damages} {ti("damagesShort")}
                     {i.type === "RETURN" && i.deductionXaf
-                      ? ` · ${ti("settlement.deduction")}: ${formatXaf(i.deductionXaf, "fr")}`
+                      ? ` · ${ti("settlement.deduction")}: ${formatXaf(i.deductionXaf, currentLocale)}`
                       : ""}
                   </span>
                   <Badge
@@ -269,7 +273,8 @@ export default async function AdminBookingDetailPage({
                   className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
                 >
                   <Link href={`/admin/payments/${p.id}`} className="text-brand-700 hover:underline">
-                    <PaymentMethodLabel method={p.method} /> · {formatXaf(p.amountXaf, "fr")}
+                    <PaymentMethodLabel method={p.method} /> ·{" "}
+                    {formatXaf(p.amountXaf, currentLocale)}
                   </Link>
                   <PaymentStatusBadge status={p.status} />
                 </li>

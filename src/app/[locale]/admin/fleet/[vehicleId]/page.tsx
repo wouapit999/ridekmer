@@ -8,6 +8,7 @@ import { getVehicleTrack } from "@/features/tracking/queries";
 import { StaticMap } from "@/features/tracking/static-map";
 import { Link } from "@/i18n/navigation";
 import { fromDoualaLocal, isoDateFromNow } from "@/lib/dates";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 import { db } from "@/server/db";
 
@@ -26,6 +27,7 @@ export default async function AdminVehicleTrackPage({
   );
   const sp = await searchParams;
   const t = await getTranslations("tracking.history");
+  const te = await getTranslations("enums");
   const format = await getFormatter();
   const vehicle = await db.vehicle.findUnique({
     where: { id: vehicleId },
@@ -150,7 +152,7 @@ export default async function AdminVehicleTrackPage({
                   <span className="font-mono text-sand-500">
                     {format.dateTime(e.recordedAt, "full")}
                   </span>{" "}
-                  · {e.type}
+                  · {enumLabel(te, "trackingEventType", e.type)}
                   {e.geofenceId ? ` · ${e.geofenceId}` : ""}
                 </li>
               ))}

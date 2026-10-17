@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/alert";
 import { getUserDetail } from "@/features/admin/queries";
 import { UserAdminForms } from "@/features/admin/user-admin-forms";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string; id: string }> };
@@ -15,6 +16,7 @@ export default async function AdminUserDetailPage({ params }: Props) {
   const { user, roles } = await getUserDetail(id);
   if (!user) notFound();
   const t = await getTranslations("admin.users");
+  const te = await getTranslations("enums");
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-sand-900">{t("detailTitle", { name: user.name })}</h1>
@@ -30,7 +32,10 @@ export default async function AdminUserDetailPage({ params }: Props) {
         <div>
           <dt className="text-sand-600">{t("status")}</dt>
           <dd>
-            <Badge tone={user.status === "ACTIVE" ? "good" : "danger"}>{user.status}</Badge>
+            <Badge tone={user.status === "ACTIVE" ? "good" : "danger"}>
+              {enumLabel(te, "userStatus", user.status)}
+            </Badge>
+
             {user.suspensionReason ? (
               <span className="ml-2 text-sand-700">{user.suspensionReason}</span>
             ) : null}

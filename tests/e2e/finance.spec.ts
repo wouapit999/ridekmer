@@ -10,7 +10,7 @@ test.describe("finance area", () => {
     await page.getByLabel("Email address").fill("demo.admin@ridekmer.test");
     await page.getByLabel("Password").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/account$/);
+    await expect(page).toHaveURL(/\/en\/admin$/);
 
     await page.goto("/en/admin/finance");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Finance");

@@ -6,6 +6,7 @@ import { Container, PageHeader } from "@/components/ui/container";
 import { getStatementForOwner, type StatementLine } from "@/features/finance/statements";
 import { requireOwnerPage } from "@/features/owner/guards";
 import { OwnerNav } from "@/features/owner/owner-nav";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 
 export default async function OwnerStatementPage({
@@ -19,6 +20,7 @@ export default async function OwnerStatementPage({
   const statement = await getStatementForOwner(id, profile.id);
   if (!statement) notFound();
   const t = await getTranslations("finance.statements");
+  const te = await getTranslations("enums");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const xaf = (n: number) => formatXaf(n, currentLocale);
   const lines = statement.lines as unknown as StatementLine[];
@@ -92,7 +94,8 @@ export default async function OwnerStatementPage({
               {lines.map((l, i) => (
                 <tr key={i}>
                   <td className="px-4 py-2 font-mono text-xs">{l.date}</td>
-                  <td className="px-4 py-2 text-xs">{l.type}</td>
+                  <td className="px-4 py-2 text-xs">{enumLabel(te, "ledgerEntryType", l.type)}</td>
+
                   <td className="px-4 py-2 text-xs">
                     {l.description}
                     {l.reference ? ` · ${l.reference}` : ""}

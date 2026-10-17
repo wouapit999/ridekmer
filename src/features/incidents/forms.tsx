@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
 import { useRouter } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 
 import {
   incidentResolutionAction,
@@ -259,6 +260,7 @@ export function InsuranceClaimForm({
   } | null;
 }) {
   const t = useTranslations("incidents.admin");
+  const te = useTranslations("enums");
   const [state, action, pending] = useActionState(insuranceClaimAction, initial);
   return (
     <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
@@ -290,7 +292,7 @@ export function InsuranceClaimForm({
           >
             {["DRAFT", "SUBMITTED", "IN_PROGRESS", "SETTLED", "REJECTED", "CLOSED"].map((s) => (
               <option key={s} value={s}>
-                {s}
+                {enumLabel(te, "claimStatus", s)}
               </option>
             ))}
           </Select>

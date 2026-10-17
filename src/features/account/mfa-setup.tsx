@@ -5,14 +5,23 @@ import QRCode from "qrcode";
 import { useState, type FormEvent } from "react";
 
 import { Alert } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
 type Stage = "idle" | "verify" | "done";
 
-export function MfaSetup({ enabled, required }: { enabled: boolean; required: boolean }) {
+export function MfaSetup({
+  enabled,
+  required,
+  isStaff = false,
+}: {
+  enabled: boolean;
+  required: boolean;
+  /** Staff get a direct link to the administration once two-factor is on. */
+  isStaff?: boolean;
+}) {
   const t = useTranslations("account.security");
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("idle");
@@ -72,6 +81,9 @@ export function MfaSetup({ enabled, required }: { enabled: boolean; required: bo
       {required && !enabled ? <Alert tone="warning">{t("mfaRequired")}</Alert> : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {stage === "done" ? <Alert tone="success">{t("done")}</Alert> : null}
+      {isStaff && (enabled || stage === "done") ? (
+        <ButtonLink href="/admin">{t("goToAdmin")}</ButtonLink>
+      ) : null}
 
       {enabled && stage !== "done" ? (
         <form onSubmit={onDisable} className="space-y-3">
@@ -116,7 +128,7 @@ export function MfaSetup({ enabled, required }: { enabled: boolean; required: bo
             // eslint-disable-next-line @next/next/no-img-element -- data URL generated client-side, no optimisation possible
             <img
               src={qr}
-              alt="TOTP QR code"
+              alt={t("qrAlt")}
               width={220}
               height={220}
               className="rounded-md border border-sand-200"

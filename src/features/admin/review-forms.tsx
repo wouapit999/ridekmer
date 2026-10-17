@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { enumLabel } from "@/lib/i18n-enum";
 
 import {
   createOverrideAction,
@@ -258,6 +259,7 @@ export function DocumentTypeForm({
   };
 }) {
   const t = useTranslations("admin.settings");
+  const te = useTranslations("enums");
   const [state, action, pending] = useActionState(saveDocumentTypeAction, initial);
   const flags = [
     ["isMandatory", t("dtMandatory")],
@@ -298,7 +300,7 @@ export function DocumentTypeForm({
         >
           {["VEHICLE", "OWNER", "COMPANY", "CUSTOMER", "CHAUFFEUR", "CONTRACT"].map((s) => (
             <option key={s} value={s}>
-              {s}
+              {enumLabel(te, "documentSubject", s)}
             </option>
           ))}
         </select>

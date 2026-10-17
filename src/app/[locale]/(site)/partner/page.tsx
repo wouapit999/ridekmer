@@ -8,8 +8,11 @@ import { routing } from "@/i18n/routing";
 
 type Props = { params: Promise<{ locale: string }> };
 
-/** Static marketing/legal page (ADR-033): prerendered per locale, served from the CDN. */
-export const dynamic = "force-static";
+/**
+ * Static marketing/legal page (ADR-033): prerendered per locale through generateStaticParams.
+ * Do not add `dynamic = "force-static"`: it made next-intl render the default locale (fr)
+ * on the /en pages.
+ */
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

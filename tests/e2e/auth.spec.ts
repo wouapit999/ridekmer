@@ -19,7 +19,7 @@ test.describe("authentication and authorisation", () => {
     await page.getByRole("button", { name: "Créer mon compte" }).click();
     await expect(page).toHaveURL(/\/fr\/account$/);
     await expect(page.getByText("Bienvenue, E2E Client")).toBeVisible();
-    await expect(page.getByText("customer", { exact: true })).toBeVisible();
+    await expect(page.getByText("Client", { exact: true })).toBeVisible();
     await openMenuIfCollapsed(page);
     await page.getByRole("button", { name: "Se déconnecter", exact: true }).first().click();
     await expect(page).toHaveURL(/\/fr$/);
@@ -48,10 +48,13 @@ test.describe("authentication and authorisation", () => {
     await page.getByLabel("Email address").fill("demo.admin@ridekmer.test");
     await page.getByLabel("Password").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/account$/);
-    await page.goto("/en/admin");
+    // Staff land straight on the administration, which lists every task of the role.
+    await expect(page).toHaveURL(/\/en\/admin$/);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Administration");
     await expect(page.getByText("Registered users")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "What you can do" })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Users and roles/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Owner payouts/ })).toBeVisible();
     await page.goto("/en/admin/users?q=demo.customer");
     await expect(page.getByRole("cell", { name: "demo.customer@ridekmer.test" })).toBeVisible();
     await page.goto("/en/admin/audit");

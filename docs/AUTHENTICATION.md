@@ -80,6 +80,15 @@ account with a scrypt-hashed temporary password, e-mails it through the configur
 writes an audit entry and refuses once an administrator exists. TOTP must be enabled before
 the administration area opens.
 
+## Where staff land after sign-in
+
+Without an explicit `returnTo`, the login and two-factor forms ask `/api/account/viewer`
+whether the account is staff and open `/admin`; everyone else lands on `/account`. When the
+role requires TOTP and it is not enabled yet, the admin layout sends the user to
+`/account/security?mfa=required`, which lists the four setup steps and links back to the
+administration once TOTP is on. The account page shows an "Administration" card to staff
+with the same guidance. The dashboard lists every area the role can open (ADR-040).
+
 ## Legal note
 
 Electronic acceptance (click-to-accept with evidence) is not a certified electronic
