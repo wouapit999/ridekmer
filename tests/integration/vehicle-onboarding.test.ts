@@ -100,6 +100,34 @@ describe("vehicle onboarding and approval", () => {
     await expect(submitVehicle(vehicleId, ownerId)).rejects.toMatchObject({ code: "INCOMPLETE" });
   });
 
+  it("refuses a VIN that is already registered with a clear error", async () => {
+    const city = await db.city.findUniqueOrThrow({ where: { slug: "douala" } });
+    const vin = `VIN${randomUUID().replace(/-/g, "").slice(0, 14).toUpperCase()}`;
+    const basics = (plate: string) =>
+      basicsSchema.parse({
+        registrationNumber: plate,
+        vin,
+        make: "Toyota",
+        model: "Corolla",
+        manufacturingYear: 2019,
+        category: "SEDAN",
+        bodyType: "SEDAN",
+        transmission: "AUTOMATIC",
+        fuelType: "PETROL",
+        seats: 5,
+        currentMileageKm: 1000,
+        cityId: city.id,
+      });
+    const first = await createVehicleDraft(ownerId, basics(`VIN-${randomUUID().slice(0, 5)}`));
+    try {
+      await expect(
+        createVehicleDraft(ownerId, basics(`VIN-${randomUUID().slice(0, 5)}`)),
+      ).rejects.toMatchObject({ code: "DUPLICATE_VIN" });
+    } finally {
+      await db.vehicle.delete({ where: { id: first.id } });
+    }
+  });
+
   it("rejects access from a user who does not own the vehicle", async () => {
     await expect(
       updateVehiclePricing(vehicleId, adminId, {
