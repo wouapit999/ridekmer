@@ -1601,6 +1601,27 @@
       "BANK_TRANSFER": "Virement bancaire",
       "CASH": "Espèces"
     },
+    "manualMomo": {
+      "title": "Paiement par transfert Mobile Money",
+      "step1": "Envoyez {amount} depuis votre téléphone ({ussd}) au :",
+      "number": "Numéro",
+      "accountName": "Nom du compte",
+      "step2": "Copiez l'ID de la transaction indiqué dans le SMS de confirmation et saisissez-le ci-dessous.",
+      "step3": "Envoyez-le-nous ensuite sur WhatsApp. Votre réservation est confirmée dès réception de l'argent.",
+      "transactionId": "ID de la transaction",
+      "transactionIdHint": "Indiqué dans le SMS de confirmation MTN ou Orange, ex. 1234567890 ou MP240101.1234.A12345.",
+      "payerPhone": "Numéro depuis lequel vous avez envoyé l'argent",
+      "payerPhoneHint": "Numéro camerounais, ex. 6XX XX XX XX. Il nous aide à retrouver votre transfert.",
+      "submit": "Envoyer l'ID de la transaction",
+      "waiting": "Nous avons votre ID de transaction. Envoyez-le-nous sur WhatsApp : votre réservation est confirmée dès que nous voyons le transfert.",
+      "sentTo": "Envoyé au",
+      "whatsappIntro": "Dernière étape : appuyez sur le bouton et envoyez le message préparé sur WhatsApp.",
+      "whatsappButton": "Envoyer sur WhatsApp",
+      "whatsappMessage": "Bonjour RideKmer, j'ai payé la réservation {reference}.\nNom : {name}\nMontant : {amount}\nMode : {method}\nEnvoyé au : {number} ({accountName})\nID de transaction : {transactionId}",
+      "correct": "Mauvais ID de transaction ? Corrigez-le",
+      "correctSubmit": "Enregistrer l'ID de la transaction",
+      "corrected": "ID de transaction mis à jour. Envoyez le nouveau message sur WhatsApp."
+    },
     "statuses": {
       "CREATED": "Créé",
       "PENDING": "En attente",
@@ -1635,7 +1656,10 @@
       "ALREADY_PAID": "Cette réservation est déjà payée.",
       "PROVIDER_ERROR": "Le fournisseur de paiement n'a pas répondu. Réessayez.",
       "NOT_MOCK": "La simulation n'est disponible qu'avec le fournisseur simulé.",
-      "RATE_LIMITED": "Trop de tentatives de paiement. Patientez un instant puis réessayez."
+      "RATE_LIMITED": "Trop de tentatives de paiement. Patientez un instant puis réessayez.",
+      "TRANSACTION_ID_REQUIRED": "Saisissez l'ID de la transaction indiqué dans le SMS de confirmation.",
+      "TRANSACTION_ID_INVALID": "Cela ne ressemble pas à un ID de transaction. Copiez-le exactement depuis le SMS de confirmation.",
+      "TRANSACTION_ID_USED": "Cet ID de transaction a déjà été utilisé pour un autre paiement."
     },
     "admin": {
       "title": "Paiements",
@@ -1643,7 +1667,7 @@
       "detailTitle": "Paiement",
       "all": "Tous",
       "allMethods": "Tous les moyens",
-      "search": "Rechercher par référence, référence fournisseur ou e-mail",
+      "search": "Rechercher par référence, référence fournisseur, ID de transaction ou e-mail",
       "date": "Date",
       "booking": "Réservation",
       "method": "Moyen",
@@ -1705,7 +1729,10 @@
         "SELF_APPROVAL": "Vous ne pouvez pas approuver un remboursement que vous avez demandé.",
         "ALREADY_DECIDED": "Vous avez déjà statué sur ce remboursement.",
         "PROVIDER_ERROR": "Le fournisseur n'a pas répondu."
-      }
+      },
+      "transactionId": "ID de transaction du client",
+      "payTo": "Envoyé au",
+      "manualMomoHint": "Vérifiez que cette transaction est bien arrivée sur le compte Mobile Money de l'entreprise avant de confirmer. Le client l'envoie aussi sur WhatsApp."
     }
   },
   "contracts": {

@@ -22,16 +22,30 @@ const OPEN = ["CREATED", "PENDING", "REQUIRES_CUSTOMER_ACTION", "PROCESSING"];
 export interface MethodOption {
   method: "MTN_MOBILE_MONEY" | "ORANGE_MONEY" | "CARD" | "BANK_TRANSFER";
   environment: "mock" | "sandbox" | "production";
+  /** Recorded by hand and confirmed by finance (no operator API involved). */
+  manual: boolean;
+}
+
+/** Company Mobile Money accounts the customer sends money to by hand. */
+export interface ManualMobileMoneyAccounts {
+  mtnNumber: string;
+  orangeNumber: string;
+  accountName: string;
 }
 
 export function PaymentMethodForm({
   bookingId,
   methods,
   defaultPhone,
+  amount,
+  accounts,
 }: {
   bookingId: string;
   methods: MethodOption[];
   defaultPhone: string;
+  /** Formatted amount due, shown in the hand-made transfer instructions. */
+  amount: string;
+  accounts: ManualMobileMoneyAccounts;
 }) {
   const t = useTranslations("payments");
   const router = useRouter();
@@ -53,6 +67,7 @@ export function PaymentMethodForm({
     initial,
   );
   const needsPhone = method === "MTN_MOBILE_MONEY" || method === "ORANGE_MONEY";
+  const manualTransfer = needsPhone && methods.find((m) => m.method === method)?.manual === true;
   return (
     <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="bookingId" value={bookingId} />
@@ -87,8 +102,38 @@ export function PaymentMethodForm({
           </label>
         ))}
       </fieldset>
+      {manualTransfer ? (
+        <ManualTransferInstructions
+          method={method as "MTN_MOBILE_MONEY" | "ORANGE_MONEY"}
+          amount={amount}
+          accounts={accounts}
+        />
+      ) : null}
+      {manualTransfer ? (
+        <Field
+          id="transactionId"
+          label={t("manualMomo.transactionId")}
+          hint={t("manualMomo.transactionIdHint")}
+          required
+        >
+          <Input
+            id="transactionId"
+            name="transactionId"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={64}
+            required
+          />
+        </Field>
+      ) : null}
       {needsPhone ? (
-        <Field id="payerPhone" label={t("payerPhone")} hint={t("payerPhoneHint")} required>
+        <Field
+          id="payerPhone"
+          label={manualTransfer ? t("manualMomo.payerPhone") : t("payerPhone")}
+          hint={manualTransfer ? t("manualMomo.payerPhoneHint") : t("payerPhoneHint")}
+          required
+        >
           <Input
             id="payerPhone"
             name="payerPhone"
@@ -104,9 +149,113 @@ export function PaymentMethodForm({
         <p className="text-sm text-sand-700">{t("bankTransferNotice")}</p>
       ) : null}
       <Button type="submit" size="lg" loading={pending} className="w-full sm:w-auto">
-        {t("payNow")}
+        {manualTransfer ? t("manualMomo.submit") : t("payNow")}
       </Button>
     </ActionForm>
+  );
+}
+
+function ManualTransferInstructions({
+  method,
+  amount,
+  accounts,
+}: {
+  method: "MTN_MOBILE_MONEY" | "ORANGE_MONEY";
+  amount: string;
+  accounts: ManualMobileMoneyAccounts;
+}) {
+  const t = useTranslations("payments.manualMomo");
+  const number = method === "MTN_MOBILE_MONEY" ? accounts.mtnNumber : accounts.orangeNumber;
+  return (
+    <div className="space-y-3 rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-sand-800">
+      <p className="font-semibold text-sand-900">{t("title")}</p>
+      <ol className="list-decimal space-y-2 pl-5">
+        <li>
+          {t("step1", {
+            amount,
+            ussd: method === "MTN_MOBILE_MONEY" ? "*126#" : "#150#",
+          })}
+          <dl className="mt-2 grid gap-1 rounded-md bg-white px-3 py-2">
+            <div className="flex flex-wrap justify-between gap-2">
+              <dt className="text-sand-600">{t("number")}</dt>
+              <dd className="font-mono text-base font-semibold select-all">{number}</dd>
+            </div>
+            <div className="flex flex-wrap justify-between gap-2">
+              <dt className="text-sand-600">{t("accountName")}</dt>
+              <dd className="font-semibold">{accounts.accountName}</dd>
+            </div>
+          </dl>
+        </li>
+        <li>{t("step2")}</li>
+        <li>{t("step3")}</li>
+      </ol>
+    </div>
+  );
+}
+
+/** Lets the customer correct the transaction ID of a transfer they already announced. */
+export function CorrectTransactionIdForm({
+  bookingId,
+  method,
+  defaultPhone,
+}: {
+  bookingId: string;
+  method: "MTN_MOBILE_MONEY" | "ORANGE_MONEY";
+  defaultPhone: string;
+}) {
+  const t = useTranslations("payments");
+  const router = useRouter();
+  const [state, action, pending] = useActionState(
+    async (prev: PaymentActionResult, fd: FormData) => {
+      const r = await initiatePaymentAction(prev, fd);
+      if (r.ok) router.refresh();
+      return r;
+    },
+    initial,
+  );
+  return (
+    <details className="rounded-lg border border-sand-200 px-4 py-3 text-sm">
+      <summary className="cursor-pointer font-medium text-sand-800">
+        {t("manualMomo.correct")}
+      </summary>
+      <ActionForm action={action} state={state} className="mt-3 space-y-3">
+        <input type="hidden" name="bookingId" value={bookingId} />
+        <input type="hidden" name="method" value={method} />
+        {!state.ok && state.message ? (
+          <Alert tone="danger">
+            {t.has(`errors.${state.message}` as "errors.INVALID")
+              ? t(`errors.${state.message}` as "errors.INVALID")
+              : state.message}
+          </Alert>
+        ) : null}
+        {state.ok ? <Alert tone="success">{t("manualMomo.corrected")}</Alert> : null}
+        <Field id="correctTransactionId" label={t("manualMomo.transactionId")} required>
+          <Input
+            id="correctTransactionId"
+            name="transactionId"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={64}
+            required
+          />
+        </Field>
+        <Field id="correctPayerPhone" label={t("manualMomo.payerPhone")} required>
+          <Input
+            id="correctPayerPhone"
+            name="payerPhone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            defaultValue={defaultPhone}
+            required
+          />
+        </Field>
+        <Button type="submit" variant="outline" loading={pending}>
+          {t("manualMomo.correctSubmit")}
+        </Button>
+      </ActionForm>
+    </details>
   );
 }
 

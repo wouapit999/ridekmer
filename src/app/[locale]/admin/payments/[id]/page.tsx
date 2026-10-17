@@ -16,7 +16,7 @@ import {
 } from "@/features/payments/payment-badge";
 import { getPaymentForAdmin, listApprovalsForRefunds } from "@/features/payments/queries";
 import { refundableAmount } from "@/features/payments/refunds";
-import { OPEN_PAYMENT_STATUSES } from "@/features/payments/service";
+import { OPEN_PAYMENT_STATUSES, paymentTransactionId } from "@/features/payments/service";
 import { Link } from "@/i18n/navigation";
 import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
@@ -42,7 +42,15 @@ export default async function AdminPaymentDetailPage({
   const p = access.permissions;
   const refundable = await refundableAmount(db, payment.id);
   const approvals = await listApprovalsForRefunds(payment.refunds.map((r) => r.id));
-  const isManual = payment.method === "CASH" || payment.method === "BANK_TRANSFER";
+  const isManual =
+    payment.method === "CASH" ||
+    payment.method === "BANK_TRANSFER" ||
+    payment.provider.startsWith("manual-");
+  const transactionId = paymentTransactionId(payment.metadata);
+  const payTo =
+    payment.metadata && typeof payment.metadata === "object" && !Array.isArray(payment.metadata)
+      ? (payment.metadata as Record<string, unknown>).payTo
+      : undefined;
   const isOpen = OPEN_PAYMENT_STATUSES.includes(payment.status);
   return (
     <div className="space-y-6">
@@ -142,11 +150,28 @@ export default async function AdminPaymentDetailPage({
             ) : null}
           </dd>
         </div>
+        {transactionId ? (
+          <div className="sm:col-span-2 lg:col-span-4">
+            <dt className="text-sand-600">{t("transactionId")}</dt>
+            <dd className="font-mono text-base font-semibold">
+              {transactionId}
+              {typeof payTo === "string" ? (
+                <span className="ml-2 font-sans text-xs font-normal text-sand-600">
+                  {t("payTo")} {payTo}
+                </span>
+              ) : null}
+            </dd>
+          </div>
+        ) : null}
       </dl>
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           {isOpen && isManual && p.has("payment.record_manual") ? (
-            <ConfirmManualPaymentForm paymentId={payment.id} />
+            <ConfirmManualPaymentForm
+              paymentId={payment.id}
+              defaultReference={transactionId ?? undefined}
+              hint={transactionId ? t("manualMomoHint") : undefined}
+            />
           ) : null}
           {isOpen && !isManual && p.has("payment.reconcile") ? (
             <RefreshPaymentForm paymentId={payment.id} />

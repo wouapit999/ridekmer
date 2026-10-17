@@ -80,7 +80,8 @@ describe("admin payment provider configuration", () => {
     ).rejects.toMatchObject({ code: "NOT_IMPLEMENTED" });
     expect((await runProviderValidation("ORANGE_MONEY", adminId)).code).toBe("OK_SHELL");
 
-    // Clearing a credential makes the configuration incomplete and the method unavailable.
+    // Clearing a credential makes the configuration incomplete: the API is unavailable and the
+    // customer is offered the hand-made transfer to the company number instead.
     await saveProviderConfig({
       provider: "ORANGE_MONEY",
       enabled: true,
@@ -91,10 +92,14 @@ describe("admin payment provider configuration", () => {
     });
     resetPaymentRegistry();
     const methods = await listAvailableMethods();
-    expect(methods.some((m) => m.method === "ORANGE_MONEY")).toBe(false);
-    expect(methods.some((m) => m.method === "MTN_MOBILE_MONEY")).toBe(true);
+    expect(methods.find((m) => m.method === "ORANGE_MONEY")).toMatchObject({
+      providerId: "manual-orange-money",
+      manual: true,
+    });
+    expect(methods.find((m) => m.method === "MTN_MOBILE_MONEY")?.manual).toBe(false);
 
-    // Disabling hides it too; back to mock restores the simulation.
+    // Disabled with the manual option switched off, the method is hidden; back to mock
+    // restores the simulation.
     await saveProviderConfig({
       provider: "ORANGE_MONEY",
       enabled: false,
@@ -103,7 +108,18 @@ describe("admin payment provider configuration", () => {
       actorId: adminId,
     });
     resetPaymentRegistry();
-    expect((await listAvailableMethods()).some((m) => m.method === "ORANGE_MONEY")).toBe(false);
+    await db.systemSetting.update({
+      where: { key: "payment.manual_mobile_money_enabled" },
+      data: { value: "false" },
+    });
+    try {
+      expect((await listAvailableMethods()).some((m) => m.method === "ORANGE_MONEY")).toBe(false);
+    } finally {
+      await db.systemSetting.update({
+        where: { key: "payment.manual_mobile_money_enabled" },
+        data: { value: "true" },
+      });
+    }
     await saveProviderConfig({
       provider: "ORANGE_MONEY",
       enabled: true,

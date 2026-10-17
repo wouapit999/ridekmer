@@ -78,7 +78,16 @@ export function ManualPaymentForm({
   );
 }
 
-export function ConfirmManualPaymentForm({ paymentId }: { paymentId: string }) {
+export function ConfirmManualPaymentForm({
+  paymentId,
+  defaultReference,
+  hint,
+}: {
+  paymentId: string;
+  /** Prefilled with the transaction ID the customer announced, when there is one. */
+  defaultReference?: string;
+  hint?: string;
+}) {
   const t = useTranslations("payments.admin");
   const [state, action, pending] = useActionState(confirmManualPaymentAction, initial);
   return (
@@ -88,10 +97,18 @@ export function ConfirmManualPaymentForm({ paymentId }: { paymentId: string }) {
       className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
     >
       <h2 className="font-semibold">{t("confirmManual")}</h2>
+      {hint ? <p className="text-sm text-sand-700">{hint}</p> : null}
       <input type="hidden" name="paymentId" value={paymentId} />
       <Result state={state} />
       <Field id="confirmReference" label={t("reference")} required>
-        <Input id="confirmReference" name="reference" required minLength={3} maxLength={120} />
+        <Input
+          id="confirmReference"
+          name="reference"
+          required
+          minLength={3}
+          maxLength={120}
+          defaultValue={defaultReference}
+        />
       </Field>
       <Field id="confirmNote" label={t("note")}>
         <Input id="confirmNote" name="note" maxLength={500} />
