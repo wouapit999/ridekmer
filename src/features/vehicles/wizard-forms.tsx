@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useCallback, useState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -104,7 +105,7 @@ export function BasicsForm({
   );
   const photo = useReferencePhoto(makeModel.make, makeModel.model, year);
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       {vehicle?.id ? <input type="hidden" name="vehicleId" value={vehicle.id} /> : null}
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
         <div className="space-y-4">
@@ -257,7 +258,7 @@ export function BasicsForm({
           <ModelPhotoPreview lookup={photo} variant="side" />
         </aside>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -283,7 +284,7 @@ export function EquipmentForm({
     "hasReversingCamera",
   ] as const;
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="vehicleId" value={vehicle.id} />
       <FormShell state={state} pending={pending} label={t("saveContinue")}>
         <div className="space-y-2 sm:col-span-2">
@@ -337,7 +338,7 @@ export function EquipmentForm({
           />
         </Field>
       </FormShell>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -360,7 +361,7 @@ export function LocationForm({
   );
   const [delivery, setDelivery] = useState(Boolean(vehicle.deliveryAvailable));
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="vehicleId" value={vehicle.id} />
       <FormShell state={state} pending={pending} label={t("saveContinue")}>
         <Field id="branchId" label={t("location.branch")} className="sm:col-span-2">
@@ -420,7 +421,7 @@ export function LocationForm({
           </Field>
         ) : null}
       </FormShell>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -439,7 +440,7 @@ export function PricingForm({ vehicle }: { vehicle: VehicleDraft & { id: string 
   const [chauffeur, setChauffeur] = useState(Boolean(vehicle.chauffeurAvailable));
   const num = (k: string) => (vehicle[k] == null ? "" : String(vehicle[k]));
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="vehicleId" value={vehicle.id} />
       <FormShell state={state} pending={pending} label={t("saveContinue")}>
         <p className="text-sm text-sand-600 sm:col-span-2">{t("pricing.commissionNote")}</p>
@@ -579,7 +580,7 @@ export function PricingForm({ vehicle }: { vehicle: VehicleDraft & { id: string 
           </Field>
         ) : null}
       </FormShell>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -588,8 +589,9 @@ export function PhotosForm({ vehicleId }: { vehicleId: string }) {
   const [state, action, pending] = useActionState(uploadImageAction, initial);
   const err = useErrorText();
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
       encType="multipart/form-data"
     >
@@ -610,7 +612,7 @@ export function PhotosForm({ vehicleId }: { vehicleId: string }) {
       <Button type="submit" loading={pending}>
         {t("upload")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -648,7 +650,7 @@ export function ArrangementForm({
     "ownerHandlesMaintenance",
   ] as const;
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="vehicleId" value={vehicle.id} />
       <FormShell state={state} pending={pending} label={tw("saveContinue")}>
         <fieldset className="sm:col-span-2">
@@ -703,7 +705,7 @@ export function ArrangementForm({
           />
         </Field>
       </FormShell>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -721,7 +723,7 @@ export function SubmitForm({ vehicleId }: { vehicleId: string }) {
     initial,
   );
   return (
-    <form action={action} className="space-y-3">
+    <ActionForm action={action} state={state} className="space-y-3">
       <input type="hidden" name="vehicleId" value={vehicleId} />
       {state.message === "INCOMPLETE" && state.details ? (
         <Alert tone="warning" title={t("missing")}>
@@ -743,7 +745,7 @@ export function SubmitForm({ vehicleId }: { vehicleId: string }) {
       <Button type="submit" loading={pending} size="lg">
         {t("submit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -752,7 +754,11 @@ export function OwnerRequestForm({ vehicleId }: { vehicleId: string }) {
   const err = useErrorText();
   const [state, action, pending] = useActionState(ownerRequestAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <input type="hidden" name="vehicleId" value={vehicleId} />
       <h3 className="font-semibold">{t("requests")}</h3>
       {state.ok ? (
@@ -772,7 +778,7 @@ export function OwnerRequestForm({ vehicleId }: { vehicleId: string }) {
       <Button type="submit" variant="outline" loading={pending}>
         {t("requestSend")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -781,8 +787,9 @@ export function BlockDatesForm({ vehicleId }: { vehicleId: string }) {
   const err = useErrorText();
   const [state, action, pending] = useActionState(addBlockAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <input type="hidden" name="vehicleId" value={vehicleId} />
@@ -812,6 +819,6 @@ export function BlockDatesForm({ vehicleId }: { vehicleId: string }) {
           {t("addBlock")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }

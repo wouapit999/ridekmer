@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -43,7 +44,11 @@ export function ManualPaymentForm({
   const [state, action, pending] = useActionState(recordManualPaymentAction, initial);
   if (methods.length === 0) return null;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("recordManual")}</h2>
       <p className="text-xs text-sand-600">{t("recordManualHint")}</p>
       <input type="hidden" name="bookingId" value={bookingId} />
@@ -69,7 +74,7 @@ export function ManualPaymentForm({
       <Button type="submit" loading={pending}>
         {t("recordManualSubmit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -77,7 +82,11 @@ export function ConfirmManualPaymentForm({ paymentId }: { paymentId: string }) {
   const t = useTranslations("payments.admin");
   const [state, action, pending] = useActionState(confirmManualPaymentAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("confirmManual")}</h2>
       <input type="hidden" name="paymentId" value={paymentId} />
       <Result state={state} />
@@ -90,7 +99,7 @@ export function ConfirmManualPaymentForm({ paymentId }: { paymentId: string }) {
       <Button type="submit" loading={pending}>
         {t("confirmManualSubmit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -98,13 +107,13 @@ export function RefreshPaymentForm({ paymentId }: { paymentId: string }) {
   const t = useTranslations("payments.admin");
   const [state, action, pending] = useActionState(refreshPaymentAdminAction, initial);
   return (
-    <form action={action} className="space-y-2">
+    <ActionForm action={action} state={state} className="space-y-2">
       <input type="hidden" name="paymentId" value={paymentId} />
       <Result state={state} />
       <Button type="submit" variant="outline" size="sm" loading={pending}>
         {t("refresh")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -113,7 +122,11 @@ export function RefundRequestForm({ paymentId, maxXaf }: { paymentId: string; ma
   const [state, action, pending] = useActionState(requestRefundAction, initial);
   if (maxXaf <= 0) return null;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("requestRefund")}</h2>
       <input type="hidden" name="paymentId" value={paymentId} />
       <Result state={state} />
@@ -142,7 +155,7 @@ export function RefundRequestForm({ paymentId, maxXaf }: { paymentId: string; ma
       <Button type="submit" variant="outline" loading={pending}>
         {t("requestRefundSubmit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -157,7 +170,7 @@ export function RefundDecisionForm({
   const [state, action, pending] = useActionState(decideRefundAction, initial);
   if (!canDecide) return null;
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="refundId" value={refundId} />
       <Result state={state} />
       <Field id={`comment-${refundId}`} label={t("comment")} className="min-w-48 flex-1">
@@ -176,7 +189,7 @@ export function RefundDecisionForm({
       >
         {t("reject")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -184,7 +197,7 @@ export function CompleteManualRefundForm({ refundId }: { refundId: string }) {
   const t = useTranslations("payments.admin");
   const [state, action, pending] = useActionState(completeManualRefundAction, initial);
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="refundId" value={refundId} />
       <Result state={state} />
       <Field id={`ref-${refundId}`} label={t("reference")} className="min-w-48 flex-1" required>
@@ -193,6 +206,6 @@ export function CompleteManualRefundForm({ refundId }: { refundId: string }) {
       <Button type="submit" size="sm" variant="outline" loading={pending}>
         {t("markRefundPaid")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

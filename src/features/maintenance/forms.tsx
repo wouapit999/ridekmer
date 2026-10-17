@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -60,8 +61,9 @@ export function ScheduleForm({
   const [state, action, pending] = useActionState(saveScheduleAction, initial);
   const p = schedule?.id ?? "new";
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <h3 className="font-semibold sm:col-span-3">
@@ -134,7 +136,7 @@ export function ScheduleForm({
           {t("saveSchedule")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -142,8 +144,9 @@ export function RecordForm({ vehicleId }: { vehicleId: string }) {
   const t = useTranslations("maintenance");
   const [state, action, pending] = useActionState(createRecordAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
     >
       <h3 className="font-semibold sm:col-span-2">{t("addRecord")}</h3>
@@ -189,7 +192,7 @@ export function RecordForm({ vehicleId }: { vehicleId: string }) {
           {t("createRecord")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -205,8 +208,9 @@ export function RecordTransitionForm({
   const targets = MAINTENANCE_TRANSITIONS[status];
   if (targets.length === 0) return null;
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-2 rounded-lg border border-sand-200 bg-sand-50 p-3 sm:grid-cols-4"
     >
       <input type="hidden" name="recordId" value={recordId} />
@@ -251,7 +255,7 @@ export function RecordTransitionForm({
           </Button>
         ))}
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -265,7 +269,7 @@ export function OwnerMaintenanceDecision({ recordId }: { recordId: string }) {
       </Alert>
     );
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="recordId" value={recordId} />
       <Result state={state} />
       <Field id={`own-note-${recordId}`} label={t("note")} className="min-w-48 flex-1">
@@ -284,6 +288,6 @@ export function OwnerMaintenanceDecision({ recordId }: { recordId: string }) {
       >
         {t("decline")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

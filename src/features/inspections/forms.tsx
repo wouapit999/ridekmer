@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -48,7 +49,11 @@ export function InspectionDetailsForm({
   const t = useTranslations("inspections");
   const [state, action, pending] = useActionState(saveInspectionDetailsAction, initial);
   return (
-    <form action={action} className="space-y-4 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-4 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("details")}</h2>
       <input type="hidden" name="inspectionId" value={inspectionId} />
       <Result state={state} />
@@ -143,7 +148,7 @@ export function InspectionDetailsForm({
       <Button type="submit" loading={pending}>
         {t("saveDetails")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -159,8 +164,9 @@ export function InspectionPhotoForm({
   const t = useTranslations("inspections");
   const [state, action, pending] = useActionState(addInspectionPhotoAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       encType="multipart/form-data"
       className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
     >
@@ -195,7 +201,7 @@ export function InspectionPhotoForm({
       <Button type="submit" variant="outline" loading={pending}>
         {t("addPhotos")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -211,7 +217,11 @@ export function DamageForm({
   const t = useTranslations("inspections");
   const [state, action, pending] = useActionState(addDamageAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("addDamage")}</h2>
       <p className="text-xs text-sand-600">{t("damageHint")}</p>
       <input type="hidden" name="inspectionId" value={inspectionId} />
@@ -271,7 +281,7 @@ export function DamageForm({
       <Button type="submit" variant="outline" loading={pending}>
         {t("addDamageButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -285,7 +295,11 @@ export function SubmitInspectionForm({
   const t = useTranslations("inspections");
   const [state, action, pending] = useActionState(submitInspectionAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-brand-200 bg-brand-50 p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-brand-200 bg-brand-50 p-5"
+    >
       <h2 className="text-lg font-semibold">{t("submit")}</h2>
       <p className="text-sm text-sand-700">{t("submitHint")}</p>
       <input type="hidden" name="inspectionId" value={inspectionId} />
@@ -293,7 +307,7 @@ export function SubmitInspectionForm({
       <Button type="submit" loading={pending} disabled={!ready} size="lg">
         {t("submitButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -307,7 +321,11 @@ export function CustomerInspectionDecision({ inspectionId }: { inspectionId: str
       </Alert>
     );
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("title")}</h2>
       <p className="text-sm text-sand-700">{t("hint")}</p>
       <input type="hidden" name="inspectionId" value={inspectionId} />
@@ -323,7 +341,7 @@ export function CustomerInspectionDecision({ inspectionId }: { inspectionId: str
           {t("dispute")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -339,7 +357,11 @@ export function SettleDepositForm({
   const t = useTranslations("inspections.settlement");
   const [state, action, pending] = useActionState(settleDepositAction, initial);
   return (
-    <form action={action} className="space-y-2 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-2 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("title")}</h2>
       <p className="text-sm text-sand-700">
         {t("summary", { refund: refundXaf })}
@@ -353,6 +375,6 @@ export function SettleDepositForm({
           {t("button")}
         </Button>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }

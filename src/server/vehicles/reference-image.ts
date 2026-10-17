@@ -89,6 +89,18 @@ export function pickPageImage(body: unknown, mustInclude?: string): string | nul
   );
 }
 
+/** Wikimedia serves files from upload.wikimedia.org and, since 2026, thumbnails from thumb.wikimedia.org. */
+const WIKIMEDIA_IMAGE_HOSTS = new Set(["upload.wikimedia.org", "thumb.wikimedia.org"]);
+
+function isWikimediaImageUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && WIKIMEDIA_IMAGE_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
 /** Turns an imageinfo answer into a credited image, or null when the licence is not free. */
 export function parseImageInfo(body: unknown): ReferenceImage | null {
   const info = (body as ImageInfoResponse).query?.pages?.[0]?.imageinfo?.[0];
@@ -97,7 +109,7 @@ export function parseImageInfo(body: unknown): ReferenceImage | null {
   const license = stripHtml(meta.LicenseShortName?.value) ?? "";
   if (!FREE_LICENSE.test(license)) return null;
   const url = info.thumburl ?? info.url;
-  if (!url?.startsWith("https://upload.wikimedia.org/")) return null;
+  if (!url || !isWikimediaImageUrl(url)) return null;
   return {
     url,
     width: info.thumbwidth ?? info.width ?? null,

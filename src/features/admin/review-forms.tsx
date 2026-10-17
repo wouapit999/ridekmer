@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
@@ -56,7 +57,7 @@ export function DocumentReviewForm({
   if (!["SUBMITTED", "UNDER_REVIEW"].includes(status))
     return state.message ? <ResultAlert state={state} ns="admin.vehicles.result" /> : null;
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="documentId" value={documentId} />
       <ResultAlert state={state} ns="admin.vehicles.result" />
       <Field id={`reason-${documentId}`} label={t("reason")} className="min-w-48 flex-1">
@@ -75,7 +76,7 @@ export function DocumentReviewForm({
       >
         {t("reject")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -139,7 +140,11 @@ export function VehicleDecisionForm({
   ];
   if (!buttons.some((b) => b.show)) return null;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("decision")}</h2>
       <input type="hidden" name="vehicleId" value={vehicleId} />
       <ResultAlert state={state} ns="admin.vehicles.result" />
@@ -162,7 +167,7 @@ export function VehicleDecisionForm({
             </Button>
           ))}
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -170,8 +175,9 @@ export function OverrideForm({ vehicleId }: { vehicleId: string }) {
   const t = useTranslations("admin.vehicles");
   const [state, action, pending] = useActionState(createOverrideAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="space-y-3 rounded-xl border border-accent-300 bg-accent-50 p-5"
     >
       <h2 className="text-lg font-semibold">{t("overrides")}</h2>
@@ -197,7 +203,7 @@ export function OverrideForm({ vehicleId }: { vehicleId: string }) {
       <Button type="submit" variant="secondary" loading={pending}>
         {t("createOverride")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -215,7 +221,11 @@ export function CaseDecisionForm({
   const t = useTranslations("admin.verifications");
   const [state, action, pending] = useActionState(decideVerificationCaseAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <input type="hidden" name="caseId" value={caseId} />
       <input type="hidden" name="caseType" value={caseType} />
       {ownerProfileId ? <input type="hidden" name="ownerProfileId" value={ownerProfileId} /> : null}
@@ -238,7 +248,7 @@ export function CaseDecisionForm({
           {t("rejectCase")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -269,8 +279,9 @@ export function DocumentTypeForm({
     ["isActive", t("dtActive")],
   ] as const;
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-4 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
     >
       <h3 className="text-lg font-semibold sm:col-span-2">{t("editDocumentType")}</h3>
@@ -337,6 +348,6 @@ export function DocumentTypeForm({
           {t("dtSave")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }

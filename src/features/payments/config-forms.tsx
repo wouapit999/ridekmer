@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert, Badge } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -69,7 +70,7 @@ export function ProviderConfigCard({ view }: { view: ProviderView }) {
           {t(`result.${state.message}` as "result.SAVED")}
         </Alert>
       ) : null}
-      <form action={action} className="grid gap-4 sm:grid-cols-2">
+      <ActionForm action={action} state={state} className="grid gap-4 sm:grid-cols-2">
         <input type="hidden" name="provider" value={view.key} />
         <label className="flex items-center gap-2 text-sm sm:col-span-2">
           <Checkbox name="enabled" value="true" defaultChecked={view.enabled} />
@@ -156,9 +157,10 @@ export function ProviderConfigCard({ view }: { view: ProviderView }) {
             {t("save")}
           </Button>
         </div>
-      </form>
-      <form
+      </ActionForm>
+      <ActionForm
         action={validate}
+        state={validation}
         className="flex flex-wrap items-center gap-3 border-t border-sand-200 pt-3"
       >
         <input type="hidden" name="provider" value={view.key} />
@@ -175,7 +177,7 @@ export function ProviderConfigCard({ view }: { view: ProviderView }) {
             {t("lastValidation", { date: view.lastValidatedAt ?? "" })}: {view.lastValidationResult}
           </span>
         ) : null}
-      </form>
+      </ActionForm>
     </section>
   );
 }
@@ -199,8 +201,9 @@ export function TypedSettingField({
   } as AdminActionResult);
   const id = `ps-${settingKey}`;
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-2 rounded-lg border border-sand-200 bg-white p-4 sm:grid-cols-[1fr_auto] sm:items-end"
     >
       <input type="hidden" name="key" value={settingKey} />
@@ -227,6 +230,6 @@ export function TypedSettingField({
           <span className="text-xs text-danger-700">{valueType}</span>
         ) : null}
       </div>
-    </form>
+    </ActionForm>
   );
 }

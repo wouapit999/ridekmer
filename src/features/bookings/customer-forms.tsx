@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Textarea } from "@/components/ui/field";
@@ -49,7 +50,7 @@ export function ConfirmBookingForm({
     initial,
   );
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       {Object.entries(fields).map(([k, v]) => (
         <input key={k} type="hidden" name={k} value={v} />
       ))}
@@ -91,7 +92,7 @@ export function ConfirmBookingForm({
       <Button type="submit" size="lg" loading={pending} className="w-full sm:w-auto">
         {t("confirm")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -101,7 +102,11 @@ export function CancelBookingForm({ bookingId }: { bookingId: string }) {
   const [state, action, pending] = useActionState(cancelBookingAction, initial);
   if (state.ok) return <Alert tone="success">{t("cancelled")}</Alert>;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("cancel")}</h2>
       <input type="hidden" name="bookingId" value={bookingId} />
       {state.message ? <Alert tone="danger">{err(state.message)}</Alert> : null}
@@ -116,7 +121,7 @@ export function CancelBookingForm({ bookingId }: { bookingId: string }) {
       <Button type="submit" variant="danger" loading={pending}>
         {t("cancelConfirm")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -126,7 +131,11 @@ export function ExtensionForm({ bookingId, minDate }: { bookingId: string; minDa
   const [state, action, pending] = useActionState(requestExtensionAction, initial);
   if (state.ok) return <Alert tone="success">{t("extensionRequested")}</Alert>;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("extension")}</h2>
       <input type="hidden" name="bookingId" value={bookingId} />
       {state.message ? <Alert tone="danger">{err(state.message)}</Alert> : null}
@@ -141,6 +150,6 @@ export function ExtensionForm({ bookingId, minDate }: { bookingId: string; minDa
       <Button type="submit" variant="outline" loading={pending}>
         {t("requestExtension")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
