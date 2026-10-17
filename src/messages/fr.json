@@ -811,7 +811,8 @@
         "chooseModel": "Choisissez un modèle",
         "chooseMakeFirst": "Choisissez d'abord la marque",
         "otherModel": "Autre modèle (à saisir)",
-        "modelOther": "Modèle (absent de la liste)"
+        "modelOther": "Modèle (absent de la liste)",
+        "engineHint": "En cm³, ou en litres (2,8 = 2800 cm³)."
       },
       "equipment": {
         "hasAirConditioning": "Climatisation",
@@ -893,7 +894,8 @@
           "ownerAgreement": "Acceptation du contrat propriétaire",
           "document": "Document : {type}"
         }
-      }
+      },
+      "fixFields": "Le véhicule n'a pas été enregistré. Veuillez corriger :"
     },
     "detail": {
       "title": "Véhicule",
@@ -1456,7 +1458,8 @@
     "maxLength": "Saisissez au plus {max} caractères.",
     "accept": "Vous devez accepter les conditions pour continuer.",
     "dateOrder": "La date de retour doit être postérieure à la date de prise en charge.",
-    "slug": "Utilisez uniquement des lettres minuscules, des chiffres et des tirets."
+    "slug": "Utilisez uniquement des lettres minuscules, des chiffres et des tirets.",
+    "outOfRange": "Cette valeur est en dehors de la plage autorisée."
   },
   "documents": {
     "status": {
