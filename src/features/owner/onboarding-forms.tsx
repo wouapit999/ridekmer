@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select } from "@/components/ui/field";
@@ -50,8 +51,9 @@ export function OwnerProfileForm({
   const [state, action, pending] = useActionState(saveOwnerProfileAction, initial);
   const [ownerType, setOwnerType] = useState(profile.ownerType);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-4 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
     >
       {state.ok ? (
@@ -191,7 +193,7 @@ export function OwnerProfileForm({
           {t("save")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -210,8 +212,9 @@ export function PayoutForm({
   const [state, action, pending] = useActionState(savePayoutAction, initial);
   const [method, setMethod] = useState(profile.payoutMethod ?? "MTN_MOBILE_MONEY");
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-4 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
     >
       <p className="text-sm text-sand-700 sm:col-span-2">{t("intro")}</p>
@@ -294,7 +297,7 @@ export function PayoutForm({
           {t("save")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -303,7 +306,11 @@ export function AgreementForm({ markdown, checksum }: { markdown: string; checks
   const tv = useTranslations("validation");
   const [state, action, pending] = useActionState(acceptOwnerAgreementAction, initial);
   return (
-    <form action={action} className="space-y-4 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-4 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <p className="text-sm text-sand-700">{t("intro")}</p>
       <article
         className="max-h-96 overflow-y-auto rounded-md border border-sand-200 bg-sand-50 p-4 text-sm leading-relaxed whitespace-pre-wrap text-sand-800"
@@ -327,6 +334,6 @@ export function AgreementForm({ markdown, checksum }: { markdown: string; checks
       <Button type="submit" loading={pending}>
         {t("submit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

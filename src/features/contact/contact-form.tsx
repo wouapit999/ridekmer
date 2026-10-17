@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -25,7 +26,7 @@ export function ContactForm({ defaultCategory }: { defaultCategory?: string }) {
     state.errors?.[key] ? tv("required") : null;
 
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <ActionForm action={action} state={state} className="space-y-5" noValidate>
       {state.failed ? (
         <Alert tone="danger">{state.rateLimited ? tErrors("rateLimited") : t("error")}</Alert>
       ) : null}
@@ -89,6 +90,6 @@ export function ContactForm({ defaultCategory }: { defaultCategory?: string }) {
       <Button type="submit" loading={pending}>
         {t("submit")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

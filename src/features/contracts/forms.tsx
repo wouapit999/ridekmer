@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Select, Textarea } from "@/components/ui/field";
@@ -20,7 +21,11 @@ export function AcceptContractForm({ contractId }: { contractId: string }) {
   const [state, action, pending] = useActionState(acceptContractAction, initial);
   if (state.ok) return <Alert tone="success">{t("accepted")}</Alert>;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <input type="hidden" name="contractId" value={contractId} />
       {state.message ? (
         <Alert tone="danger">
@@ -37,7 +42,7 @@ export function AcceptContractForm({ contractId }: { contractId: string }) {
       <Button type="submit" loading={pending} size="lg">
         {t("acceptButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -49,7 +54,11 @@ export function PublishTemplateForm({
   const t = useTranslations("contracts.admin");
   const [state, action, pending] = useActionState(publishTemplateVersionAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("publish")}</h2>
       <p className="text-xs text-sand-600">{t("publishHint")}</p>
       {state.message ? (
@@ -86,6 +95,6 @@ export function PublishTemplateForm({
       <Button type="submit" loading={pending}>
         {t("publishButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -59,8 +60,9 @@ export function ReportIncidentForm({
     .toISOString()
     .slice(0, 16);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       encType="multipart/form-data"
       className="space-y-4 rounded-xl border border-sand-200 bg-white p-5"
     >
@@ -126,7 +128,7 @@ export function ReportIncidentForm({
       <Button type="submit" loading={pending} size="lg">
         {t("report")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -142,7 +144,11 @@ export function IncidentTransitionForm({
   const targets = INCIDENT_TRANSITIONS[status];
   if (targets.length === 0) return null;
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("admin.transitions")}</h2>
       <input type="hidden" name="incidentId" value={incidentId} />
       <Result state={state} />
@@ -164,7 +170,7 @@ export function IncidentTransitionForm({
           </Button>
         ))}
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -184,7 +190,11 @@ export function IncidentResolutionForm({
   const t = useTranslations("incidents.admin");
   const [state, action, pending] = useActionState(incidentResolutionAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{t("resolution")}</h2>
       <p className="text-xs text-sand-600">{t("resolutionHint")}</p>
       <input type="hidden" name="incidentId" value={incidentId} />
@@ -240,7 +250,7 @@ export function IncidentResolutionForm({
       <Button type="submit" variant="outline" loading={pending}>
         {t("saveResolution")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -263,7 +273,11 @@ export function InsuranceClaimForm({
   const te = useTranslations("enums");
   const [state, action, pending] = useActionState(insuranceClaimAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="font-semibold">{claim ? t("claimUpdate") : t("claimNew")}</h2>
       <input type="hidden" name="incidentId" value={incidentId} />
       {claim ? <input type="hidden" name="claimId" value={claim.id} /> : null}
@@ -328,6 +342,6 @@ export function InsuranceClaimForm({
       <Button type="submit" variant="outline" size="sm" loading={pending}>
         {t("saveClaim")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

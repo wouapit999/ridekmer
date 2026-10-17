@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState, useEffect, useState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
@@ -53,7 +54,7 @@ export function PaymentMethodForm({
   );
   const needsPhone = method === "MTN_MOBILE_MONEY" || method === "ORANGE_MONEY";
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <input type="hidden" name="bookingId" value={bookingId} />
       {!state.ok && state.message ? (
         <Alert tone="danger">
@@ -105,7 +106,7 @@ export function PaymentMethodForm({
       <Button type="submit" size="lg" loading={pending} className="w-full sm:w-auto">
         {t("payNow")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -154,16 +155,17 @@ export function PaymentStatusPanel({
     <div className="space-y-3">
       {instruction ? <p className="text-sm text-sand-800">{instruction}</p> : null}
       {open ? (
-        <form action={check}>
+        <ActionForm action={check} state={state}>
           <input type="hidden" name="paymentId" value={paymentId} />
           <Button type="submit" variant="outline" loading={checking}>
             {t("checkStatus")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
       {isMock && open ? (
-        <form
+        <ActionForm
           action={simulate}
+          state={mockState}
           className="space-y-2 rounded-lg border border-dashed border-accent-500 p-3"
         >
           <p className="text-xs font-semibold text-accent-700">{t("mockControls")}</p>
@@ -186,7 +188,7 @@ export function PaymentStatusPanel({
           {mockState.message && !mockState.ok ? (
             <p className="text-xs text-danger-700">{mockState.message}</p>
           ) : null}
-        </form>
+        </ActionForm>
       ) : null}
     </div>
   );

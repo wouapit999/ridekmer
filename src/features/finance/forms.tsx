@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -51,8 +52,9 @@ export function RequestPayoutForm({
   const [state, action, pending] = useActionState(requestPayoutAction, initial);
   if (availableXaf <= 0) return <p className="text-sm text-sand-600">{t("nothingAvailable")}</p>;
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <h3 className="font-semibold sm:col-span-3">{t("request")}</h3>
@@ -101,7 +103,7 @@ export function RequestPayoutForm({
           {t("requestButton")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -128,7 +130,7 @@ export function PayoutDecisionForm({
       <Result state={pState} />
       <Result state={mState} />
       {status === "PENDING_APPROVAL" && canDecide ? (
-        <form action={decide} className="flex flex-wrap items-end gap-2">
+        <ActionForm action={decide} state={state} className="flex flex-wrap items-end gap-2">
           <input type="hidden" name="payoutId" value={payoutId} />
           <Field id={`po-comment-${payoutId}`} label={t("comment")} className="min-w-40 flex-1">
             <Input id={`po-comment-${payoutId}`} name="comment" maxLength={500} />
@@ -146,18 +148,18 @@ export function PayoutDecisionForm({
           >
             {t("reject")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
       {status === "APPROVED" && canProcess ? (
-        <form action={process}>
+        <ActionForm action={process} state={pState}>
           <input type="hidden" name="payoutId" value={payoutId} />
           <Button type="submit" size="sm" loading={processing}>
             {t("process")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
       {status === "PROCESSING" && manual && canProcess ? (
-        <form action={markPaid} className="flex flex-wrap items-end gap-2">
+        <ActionForm action={markPaid} state={mState} className="flex flex-wrap items-end gap-2">
           <input type="hidden" name="payoutId" value={payoutId} />
           <Field
             id={`po-ref-${payoutId}`}
@@ -176,7 +178,7 @@ export function PayoutDecisionForm({
           <Button type="submit" size="sm" variant="outline" loading={marking}>
             {t("markPaid")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
     </div>
   );
@@ -194,7 +196,7 @@ export function ExpenseDecisionForm({
   const t = useTranslations("finance.expenses");
   const [state, action, pending] = useActionState(decideExpenseAction, initial);
   return (
-    <form action={action} className="grid gap-2 sm:grid-cols-4 sm:items-end">
+    <ActionForm action={action} state={state} className="grid gap-2 sm:grid-cols-4 sm:items-end">
       <input type="hidden" name="expenseId" value={expenseId} />
       <div className="sm:col-span-4">
         <Result state={state} />
@@ -239,7 +241,7 @@ export function ExpenseDecisionForm({
           {t("reject")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -247,8 +249,9 @@ export function AdjustmentForm({ owners }: { owners: Array<{ id: string; name: s
   const t = useTranslations("finance.ledger");
   const [state, action, pending] = useActionState(adjustmentAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <h3 className="font-semibold sm:col-span-3">{t("adjustment")}</h3>
@@ -283,7 +286,7 @@ export function AdjustmentForm({ owners }: { owners: Array<{ id: string; name: s
           {t("post")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -297,8 +300,9 @@ export function IssueStatementForm({
   const t = useTranslations("finance.statements");
   const [state, action, pending] = useActionState(issueStatementAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="flex flex-wrap items-end gap-2 rounded-xl border border-sand-200 bg-white p-5"
     >
       <h3 className="w-full font-semibold">{t("issue")}</h3>
@@ -320,7 +324,7 @@ export function IssueStatementForm({
       <Button type="submit" variant="outline" loading={pending}>
         {t("issueButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -328,11 +332,11 @@ export function LedgerCatchUpForm() {
   const t = useTranslations("finance.ledger");
   const [state, action, pending] = useActionState(ledgerCatchUpAction, initial);
   return (
-    <form action={action} className="flex flex-wrap items-center gap-3">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-center gap-3">
       <Button type="submit" variant="outline" size="sm" loading={pending}>
         {t("catchUp")}
       </Button>
       <Result state={state} />
-    </form>
+    </ActionForm>
   );
 }

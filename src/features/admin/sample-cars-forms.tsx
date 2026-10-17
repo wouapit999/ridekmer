@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/field";
@@ -31,8 +32,9 @@ export function SampleCarsControls({ count }: { count: number }) {
   const [removeState, remove, removing] = useActionState(removeSampleCarsAction, initial);
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <form
+      <ActionForm
         action={add}
+        state={addState}
         className="space-y-3 rounded-lg border border-sand-200 bg-white p-5 shadow-card"
       >
         <h2 className="text-lg font-semibold text-sand-900">{t("addTitle")}</h2>
@@ -41,9 +43,10 @@ export function SampleCarsControls({ count }: { count: number }) {
         <Button type="submit" loading={adding}>
           {t("addButton")}
         </Button>
-      </form>
-      <form
+      </ActionForm>
+      <ActionForm
         action={remove}
+        state={removeState}
         className="space-y-3 rounded-lg border border-sand-200 bg-white p-5 shadow-card"
       >
         <h2 className="text-lg font-semibold text-sand-900">{t("removeTitle")}</h2>
@@ -56,7 +59,7 @@ export function SampleCarsControls({ count }: { count: number }) {
         <Button type="submit" variant="danger" loading={removing} disabled={count === 0}>
           {t("removeButton")}
         </Button>
-      </form>
+      </ActionForm>
     </div>
   );
 }
