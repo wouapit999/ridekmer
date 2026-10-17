@@ -14,6 +14,7 @@ import { BlockDatesForm, OwnerRequestForm } from "@/features/vehicles/wizard-for
 import { OwnerMaintenanceDecision } from "@/features/maintenance/forms";
 import { listMaintenanceForVehicle } from "@/features/maintenance/service";
 import { activeAssignmentForVehicle } from "@/features/tracking/devices";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 
 const TONE: Record<string, "neutral" | "brand" | "warn" | "danger" | "good"> = {
@@ -51,6 +52,7 @@ export default async function OwnerVehicleDetailPage({
   const maintenance = await listMaintenanceForVehicle(vehicle.id);
   const tracker = await activeAssignmentForVehicle(vehicle.id);
   const tt = await getTranslations("tracking.vehicle");
+  const te = await getTranslations("enums");
   const canRequest = ["ACTIVE", "APPROVED", "SUSPENDED", "UNAVAILABLE_DOCUMENTS"].includes(
     vehicle.status,
   );
@@ -170,7 +172,8 @@ export default async function OwnerVehicleDetailPage({
                   <span>
                     {format.dateTime(b.startAt, "short")} →{" "}
                     {format.dateTime(new Date(b.endAt.getTime() - 1), "short")}{" "}
-                    {b.reason ? `· ${b.reason}` : ""} <Badge>{b.type}</Badge>
+                    {b.reason ? `· ${b.reason}` : ""}{" "}
+                    <Badge>{enumLabel(te, "availabilityBlockType", b.type)}</Badge>
                   </span>
                   {b.type === "OWNER_BLOCK" ? (
                     <form action={removeBlockAction}>

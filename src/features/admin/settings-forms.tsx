@@ -6,6 +6,7 @@ import { useActionState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
+import { enumLabel } from "@/lib/i18n-enum";
 
 import { addCity, updateSetting, type AdminActionResult } from "./actions";
 
@@ -56,6 +57,7 @@ export function SettingRow({
   description: string;
 }) {
   const t = useTranslations("admin.settings");
+  const te = useTranslations("enums");
   const [state, action, pending] = useActionState(updateSetting, {
     ok: false,
   } as AdminActionResult);
@@ -77,7 +79,7 @@ export function SettingRow({
             aria-describedby={`setting-${settingKey}-type`}
           />
           <span id={`setting-${settingKey}-type`} className="sr-only">
-            {valueType}
+            {enumLabel(te, "settingValueType", valueType)}
           </span>
           <Button type="submit" variant="outline" size="sm" loading={pending}>
             {t("update")}
@@ -85,7 +87,9 @@ export function SettingRow({
         </form>
         {state.ok ? <p className="mt-1 text-xs text-success-600">{t("settingSaved")}</p> : null}
         {!state.ok && state.message === "invalid" ? (
-          <p className="mt-1 text-xs text-danger-700">{valueType}</p>
+          <p className="mt-1 text-xs text-danger-700">
+            {t("expectedType", { type: enumLabel(te, "settingValueType", valueType) })}
+          </p>
         ) : null}
       </td>
     </tr>

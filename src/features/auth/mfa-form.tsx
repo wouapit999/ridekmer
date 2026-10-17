@@ -9,6 +9,8 @@ import { Checkbox, Field, Input } from "@/components/ui/field";
 import { useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 
+import { postLoginDestination } from "./post-login";
+
 export function MfaForm() {
   const t = useTranslations("auth.mfa");
   const router = useRouter();
@@ -31,7 +33,7 @@ export function MfaForm() {
       setError(t("error"));
       return;
     }
-    router.push("/account");
+    router.push(await postLoginDestination());
     router.refresh();
   }
 

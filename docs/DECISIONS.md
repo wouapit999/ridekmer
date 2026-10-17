@@ -425,3 +425,38 @@ accepted for the single bootstrap because the account must change it and enable 
 before the administration area opens, and the mail tells the recipient to delete it
 (OPEN_ITEMS #72). Without a configured provider the password is returned once to the
 holder of the cron secret, which is why the workflow prints the outcome but never the body.
+
+## ADR-040 Illustrative model photos from Wikimedia Commons, make/model lists, admin task registry
+
+**Context.** Vehicles listed without photos showed an empty grey box; owners typed make and
+model freely (typos, inconsistent spellings); staff who signed in saw no overview of what the
+administration offers, and many English pages were rendered in French (ADR-033 amended below).
+
+**Decision.**
+
+- `src/features/vehicles/catalog.ts` lists the makes and models common in Cameroon. The owner
+  form offers them as lists with "Other" for free text; picking a model pre-fills category,
+  body type and seats. The stored `make`/`model` columns are unchanged.
+- While a vehicle has no uploaded photo, `findReferenceImage()` (`src/server/vehicles/`)
+  looks up the lead image of the matching English Wikipedia article through the MediaWiki
+  API with `pilicense=free`, then reads the file's author and licence from Commons
+  `extmetadata`. Only Creative Commons and public-domain files hosted on
+  `upload.wikimedia.org` are accepted. Answers are cached for 30 days by the Next.js data
+  cache; failures return nothing and the page shows a drawn silhouette.
+- The photo is always badged "Illustrative photo", says the rented car may differ, and the
+  detail page credits author, licence and source page. Nothing is copied to our storage.
+  The owner sees the same preview in the form; their own photos replace it.
+- `src/features/admin/modules.ts` declares every administration area once (group,
+  permissions, sidebar flag, pending counter). The sidebar and the dashboard's "What you can
+  do" overview both read it, filtered by the signed-in role. Staff land on `/admin` after
+  sign-in, and the account and security pages explain the two-factor step that opens it.
+
+**Consequences.** One outbound call pair per make/model per month; the API route used by the
+form is signed-in only and rate limited. Attribution wording and the use of third-party
+photos in a commercial listing are flagged for legal review (OPEN_ITEMS #73).
+
+**ADR-033 amendment.** `export const dynamic = "force-static"` made next-intl render the
+default locale on the `/en` marketing and legal pages (the request locale was not seen during
+prerendering), so the whole page, header included, stayed in French. The flag is removed;
+those pages are rendered on demand like the rest of the site until static rendering can be
+restored with a verified locale (tracked in OPEN_ITEMS #74).

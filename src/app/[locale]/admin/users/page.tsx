@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { listUsers } from "@/features/admin/queries";
+import { enumLabel } from "@/lib/i18n-enum";
 import { Link } from "@/i18n/navigation";
 import { requirePermission } from "@/server/auth/session";
 
@@ -18,6 +19,7 @@ export default async function AdminUsersPage({ params, searchParams }: Props) {
   await requirePermission("user.view_all", "/admin/users");
   const { q, page } = await searchParams;
   const t = await getTranslations("admin.users");
+  const te = await getTranslations("enums");
   const currentLocale = await getLocale();
   const pageNumber = Math.max(1, Number(page ?? 1) || 1);
   const result = await listUsers(q?.trim() || undefined, pageNumber);
@@ -69,13 +71,15 @@ export default async function AdminUsersPage({ params, searchParams }: Props) {
                   <div className="flex flex-wrap gap-1">
                     {u.userRoles.map((ur) => (
                       <Badge key={ur.role.key} tone={ur.role.isStaff ? "brand" : "neutral"}>
-                        {ur.role.key}
+                        {enumLabel(te, "role", ur.role.key)}
                       </Badge>
                     ))}
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <Badge tone={u.status === "ACTIVE" ? "good" : "danger"}>{u.status}</Badge>
+                  <Badge tone={u.status === "ACTIVE" ? "good" : "danger"}>
+                    {enumLabel(te, "userStatus", u.status)}
+                  </Badge>
                 </td>
                 <td className="px-4 py-3">{u.twoFactorEnabled ? "✓" : "—"}</td>
                 <td className="px-4 py-3 text-sand-700">{fmt.format(u.createdAt)}</td>

@@ -77,7 +77,7 @@ test.describe("accessibility (axe-core)", () => {
     await page.getByLabel("Email address").fill("demo.admin@ridekmer.test");
     await page.getByLabel("Password").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/account$/);
+    await expect(page).toHaveURL(/\/en\/admin$/);
     for (const path of [
       "/en/admin",
       "/en/admin/bookings",

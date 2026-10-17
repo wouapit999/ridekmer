@@ -27,6 +27,7 @@ import {
   TRANSMISSIONS,
   VEHICLE_CATEGORIES,
 } from "./schemas";
+import { MakeModelFields } from "./make-model-fields";
 
 const initial: VehicleActionResult = { ok: false };
 
@@ -81,6 +82,7 @@ export function BasicsForm({
 }) {
   const t = useTranslations("owner.wizard");
   const tc = useTranslations("cars");
+  const tb = useTranslations("enums.bodyType");
   const err = useErrorText();
   const go = useStepNavigation("equipment");
   const [state, action, pending] = useActionState(
@@ -113,12 +115,11 @@ export function BasicsForm({
         <Field id="vin" label={t("basics.vin")}>
           <Input id="vin" name="vin" maxLength={17} autoComplete="off" />
         </Field>
-        <Field id="make" label={t("basics.make")} required error={err(state.errors?.make)}>
-          <Input id="make" name="make" defaultValue={str("make")} required />
-        </Field>
-        <Field id="model" label={t("basics.model")} required error={err(state.errors?.model)}>
-          <Input id="model" name="model" defaultValue={str("model")} required />
-        </Field>
+        <MakeModelFields
+          make={str("make")}
+          model={str("model")}
+          errors={{ make: err(state.errors?.make), model: err(state.errors?.model) }}
+        />
         <Field id="trim" label={t("basics.trim")}>
           <Input id="trim" name="trim" defaultValue={str("trim")} />
         </Field>
@@ -164,7 +165,7 @@ export function BasicsForm({
           <Select id="bodyType" name="bodyType" defaultValue={str("bodyType") || "OTHER"}>
             {BODY_TYPES.map((b) => (
               <option key={b} value={b}>
-                {b}
+                {tb.has(b) ? tb(b) : b}
               </option>
             ))}
           </Select>

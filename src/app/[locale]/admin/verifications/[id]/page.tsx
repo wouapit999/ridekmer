@@ -2,6 +2,7 @@ import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Badge } from "@/components/ui/alert";
+import { enumLabel } from "@/lib/i18n-enum";
 import { DocumentExpiry, DocumentStatusBadge } from "@/features/documents/document-badge";
 import { FileLink } from "@/features/documents/file-link";
 import { CaseDecisionForm, DocumentReviewForm } from "@/features/admin/review-forms";
@@ -28,6 +29,7 @@ export default async function AdminVerificationDetailPage({
   )
     redirect({ href: "/account?forbidden=1", locale: await getLocale() });
   const t = await getTranslations("admin.verifications");
+  const tcase = await getTranslations("account.documents");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const name = (o: { nameFr: string; nameEn: string }) =>
     currentLocale === "en" ? o.nameEn : o.nameFr;
@@ -56,7 +58,7 @@ export default async function AdminVerificationDetailPage({
                 : "brand"
           }
         >
-          {verificationCase.status}
+          {enumLabel(tcase, "caseStatus", verificationCase.status)}
         </Badge>
       </div>
       <dl className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 text-sm sm:grid-cols-3">

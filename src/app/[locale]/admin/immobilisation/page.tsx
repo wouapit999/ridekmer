@@ -4,6 +4,8 @@ import { Alert, Badge } from "@/components/ui/alert";
 import { ImmobilisationStepForm, RequestImmobilisationForm } from "@/features/tracking/forms";
 import { listImmobilisationRequests } from "@/features/tracking/immobilisation";
 import { Link, redirect } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
+
 import { requireStaffMfa, requireUser } from "@/server/auth/session";
 import { db } from "@/server/db";
 
@@ -24,6 +26,7 @@ export default async function AdminImmobilisationPage({
     redirect({ href: "/account?forbidden=1", locale: await getLocale() });
   const sp = await searchParams;
   const t = await getTranslations("tracking.immobilisation");
+  const te = await getTranslations("enums");
   const format = await getFormatter();
   const page = Math.max(1, Number(sp.page ?? 1) || 1);
   const [result, vehicles] = await Promise.all([
@@ -82,7 +85,11 @@ export default async function AdminImmobilisationPage({
               <p className="whitespace-pre-line">{r.reason}</p>
               {approvals.length > 0 ? (
                 <p className="text-xs text-sand-600">
-                  {approvals.map((a) => `${a.approver.name}: ${a.decision}`).join(" · ")}
+                  {approvals
+                    .map(
+                      (a) => `${a.approver.name}: ${enumLabel(te, "approvalDecision", a.decision)}`,
+                    )
+                    .join(" · ")}
                 </p>
               ) : null}
               <ImmobilisationStepForm

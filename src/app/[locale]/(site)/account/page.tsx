@@ -7,6 +7,8 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Container, PageHeader } from "@/components/ui/container";
 import { AccountNav } from "@/features/account/account-nav";
 import { OwnerActivateButton } from "@/features/account/owner-activate-button";
+import { getEnv } from "@/lib/env";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requireUser } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ forbidden?: string }> };
@@ -23,7 +25,10 @@ export default async function AccountPage({ params, searchParams }: Props) {
   const { user, access } = await requireUser("/account");
   const { forbidden } = await searchParams;
   const t = await getTranslations("account");
+  const te = await getTranslations("enums");
   const isOwner = access.roles.some((r) => r.key === "vehicle_owner");
+  const mfaPending =
+    access.requiresMfa && getEnv().AUTH_REQUIRE_STAFF_MFA && !user.twoFactorEnabled;
 
   return (
     <Container className="py-10">
@@ -31,13 +36,35 @@ export default async function AccountPage({ params, searchParams }: Props) {
       <AccountNav current="overview" />
       <div className="mt-6 space-y-4">
         {forbidden ? <Alert tone="danger">{t("forbidden")}</Alert> : null}
+        {access.isStaff ? (
+          <Card className="border-brand-300 bg-brand-50">
+            <CardTitle>{t("staff.title")}</CardTitle>
+            {mfaPending ? (
+              <>
+                <p className="mt-2 text-sm text-sand-800">{t("staff.mfaFirst")}</p>
+                <div className="mt-4">
+                  <ButtonLink href="/account/security?mfa=required">
+                    {t("staff.enableMfa")}
+                  </ButtonLink>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-sm text-sand-800">{t("staff.body")}</p>
+                <div className="mt-4">
+                  <ButtonLink href="/admin">{t("staff.open")}</ButtonLink>
+                </div>
+              </>
+            )}
+          </Card>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardTitle>{t("overview.roles")}</CardTitle>
             <div className="mt-3 flex flex-wrap gap-2">
               {access.roles.map((r) => (
                 <Badge key={r.key} tone={r.isStaff ? "brand" : "neutral"}>
-                  {r.key}
+                  {enumLabel(te, "role", r.key)}
                 </Badge>
               ))}
             </div>

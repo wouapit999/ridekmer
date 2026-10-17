@@ -246,6 +246,19 @@
       "HOLD_EXPIRED": "Your reservation hold expired. Please start again.",
       "CUSTOMER_SUSPENDED": "Your account cannot create bookings.",
       "INVALID": "Please check the form."
+    },
+    "photo": {
+      "illustrative": "Illustrative photo",
+      "illustrativeAlt": "Illustrative photo of a {name}",
+      "illustrativeNote": "Photo of the model for illustration only: the car you rent may differ (colour, version, condition).",
+      "credit": "Photo: {author}, {license}, via Wikimedia Commons",
+      "creditNoAuthor": "Photo: {license}, via Wikimedia Commons",
+      "licence": "Licence",
+      "none": "Photos coming soon",
+      "previewTitle": "Photo customers will see until you add your own",
+      "previewBody": "Found automatically from free-licence photos of this model and marked “illustrative”. Your own photos replace it as soon as you upload them.",
+      "previewLoading": "Looking for a photo of this model…",
+      "previewNone": "No free photo found for this model. Customers will see a placeholder until you upload photos."
     }
   },
   "howItWorks": {
@@ -581,7 +594,14 @@
       "currentPassword": "Current password",
       "newPassword": "New password",
       "changePassword": "Update password",
-      "passwordChanged": "Password updated."
+      "passwordChanged": "Password updated.",
+      "qrAlt": "QR code to scan with your authenticator app",
+      "goToAdmin": "Continue to the administration",
+      "staffMfaTitle": "Required before you can use the administration",
+      "staffMfaStep1": "Install an authenticator app on your phone (Google Authenticator, Microsoft Authenticator, 2FAS or similar).",
+      "staffMfaStep2": "Below, enter your current password and choose Enable.",
+      "staffMfaStep3": "Scan the QR code with the app, then type the 6-digit code it shows.",
+      "staffMfaStep4": "Keep the backup codes somewhere safe, then continue to the administration."
     },
     "documents": {
       "title": "My documents",
@@ -625,6 +645,13 @@
       "errorRateLimited": "Too many requests. Please try again later.",
       "errorGeneric": "Something went wrong. Please try again.",
       "legalNote": "Retention periods are placeholders pending legal review (docs/PRIVACY.md)."
+    },
+    "staff": {
+      "title": "Administration",
+      "body": "Your account has a staff role. Open the administration to see every task available to you.",
+      "open": "Open the administration",
+      "mfaFirst": "Your account has a staff role. Before the administration opens, you must turn on two-factor authentication with an authenticator app. It takes two minutes.",
+      "enableMfa": "Turn on two-factor authentication"
     }
   },
   "owner": {
@@ -770,7 +797,14 @@
         "seats": "Seats",
         "doors": "Doors",
         "currentMileageKm": "Current mileage (km)",
-        "city": "City"
+        "city": "City",
+        "chooseMake": "Choose a make",
+        "otherMake": "Other make (type it)",
+        "makeOther": "Make (not in the list)",
+        "chooseModel": "Choose a model",
+        "chooseMakeFirst": "Choose the make first",
+        "otherModel": "Other model (type it)",
+        "modelOther": "Model (not in the list)"
       },
       "equipment": {
         "hasAirConditioning": "Air conditioning",
@@ -928,7 +962,8 @@
       "payouts": "Payouts",
       "expenses": "Expenses",
       "fleet": "Fleet map",
-      "dataRequests": "Data requests"
+      "dataRequests": "Data requests",
+      "reports": "Reports"
     },
     "dashboard": {
       "bookingsToday": "Bookings today",
@@ -1064,7 +1099,8 @@
           "SAVED": "Configuration saved.",
           "INVALID": "Invalid values (base URL must start with https://)."
         }
-      }
+      },
+      "expectedType": "Expected value: {type}"
     },
     "audit": {
       "title": "Audit log",
@@ -1177,7 +1213,9 @@
         "APPROVED": "Case approved.",
         "REJECTED": "Case rejected.",
         "REASON_REQUIRED": "A reason is required."
-      }
+      },
+      "typeColumn": "Type",
+      "allStatuses": "All"
     },
     "bookings": {
       "title": "Bookings",
@@ -1244,6 +1282,117 @@
       "none": "No requests.",
       "done": "Request processed.",
       "blocked": "Blocked: {code}"
+    },
+    "overview": {
+      "title": "What you can do",
+      "intro": "Every administration task available to your role. Numbers show items waiting for action.",
+      "hiddenNote": "{count, plural, one {# area is} other {# areas are}} hidden because your role does not include it.",
+      "open": "Open",
+      "groups": {
+        "operations": "Rentals and operations",
+        "fleet": "Fleet and tracking",
+        "compliance": "Verification and compliance",
+        "finance": "Finance",
+        "administration": "Users and settings"
+      },
+      "modules": {
+        "bookings": {
+          "title": "Bookings",
+          "body": "Follow every booking, confirm, cancel, assign a chauffeur, run pickup and return inspections."
+        },
+        "incidents": {
+          "title": "Incidents",
+          "body": "Handle accidents, breakdowns and damage reports, assign them and record the resolution."
+        },
+        "maintenance": {
+          "title": "Maintenance",
+          "body": "Plan servicing, record work done and block vehicles while they are in the garage."
+        },
+        "contracts": {
+          "title": "Contracts",
+          "body": "Manage rental and owner agreement templates and consult every accepted contract."
+        },
+        "vehicles": {
+          "title": "Vehicles",
+          "body": "Review owner submissions, approve or reject vehicles, suspend or withdraw them."
+        },
+        "fleet": {
+          "title": "Fleet map",
+          "body": "See the last known position of tracked vehicles and their movement history."
+        },
+        "devices": {
+          "title": "GPS devices",
+          "body": "Register tracking devices and link them to vehicles."
+        },
+        "geofences": {
+          "title": "Geofences",
+          "body": "Define authorised areas per city and get alerts when a vehicle leaves them."
+        },
+        "immobilisation": {
+          "title": "Immobilisation requests",
+          "body": "Request and approve remote immobilisation (two people, stationary vehicle, reason recorded)."
+        },
+        "trackingAccess": {
+          "title": "Location access log",
+          "body": "Check who viewed or exported location data, and when."
+        },
+        "documents": {
+          "title": "Document queue",
+          "body": "Verify identity, licence, registration and insurance documents and watch expiry dates."
+        },
+        "verifications": {
+          "title": "Verifications",
+          "body": "Approve customer identity and owner KYC/KYB files."
+        },
+        "dataRequests": {
+          "title": "Data requests",
+          "body": "Process personal-data export and deletion requests."
+        },
+        "audit": {
+          "title": "Audit log",
+          "body": "Search the record of every sensitive action taken on the platform."
+        },
+        "finance": {
+          "title": "Finance dashboard",
+          "body": "Revenue, deposits held, commissions and owner earnings at a glance."
+        },
+        "payments": {
+          "title": "Payments",
+          "body": "Track Mobile Money, card, bank and cash payments, record manual payments and reconcile."
+        },
+        "refunds": {
+          "title": "Refunds",
+          "body": "Request, approve and execute refunds and deposit returns."
+        },
+        "payouts": {
+          "title": "Owner payouts",
+          "body": "Prepare owner statements and approve payouts (two approvals required)."
+        },
+        "expenses": {
+          "title": "Expenses",
+          "body": "Approve maintenance and damage expenses charged to owners."
+        },
+        "ledger": {
+          "title": "Ledger",
+          "body": "Double-entry accounting journal behind every payment, refund and payout."
+        },
+        "reports": {
+          "title": "Reports",
+          "body": "Export bookings, payments and fleet reports as CSV."
+        },
+        "users": {
+          "title": "Users and roles",
+          "body": "Find any account, assign or remove roles, suspend or reinstate users."
+        },
+        "settings": {
+          "title": "Settings",
+          "body": "Cities, branches, fees, document types and platform rules."
+        },
+        "paymentSettings": {
+          "title": "Payment providers",
+          "body": "Configure MTN MoMo, Orange Money, card and bank settings and their credentials."
+        }
+      }
     }
   },
   "errors": {
@@ -1569,7 +1718,8 @@
         "PUBLISHED": "Version published.",
         "INVALID": "Invalid template (minimum 50 characters).",
         "TEMPLATE_MISSING": "Unknown template."
-      }
+      },
+      "seedAuthor": "seed data"
     }
   },
   "inspections": {
@@ -1756,6 +1906,10 @@
       "ALREADY_SETTLED": "The deposit was already settled.",
       "NOTE_REQUIRED": "Explain why you dispute.",
       "REFUND_ERROR": "The refund request could not be created."
+    },
+    "diagram": {
+      "front": "FRONT",
+      "rear": "REAR"
     }
   },
   "incidents": {
@@ -2187,7 +2341,9 @@
         "VIEW_HISTORY": "History",
         "EXPORT": "Export"
       },
-      "count": "{total} entries · page {page}/{pages}"
+      "count": "{total} entries · page {page}/{pages}",
+      "wholeFleet": "Whole fleet",
+      "fleetMapReason": "Fleet map"
     },
     "devices": {
       "title": "Tracker devices",
@@ -2267,7 +2423,7 @@
       "title": "Remote immobilisation requests",
       "backToFleet": "Fleet map",
       "policyTitle": "Never automatic",
-      "policyBody": "An immobilisation can only be sent when the vehicle is verifiably stationary (recent fix, no speed, ignition off), after a written reason, confirmation by authorised staff and two distinct approvals, and only through a contractually approved provider that acknowledges the command. No provider is configured today: executing a request records UNAVAILABLE and nothing is sent to any vehicle.",
+      "policyBody": "An immobilisation can only be sent when the vehicle is verifiably stationary (recent fix, no speed, ignition off), after a written reason, confirmation by authorised staff and two distinct approvals, and only through a contractually approved provider that acknowledges the command. No provider is configured today: executing a request records the status “Unavailable (no provider)” and nothing is sent to any vehicle.",
       "none": "No request.",
       "statuses": {
         "REQUESTED": "Requested",
@@ -2331,6 +2487,157 @@
       "ALREADY_DECIDED": "You already decided on this request.",
       "NO_PROVIDER": "No immobilisation provider is configured.",
       "REASON_REQUIRED": "A reason of at least 10 characters is required."
+    }
+  },
+  "enums": {
+    "role": {
+      "customer": "Customer",
+      "vehicle_owner": "Vehicle owner",
+      "chauffeur": "Chauffeur",
+      "delivery_agent": "Delivery agent",
+      "vehicle_inspector": "Vehicle inspector",
+      "operations_agent": "Operations agent",
+      "support_agent": "Customer-support agent",
+      "fleet_manager": "Fleet manager",
+      "finance_officer": "Finance officer",
+      "administrator": "Administrator",
+      "super_administrator": "Super administrator"
+    },
+    "userStatus": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended",
+      "PENDING_DELETION": "Deletion pending",
+      "DELETED": "Deleted"
+    },
+    "bodyType": {
+      "HATCHBACK": "Hatchback",
+      "SEDAN": "Sedan",
+      "SUV": "SUV",
+      "PICKUP": "Pickup",
+      "VAN": "Van",
+      "MINIBUS": "Minibus",
+      "COUPE": "Coupé",
+      "CONVERTIBLE": "Convertible",
+      "WAGON": "Estate / wagon",
+      "OTHER": "Other"
+    },
+    "ownershipModel": {
+      "RIDEKMER_OWNED": "RideKmer fleet",
+      "FULLY_MANAGED_OWNER_VEHICLE": "Fully managed owner vehicle",
+      "SELF_MANAGED_MARKETPLACE_VEHICLE": "Self-managed marketplace vehicle"
+    },
+    "bookingType": {
+      "SELF_DRIVE": "Self-drive",
+      "CHAUFFEUR_DRIVEN": "With chauffeur",
+      "LONG_TERM": "Long term"
+    },
+    "handoverMode": {
+      "BRANCH_PICKUP": "Branch pickup",
+      "DELIVERY": "Delivery"
+    },
+    "ledgerEntryType": {
+      "RENTAL_INCOME": "Rental income",
+      "SECURITY_DEPOSIT": "Security deposit",
+      "DEPOSIT_REFUND": "Deposit refund",
+      "REFUND": "Refund",
+      "PLATFORM_COMMISSION": "Platform commission",
+      "OWNER_EARNING": "Owner earning",
+      "MAINTENANCE_DEDUCTION": "Maintenance deduction",
+      "DAMAGE_DEDUCTION": "Damage deduction",
+      "FEE": "Fee",
+      "TAX": "Tax",
+      "ADJUSTMENT": "Adjustment",
+      "PAYOUT": "Payout",
+      "REVERSAL": "Reversal"
+    },
+    "ledgerAccount": {
+      "platform_cash": "Platform cash",
+      "customer_deposits_held": "Customer deposits held",
+      "owner_payable": "Owed to owner",
+      "platform_revenue": "Platform revenue",
+      "tax_payable": "Tax payable",
+      "fees_receivable": "Fees receivable",
+      "adjustments": "Adjustments",
+      "payout_clearing": "Payout clearing"
+    },
+    "dataRequestType": {
+      "EXPORT": "Data export",
+      "DELETION": "Account deletion"
+    },
+    "dataRequestStatus": {
+      "REQUESTED": "Requested",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REJECTED": "Rejected"
+    },
+    "contractType": {
+      "CUSTOMER_RENTAL_AGREEMENT": "Customer rental agreement",
+      "OWNER_MANAGEMENT_AGREEMENT": "Owner management agreement",
+      "CHAUFFEUR_ASSIGNMENT": "Chauffeur assignment",
+      "VEHICLE_HANDOVER": "Vehicle handover",
+      "INCIDENT_ACKNOWLEDGEMENT": "Incident acknowledgement",
+      "PAYMENT_DEPOSIT_ACKNOWLEDGEMENT": "Payment and deposit acknowledgement"
+    },
+    "signatureMethod": {
+      "CLICK_TO_ACCEPT": "Accepted online (click)",
+      "OTP_CONFIRMED": "Confirmed by one-time code",
+      "CERTIFIED_PROVIDER": "Certified signature provider"
+    },
+    "trackingEventType": {
+      "LOCATION": "Position",
+      "IGNITION_ON": "Ignition on",
+      "IGNITION_OFF": "Ignition off",
+      "GEOFENCE_ENTER": "Entered zone",
+      "GEOFENCE_EXIT": "Left zone",
+      "TAMPER": "Tamper alert",
+      "POWER_LOSS": "Power lost",
+      "POWER_RESTORED": "Power restored",
+      "OFFLINE": "Offline",
+      "ONLINE": "Online"
+    },
+    "availabilityBlockType": {
+      "OWNER_BLOCK": "Blocked by owner",
+      "MAINTENANCE": "Maintenance",
+      "ADMIN_BLOCK": "Blocked by RideKmer",
+      "DOCUMENT_EXPIRY": "Document expired",
+      "INCIDENT": "Incident"
+    },
+    "webhookStatus": {
+      "RECEIVED": "Received",
+      "PROCESSED": "Processed",
+      "IGNORED": "Ignored",
+      "FAILED": "Failed",
+      "REPLAY_REJECTED": "Replay rejected"
+    },
+    "approvalDecision": {
+      "APPROVED": "approved",
+      "REJECTED": "rejected"
+    },
+    "documentSubject": {
+      "VEHICLE": "Vehicle",
+      "OWNER": "Owner",
+      "COMPANY": "Company",
+      "CUSTOMER": "Customer",
+      "CHAUFFEUR": "Chauffeur",
+      "CONTRACT": "Contract"
+    },
+    "claimStatus": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "IN_PROGRESS": "In progress",
+      "SETTLED": "Settled",
+      "REJECTED": "Rejected",
+      "CLOSED": "Closed"
+    },
+    "settingValueType": {
+      "STRING": "Text",
+      "INTEGER": "Whole number",
+      "BOOLEAN": "Yes / no",
+      "JSON": "Structured value (JSON)"
+    },
+    "powerStatus": {
+      "EXTERNAL": "Vehicle power",
+      "BATTERY": "Backup battery"
     }
   }
 }

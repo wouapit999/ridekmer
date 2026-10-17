@@ -10,7 +10,7 @@ test.describe("fleet telematics", () => {
     await page.getByLabel("Email address").fill("demo.fleet@ridekmer.test");
     await page.getByLabel("Password").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: "Sign in", exact: true }).click();
-    await expect(page).toHaveURL(/\/en\/account$/);
+    await expect(page).toHaveURL(/\/en\/admin$/);
 
     await page.goto("/en/admin/fleet");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Fleet map");
@@ -33,7 +33,7 @@ test.describe("fleet telematics", () => {
     await page.getByLabel("Adresse e-mail").fill("demo.admin@ridekmer.test");
     await page.getByLabel("Mot de passe").fill(DEMO_PASSWORD);
     await page.getByRole("button", { name: "Se connecter", exact: true }).click();
-    await expect(page).toHaveURL(/\/fr\/account$/);
+    await expect(page).toHaveURL(/\/fr\/admin$/);
     await page.goto("/fr/admin/fleet/access");
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Journal des accès à la localisation",

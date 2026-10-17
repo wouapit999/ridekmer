@@ -7,7 +7,9 @@ import { listOwnerBalances } from "@/features/finance/queries";
 import { ownerBalance } from "@/features/finance/ledger";
 import { Link } from "@/i18n/navigation";
 import { isoDateFromNow } from "@/lib/dates";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
+
 import { requireUser, requireStaffMfa } from "@/server/auth/session";
 import { redirect } from "@/i18n/navigation";
 
@@ -39,6 +41,7 @@ export default async function AdminPayoutsPage({
     redirect({ href: "/account?forbidden=1", locale: await getLocale() });
   const sp = await searchParams;
   const t = await getTranslations("finance.payouts");
+  const te = await getTranslations("enums");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const status = (STATUSES.includes(sp.status as PayoutStatus) ? sp.status : "ALL") as
@@ -114,7 +117,11 @@ export default async function AdminPayoutsPage({
               </p>
               {approvals.length > 0 ? (
                 <p className="text-xs text-sand-600">
-                  {approvals.map((a) => `${a.approver.name}: ${a.decision}`).join(" · ")}
+                  {approvals
+                    .map(
+                      (a) => `${a.approver.name}: ${enumLabel(te, "approvalDecision", a.decision)}`,
+                    )
+                    .join(" · ")}
                 </p>
               ) : null}
               <PayoutDecisionForm

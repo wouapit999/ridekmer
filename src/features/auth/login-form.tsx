@@ -10,6 +10,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { authClient } from "@/lib/auth-client";
 import { parsePhone } from "@/lib/phone";
 
+import { postLoginDestination } from "./post-login";
+
 export function LoginForm({ returnTo, smsIsMock }: { returnTo?: string; smsIsMock: boolean }) {
   const t = useTranslations("auth.login");
   const tp = useTranslations("auth.phone");
@@ -18,8 +20,6 @@ export function LoginForm({ returnTo, smsIsMock }: { returnTo?: string; smsIsMoc
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [otpSentTo, setOtpSentTo] = useState<string | null>(null);
-
-  const destination = returnTo && returnTo.startsWith("/") ? returnTo : "/account";
 
   async function onEmailSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,7 +49,7 @@ export function LoginForm({ returnTo, smsIsMock }: { returnTo?: string; smsIsMoc
       return;
     }
     if ((data as { twoFactorRedirect?: boolean } | null)?.twoFactorRedirect) return; // handled by plugin callback
-    router.push(destination);
+    router.push(await postLoginDestination(returnTo));
     router.refresh();
   }
 
@@ -87,7 +87,7 @@ export function LoginForm({ returnTo, smsIsMock }: { returnTo?: string; smsIsMoc
       setError(tp("errorInvalidCode"));
       return;
     }
-    router.push(destination);
+    router.push(await postLoginDestination(returnTo));
     router.refresh();
   }
 

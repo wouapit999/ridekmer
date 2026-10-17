@@ -82,6 +82,8 @@ stated. Update when resolved (move to `docs/DECISIONS.md` if it became a decisio
 | 70  | GitHub Actions scheduler: runs can lag by a few minutes and GitHub pauses schedules after 60 days without repository activity; acceptable while assembling, revisit (Vercel Pro cron, in-process scheduler on an always-on host) before launch     | owner       |
 | 71  | Vercel Hobby is non-commercial: move to Pro, Render Starter or Railway before real bookings                                                                                                                                                        | owner       |
 | 72  | First-administrator bootstrap e-mails a temporary password (ADR-039): acceptable for the one-shot setup; replace by a set-password link once the e-mail provider is live, and rotate the password at first sign-in                                 | engineering |
+| 73  | Illustrative model photos (ADR-040) come from Wikimedia Commons under CC/public-domain licences: have counsel confirm the credit wording and commercial use, and decide whether to replace them with RideKmer's own photos                         | legal       |
+| 74  | Marketing and legal pages are rendered on demand since `force-static` broke English (ADR-040); restore static rendering only with a test proving `/en` pages are English                                                                           | engineering |
 
 ## Legal
 

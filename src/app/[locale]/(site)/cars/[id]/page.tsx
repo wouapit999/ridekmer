@@ -17,6 +17,9 @@ import { FileLink } from "@/features/documents/file-link";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { getCurrentSession } from "@/server/auth/session";
 import { signedDownloadUrl } from "@/server/files/service";
+import { VehicleCredit, VehiclePhoto } from "@/features/vehicles/vehicle-photo";
+import { findReferenceImage } from "@/server/vehicles/reference-image";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 
 type Props = {
@@ -39,6 +42,7 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
   if (!vehicle) notFound();
   const sp = await searchParams;
   const t = await getTranslations("cars");
+  const te = await getTranslations("enums");
   const tc = await getTranslations("common");
   const ts = await getTranslations("home.search");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
@@ -52,6 +56,7 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
         .map((img) => signedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 })),
     ),
   ]);
+  const reference = photoUrls.length ? null : await findReferenceImage(vehicle.make, vehicle.model);
 
   const pickupDate = sp.pickupDate ?? "";
   const pickupTime = sp.pickupTime ?? "09:00";
@@ -136,8 +141,15 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
               ))}
             </ul>
           ) : (
-            <div className="flex aspect-[16/9] items-center justify-center rounded-lg bg-sand-100 text-sand-500">
-              {t("detail.photos", { count: 0 })}
+            <div className="overflow-hidden rounded-lg">
+              <div className="aspect-[16/9] bg-sand-100">
+                <VehiclePhoto
+                  reference={reference}
+                  alt={`${vehicle.make} ${vehicle.model}`}
+                  eager
+                />
+              </div>
+              {reference ? <VehicleCredit reference={reference} /> : null}
             </div>
           )}
           {description ? <p className="text-sand-800">{description}</p> : null}
@@ -151,7 +163,10 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
                 ],
                 [t("fuel"), t(`fuels.${vehicle.fuelType}`)],
                 [t("minSeats"), tc("seats", { count: vehicle.seats })],
-                [t("detail.doors", { count: vehicle.doors ?? 4 }), vehicle.bodyType],
+                [
+                  t("detail.doors", { count: vehicle.doors ?? 4 }),
+                  enumLabel(te, "bodyType", vehicle.bodyType),
+                ],
                 [
                   t("detail.mileage", {
                     km: vehicle.currentMileageKm.toLocaleString(
