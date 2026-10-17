@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getLocale, getTranslations, setRequestLocale } from "next-intl/server";
+import { getFormatter, getLocale, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 
 import { Alert, Badge } from "@/components/ui/alert";
@@ -43,6 +43,11 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
   const sp = await searchParams;
   const t = await getTranslations("cars");
   const te = await getTranslations("enums");
+  const tw = await getTranslations("owner.wizard");
+  const format = await getFormatter();
+  // Availability ranges are calendar days (YYYY-MM-DD); noon UTC keeps the same day in Douala.
+  const dayLabel = (iso: string) =>
+    format.dateTime(new Date(`${iso}T12:00:00Z`), { dateStyle: "medium" });
   const tc = await getTranslations("common");
   const ts = await getTranslations("home.search");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
@@ -127,7 +132,13 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
             </p>
           </header>
           {photoUrls.length ? (
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            <ul
+              className={
+                photoUrls.length === 1
+                  ? "grid grid-cols-1 gap-2"
+                  : "grid grid-cols-2 gap-2 sm:grid-cols-3"
+              }
+            >
               {photoUrls.map((url, i) => (
                 <li key={url} className="overflow-hidden rounded-lg bg-sand-100">
                   {/* eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL */}
@@ -183,12 +194,16 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
               ))}
             </dl>
             <ul className="mt-3 flex flex-wrap gap-2 text-xs">
-              {vehicle.hasAirConditioning ? <Badge>A/C</Badge> : null}
+              {vehicle.hasAirConditioning ? (
+                <Badge>{tw("equipment.hasAirConditioning")}</Badge>
+              ) : null}
               {vehicle.hasBluetooth ? <Badge>Bluetooth</Badge> : null}
-              {vehicle.hasUsbCharging ? <Badge>USB</Badge> : null}
-              {vehicle.hasReversingCamera ? <Badge>Camera</Badge> : null}
+              {vehicle.hasUsbCharging ? <Badge>{tw("equipment.hasUsbCharging")}</Badge> : null}
+              {vehicle.hasReversingCamera ? (
+                <Badge>{tw("equipment.hasReversingCamera")}</Badge>
+              ) : null}
               {vehicle.safetyEquipment.map((s) => (
-                <Badge key={s}>{s.replace(/_/g, " ")}</Badge>
+                <Badge key={s}>{enumLabel(tw, "safety", s)}</Badge>
               ))}
             </ul>
           </section>
@@ -208,7 +223,7 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
                   key={`${r.from}-${r.to}`}
                   className="rounded-md bg-danger-50 px-2 py-1 text-danger-700"
                 >
-                  {r.from} → {r.to}
+                  {dayLabel(r.from)} → {dayLabel(r.to)}
                 </li>
               ))}
             </ul>
