@@ -54,15 +54,6 @@
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   },
   {
-    "slug": "kia-sportage",
-    "model": "Kia Sportage",
-    "file": "kia-sportage.jpg",
-    "source": "https://commons.wikimedia.org/wiki/File:2025_Kia_Sportage_S_front_only.jpg",
-    "author": "LuvsMG481",
-    "license": "CC BY-SA 4.0",
-    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-  },
-  {
     "slug": "toyota-hiace",
     "model": "Toyota HiAce",
     "file": "toyota-hiace.jpg",
@@ -86,6 +77,15 @@
     "file": "hyundai-accent.jpg",
     "source": "https://commons.wikimedia.org/wiki/File:2019_Hyundai_Accent_1.6L,_front_10.8.19.jpg",
     "author": "Kevauto",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+  },
+  {
+    "slug": "toyota-rav4",
+    "model": "Toyota RAV4",
+    "file": "toyota-rav4.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:2024_Toyota_RAV4_Prime_XSE_Premium_in_Silver_Sky_with_Midnight_Black_roof,_front_left.jpg",
+    "author": "Mr.choppers",
     "license": "CC BY-SA 4.0",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0"
   }
