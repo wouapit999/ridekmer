@@ -8,11 +8,14 @@ import { assertCronRequest } from "@/server/cron/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Password hashing plus a few queries; the fresh-database seed path needs the full minute.
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   email: z.string().email().optional(),
   name: z.string().trim().min(2).max(120).optional(),
   locale: z.enum(["fr", "en"]).optional(),
+  reseed: z.boolean().optional(),
 });
 
 /**
@@ -46,6 +49,7 @@ export async function POST(request: NextRequest) {
       email,
       name: parsed.data.name,
       locale: parsed.data.locale,
+      reseed: parsed.data.reseed,
     });
     const status =
       result.outcome === "created" ? 201 : result.outcome === "role_granted" ? 200 : 409;
@@ -58,6 +62,9 @@ export async function POST(request: NextRequest) {
       );
     }
     logger.error("bootstrap.failed", { error });
-    return NextResponse.json({ error: "bootstrap_failed" }, { status: 500 });
+    // The caller holds the cron secret; the message helps diagnose a host misconfiguration
+    // (database, e-mail) without opening the hosting console.
+    const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    return NextResponse.json({ error: "bootstrap_failed", detail }, { status: 500 });
   }
 }

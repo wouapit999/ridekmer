@@ -86,16 +86,32 @@ jobs:
           if [ -z "$TARGET" ] || [ -z "$SECRET" ]; then
             echo "CRON_TARGET_URL and CRON_SECRET secrets are required" >&2; exit 1
           fi
+          TARGET="${TARGET%/}"
+          # Preflight: the public health route proves the secret points at the right site.
+          health=$(curl --silent --output health.json --write-out '%{http_code}' \
+            --connect-timeout 60 --max-time 120 "$TARGET/api/health" || echo "000")
+          if [ "$health" != "200" ]; then
+            echo "::error::GET $TARGET/api/health returned HTTP $health. CRON_TARGET_URL must be the production URL of the Vercel project (for example https://ridekmerw.vercel.app), without a trailing slash."
+            head -c 300 health.json; echo
+            exit 1
+          fi
           body=$(jq -cn --arg email "$EMAIL" '{email: $email}')
           status=$(curl --silent --show-error --output response.json --write-out '%{http_code}' \
             --retry 2 --retry-delay 20 --retry-all-errors --connect-timeout 60 --max-time 300 \
             -X POST -H "Authorization: Bearer $SECRET" -H "Content-Type: application/json" \
             -d "$body" "$TARGET/api/admin/bootstrap")
           echo "HTTP $status"
-          # Never print the response verbatim: it carries the temporary password when no
-          # e-mail provider is configured on the host.
+          case "$status" in
+            200|201|409) ;;
+            401) echo "::error::Unauthorized: the CRON_SECRET repository secret differs from the CRON_SECRET variable on the host."; exit 1 ;;
+            404) echo "::error::The bootstrap route is not deployed at $TARGET. Merge the release that adds /api/admin/bootstrap into the production branch and wait for the deployment."; head -c 300 response.json; echo; exit 1 ;;
+            *) echo "::error::Unexpected response."; head -c 300 response.json; echo; exit 1 ;;
+          esac
+          # Never print a success response verbatim: it carries the temporary password when
+          # no e-mail provider is configured on the host.
           jq -r '"outcome=\(.outcome // .error) delivery=\(.delivery // "-") email=\(.email // "-")"' response.json
           if jq -e '.temporaryPassword' response.json >/dev/null; then
             echo "::warning::No e-mail provider is configured on the host, so the password could not be sent. Set EMAIL_PROVIDER (resend or smtp) and its credentials, delete this account from Administration → Users, and run again — or run 'pnpm admin:bootstrap' locally."
           fi
-          case "$status" in 200|201) exit 0 ;; 409) echo "An administrator already exists; nothing changed."; exit 0 ;; *) exit 1 ;; esac
+          [ "$status" = "409" ] && echo "An administrator already exists; nothing changed."
+          exit 0
