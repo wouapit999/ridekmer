@@ -92,7 +92,12 @@ export const basicsSchema = z.object({
   colour: optionalString(40),
   transmission: z.enum(TRANSMISSIONS),
   fuelType: z.enum(FUEL_TYPES),
-  engineCapacityCc: optionalInt(500, 10000),
+  // Owners often type the engine size in litres ("2.8", "3"): read small values as litres.
+  engineCapacityCc: z.preprocess((v) => {
+    if (v === "" || v === null || v === undefined) return undefined;
+    const n = Number(String(v).replace(",", "."));
+    return Number.isFinite(n) && n > 0 && n < 20 ? Math.round(n * 1000) : v;
+  }, intField(500, 10000).optional()),
   seats: intField(1, 60),
   doors: optionalInt(2, 6),
   currentMileageKm: intField(0, 2_000_000),

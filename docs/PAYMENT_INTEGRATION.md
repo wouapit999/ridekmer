@@ -99,6 +99,32 @@ redeploy:
 - Cash (staff only when `payment.cash_enabled`): `recordManualPayment` on the admin booking
   page for the **exact** amount due, with a receipt reference and note; audited.
 
+## Manual Mobile Money (interim, until the MTN/Orange APIs are integrated)
+
+While an operator API is not available (no provider configuration, disabled, incomplete, or a
+mock in production), MTN Mobile Money and Orange Money fall back to a hand-made transfer
+(`manual-mtn-momo` / `manual-orange-money`, `src/server/payments/registry.ts`):
+
+1. The pay page shows the company number for the chosen operator and the account holder name.
+2. The customer sends the amount from their phone, then enters the **transaction ID** from the
+   operator's confirmation SMS and the number they paid from. The ID is validated, stored in
+   `Payment.metadata.transactionId` and refused if another payment already used it. Submitting
+   again on the same booking corrects the ID instead of creating a second payment.
+3. The customer presses **Send on WhatsApp**: a `wa.me` click-to-chat link opens WhatsApp with
+   the booking reference, amount, operator, number paid to and transaction ID prefilled, addressed
+   to the payments WhatsApp number.
+4. Finance checks the money arrived, finds the payment (search accepts the transaction ID), and
+   presses **Confirm received** on `/admin/payments/[id]` (`payment.record_manual`). The booking
+   is confirmed by `applySuccessfulPayment` exactly as for any other method.
+
+Settings (`/admin/settings/payments`, defaults in `src/features/payments/settings.ts`):
+`payment.manual_mobile_money_enabled`, `payment.manual_mtn_momo_number`,
+`payment.manual_orange_money_number`, `payment.manual_mobile_money_account_name`,
+`payment.manual_whatsapp_number`, `payment.manual_mobile_money_expiry_hours` (default 24 h; the
+booking's payment deadline is extended to match). Once an operator API is configured and enabled
+it takes over automatically; payments already made by hand stay manual (never polled, reconciled
+or refunded through the API; refunds are completed by finance).
+
 ## Refunds (ADR-020)
 
 `requestRefund` (`refund.request`) → `PENDING_APPROVAL` → `decideRefund` by one approver

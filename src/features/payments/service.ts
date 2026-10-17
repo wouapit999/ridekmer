@@ -1,6 +1,8 @@
 import {
+  ManualPaymentProvider,
   MockPaymentProvider,
   PaymentProviderError,
+  isManualProviderId,
   type PaymentProvider,
   type PaymentStatus as ProviderPaymentStatus,
   type WebhookRequest,
@@ -21,7 +23,9 @@ import { sendTemplatedNotification } from "@/server/notifications";
 import {
   WEBHOOK_SLUGS,
   getPaymentProvider,
+  getProviderForPayment,
   listAvailableMethods,
+  manualMobileMoneyNumber,
   webhookSlugFor,
 } from "@/server/payments/registry";
 
@@ -42,7 +46,10 @@ export class PaymentError extends Error {
       | "ALREADY_PAID"
       | "PROVIDER_ERROR"
       | "AMOUNT_INVALID"
-      | "NOT_MOCK",
+      | "NOT_MOCK"
+      | "TRANSACTION_ID_REQUIRED"
+      | "TRANSACTION_ID_INVALID"
+      | "TRANSACTION_ID_USED",
     message?: string,
   ) {
     super(message ?? code);
@@ -59,6 +66,32 @@ export const OPEN_PAYMENT_STATUSES: PaymentStatus[] = [
 ];
 export const PAID_STATUSES: PaymentStatus[] = ["SUCCESSFUL", "PARTIALLY_REFUNDED", "REFUNDED"];
 const MOBILE_MONEY: PaymentMethod[] = ["MTN_MOBILE_MONEY", "ORANGE_MONEY"];
+const CLOSED_STATUSES: PaymentStatus[] = ["CANCELLED", "FAILED", "EXPIRED"];
+
+/**
+ * Validate the transaction ID the operator's SMS gives the customer after a hand-made
+ * Mobile Money transfer (MTN: digits; Orange: e.g. "MP240101.1234.A12345").
+ */
+export function normaliseTransactionId(raw: string | null | undefined): string {
+  const value = (raw ?? "").trim().replace(/\s+/g, "");
+  if (!value) throw new PaymentError("TRANSACTION_ID_REQUIRED");
+  if (!/^[A-Za-z0-9][A-Za-z0-9._\-/:]{3,63}$/.test(value))
+    throw new PaymentError("TRANSACTION_ID_INVALID");
+  return value.toUpperCase();
+}
+
+/** Transaction ID announced by the customer for a hand-made Mobile Money transfer. */
+export function paymentTransactionId(metadata: unknown): string | null {
+  if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) return null;
+  const value = (metadata as Record<string, unknown>).transactionId;
+  return typeof value === "string" ? value : null;
+}
+
+function metadataObject(metadata: Prisma.JsonValue | null): Prisma.InputJsonObject {
+  return metadata && typeof metadata === "object" && !Array.isArray(metadata)
+    ? (metadata as Prisma.InputJsonObject)
+    : {};
+}
 
 export function methodLabel(method: PaymentMethod): string {
   return {
@@ -104,6 +137,8 @@ export async function initiatePaymentForBooking(input: {
   userId: string;
   method: PaymentMethod;
   payerPhone?: string | null;
+  /** Hand-made Mobile Money transfers: the operator's transaction ID. */
+  transactionId?: string | null;
   returnUrl?: string;
   locale?: "fr" | "en";
 }) {
@@ -130,6 +165,30 @@ export async function initiatePaymentForBooking(input: {
   const due = await amountDueForBooking(booking.id);
   const settings = await getPaymentSettings();
   const provider = await getPaymentProvider(input.method);
+  const locale = input.locale ?? "fr";
+
+  // Mobile Money sent by hand to the company number: the customer gives the transaction ID
+  // and finance confirms the transfer before the booking is confirmed.
+  const manualMomo = MOBILE_MONEY.includes(input.method) && isManualProviderId(provider.id);
+  let manualDetails: Prisma.InputJsonObject | undefined;
+  if (manualMomo) {
+    const transactionId = normaliseTransactionId(input.transactionId);
+    const reused = await db.payment.findFirst({
+      where: {
+        method: { in: MOBILE_MONEY },
+        status: { notIn: CLOSED_STATUSES },
+        metadata: { path: ["transactionId"], equals: transactionId },
+        NOT: { bookingId: booking.id, status: { in: OPEN_PAYMENT_STATUSES } },
+      },
+      select: { id: true },
+    });
+    if (reused) throw new PaymentError("TRANSACTION_ID_USED");
+    manualDetails = {
+      transactionId,
+      payTo: manualMobileMoneyNumber(input.method as "MTN_MOBILE_MONEY" | "ORANGE_MONEY", settings),
+      accountName: settings.manualMobileMoney.accountName,
+    };
+  }
 
   // Serialise per booking: one open payment at a time, retries reuse it.
   const payment = await db.$transaction(async (tx) => {
@@ -141,8 +200,22 @@ export async function initiatePaymentForBooking(input: {
       where: { bookingId: booking.id, purpose: "RENTAL", status: { in: OPEN_PAYMENT_STATUSES } },
       orderBy: { createdAt: "desc" },
     });
-    if (open && open.method === input.method && open.providerReference) {
-      return { payment: open, reused: true };
+    if (
+      open &&
+      open.method === input.method &&
+      open.provider === provider.id &&
+      open.providerReference
+    ) {
+      if (!manualDetails) return { payment: open, reused: true };
+      // The customer corrects the transaction ID of a transfer they already announced.
+      const corrected = await tx.payment.update({
+        where: { id: open.id },
+        data: {
+          metadata: { ...metadataObject(open.metadata), ...manualDetails },
+          payerPhoneMasked: payerPhone ? maskPhoneForDisplay(payerPhone) : open.payerPhoneMasked,
+        },
+      });
+      return { payment: corrected, reused: true };
     }
     if (open) {
       await tx.payment.update({
@@ -164,12 +237,23 @@ export async function initiatePaymentForBooking(input: {
         idempotencyKey: `pay_${booking.id}_RENTAL_${sequence}`,
         payerPhoneMasked: payerPhone ? maskPhoneForDisplay(payerPhone) : null,
         description: `RideKmer ${booking.reference}`,
+        metadata: manualDetails,
         attempts: { create: { attemptNumber: 1, status: "CREATED" } },
       },
     });
     return { payment: created, reused: false };
   });
-  if (payment.reused) return payment.payment;
+  if (payment.reused) {
+    if (manualDetails)
+      await recordAudit({
+        actorId: input.userId,
+        action: "payment.transaction_id",
+        entityType: "Payment",
+        entityId: payment.payment.id,
+        after: { transactionId: manualDetails.transactionId },
+      });
+    return payment.payment;
+  }
 
   const record = payment.payment;
   try {
@@ -190,8 +274,10 @@ export async function initiatePaymentForBooking(input: {
         : addMinutes(new Date(), settings.mobileMoneyExpiryMinutes));
     const instruction =
       input.method === "BANK_TRANSFER"
-        ? settings.bankTransferInstructions[input.locale ?? "fr"]
-        : (result.customerInstruction ?? null);
+        ? settings.bankTransferInstructions[locale]
+        : provider instanceof ManualPaymentProvider
+          ? provider.instructionFor(locale)
+          : (result.customerInstruction ?? null);
     const updated = await db.$transaction(async (tx) => {
       const u = await tx.payment.update({
         where: { id: record.id },
@@ -223,9 +309,15 @@ export async function initiatePaymentForBooking(input: {
       action: "payment.initiate",
       entityType: "Payment",
       entityId: record.id,
-      after: { method: input.method, provider: provider.id, amountXaf: record.amountXaf },
+      after: {
+        method: input.method,
+        provider: provider.id,
+        amountXaf: record.amountXaf,
+        ...(manualDetails ? { transactionId: manualDetails.transactionId } : {}),
+      },
     });
-    if (payerPhone) {
+    // The "approve the request on your phone" SMS does not apply to a hand-made transfer.
+    if (payerPhone && !manualMomo) {
       await sendTemplatedNotification({
         templateKey: "payment_pending",
         channel: "SMS",
@@ -488,7 +580,7 @@ export async function refreshPaymentStatus(paymentId: string, actorType: ActorTy
   if (!OPEN_PAYMENT_STATUSES.includes(payment.status) || !payment.providerReference) {
     return { status: payment.status, applied: "UNCHANGED" as const };
   }
-  const provider = await getPaymentProvider(payment.method);
+  const provider = await getProviderForPayment(payment);
   if (!provider.capabilities.supportsWebhooks && provider.environment === "production") {
     // Manual methods: the application record is authoritative; only expiry applies.
     if (payment.expiresAt && payment.expiresAt <= new Date()) {
@@ -764,7 +856,10 @@ export async function recordManualPayment(input: {
   }).then(() => db.payment.findUniqueOrThrow({ where: { id: payment.id } }));
 }
 
-/** Finance confirms a bank transfer the customer announced from the pay page. */
+/**
+ * Finance confirms a bank transfer or a hand-made Mobile Money transfer the customer
+ * announced from the pay page, after checking it arrived on the company account.
+ */
 export async function confirmManualPayment(input: {
   paymentId: string;
   actorId: string;
@@ -773,12 +868,19 @@ export async function confirmManualPayment(input: {
 }) {
   const payment = await db.payment.findUnique({ where: { id: input.paymentId } });
   if (!payment) throw new PaymentError("NOT_FOUND");
-  if (payment.method !== "BANK_TRANSFER" && payment.method !== "CASH")
+  if (
+    payment.method !== "BANK_TRANSFER" &&
+    payment.method !== "CASH" &&
+    !isManualProviderId(payment.provider)
+  )
     throw new PaymentError("INVALID_STATUS");
   if (!OPEN_PAYMENT_STATUSES.includes(payment.status)) throw new PaymentError("INVALID_STATUS");
   await db.payment.update({
     where: { id: payment.id },
-    data: { recordedById: input.actorId, metadata: { note: input.note ?? null } },
+    data: {
+      recordedById: input.actorId,
+      metadata: { ...metadataObject(payment.metadata), note: input.note ?? null },
+    },
   });
   await recordAudit({
     actorId: input.actorId,
@@ -836,6 +938,7 @@ export async function reconcilePayments(now = new Date()) {
       status: { in: PAID_STATUSES },
       providerReference: { not: null },
       method: { in: ["MTN_MOBILE_MONEY", "ORANGE_MONEY", "CARD"] },
+      NOT: { provider: { startsWith: "manual-" } },
       OR: [{ reconciledAt: null }, { reconciledAt: { lt: subHours(now, 24) } }],
       confirmedAt: { gte: subHours(now, 24 * 45) },
     },

@@ -19,6 +19,13 @@ export async function listPaymentsForAdmin(
           OR: [
             { booking: { reference: { contains: filter.q.toUpperCase() } } },
             { providerReference: { contains: filter.q, mode: "insensitive" as const } },
+            // Transaction ID a customer announced for a hand-made Mobile Money transfer.
+            {
+              metadata: {
+                path: ["transactionId"],
+                string_contains: filter.q.trim().replace(/\s+/g, "").toUpperCase(),
+              },
+            },
             {
               booking: {
                 customer: { email: { contains: filter.q, mode: "insensitive" as const } },

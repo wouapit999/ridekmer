@@ -811,7 +811,8 @@
         "chooseModel": "Choose a model",
         "chooseMakeFirst": "Choose the make first",
         "otherModel": "Other model (type it)",
-        "modelOther": "Model (not in the list)"
+        "modelOther": "Model (not in the list)",
+        "engineHint": "In cc, or in litres (2.8 = 2800 cc)."
       },
       "equipment": {
         "hasAirConditioning": "Air conditioning",
@@ -893,7 +894,8 @@
           "ownerAgreement": "Owner agreement acceptance",
           "document": "Document: {type}"
         }
-      }
+      },
+      "fixFields": "The vehicle was not saved. Please correct:"
     },
     "detail": {
       "title": "Vehicle",
@@ -1456,7 +1458,8 @@
     "maxLength": "Enter at most {max} characters.",
     "accept": "You must accept the terms to continue.",
     "dateOrder": "The return date must be after the pickup date.",
-    "slug": "Use lowercase letters, digits and hyphens only."
+    "slug": "Use lowercase letters, digits and hyphens only.",
+    "outOfRange": "This value is outside the allowed range."
   },
   "documents": {
     "status": {
@@ -1598,6 +1601,27 @@
       "BANK_TRANSFER": "Bank transfer",
       "CASH": "Cash"
     },
+    "manualMomo": {
+      "title": "Pay by Mobile Money transfer",
+      "step1": "Send {amount} from your phone ({ussd}) to:",
+      "number": "Number",
+      "accountName": "Account name",
+      "step2": "Copy the transaction ID from the confirmation SMS and enter it below.",
+      "step3": "Then send it to us on WhatsApp. Your booking is confirmed once we see the money arrive.",
+      "transactionId": "Transaction ID",
+      "transactionIdHint": "Shown in the confirmation SMS from MTN or Orange, e.g. 1234567890 or MP240101.1234.A12345.",
+      "payerPhone": "Number you sent the money from",
+      "payerPhoneHint": "Cameroon number, e.g. 6XX XX XX XX. It helps us find your transfer.",
+      "submit": "Submit the transaction ID",
+      "waiting": "We have your transaction ID. Send it to us on WhatsApp: your booking is confirmed as soon as we see the transfer.",
+      "sentTo": "Sent to",
+      "whatsappIntro": "Last step: press the button and send the prepared message on WhatsApp.",
+      "whatsappButton": "Send on WhatsApp",
+      "whatsappMessage": "Hello RideKmer, I have paid for booking {reference}.\nName: {name}\nAmount: {amount}\nMethod: {method}\nSent to: {number} ({accountName})\nTransaction ID: {transactionId}",
+      "correct": "Wrong transaction ID? Correct it",
+      "correctSubmit": "Save the transaction ID",
+      "corrected": "Transaction ID updated. Send the new message on WhatsApp."
+    },
     "statuses": {
       "CREATED": "Created",
       "PENDING": "Pending",
@@ -1632,7 +1656,10 @@
       "ALREADY_PAID": "This booking is already paid.",
       "PROVIDER_ERROR": "The payment provider did not respond. Please try again.",
       "NOT_MOCK": "Simulation is only available with the mock provider.",
-      "RATE_LIMITED": "Too many payment attempts. Please wait a moment and try again."
+      "RATE_LIMITED": "Too many payment attempts. Please wait a moment and try again.",
+      "TRANSACTION_ID_REQUIRED": "Enter the transaction ID from the confirmation SMS.",
+      "TRANSACTION_ID_INVALID": "This does not look like a transaction ID. Copy it exactly from the confirmation SMS.",
+      "TRANSACTION_ID_USED": "This transaction ID has already been used for another payment."
     },
     "admin": {
       "title": "Payments",
@@ -1640,7 +1667,7 @@
       "detailTitle": "Payment",
       "all": "All",
       "allMethods": "All methods",
-      "search": "Search by booking reference, provider reference or email",
+      "search": "Search by booking reference, provider reference, transaction ID or email",
       "date": "Date",
       "booking": "Booking",
       "method": "Method",
@@ -1702,7 +1729,10 @@
         "SELF_APPROVAL": "You cannot approve a refund you requested.",
         "ALREADY_DECIDED": "You already decided on this refund.",
         "PROVIDER_ERROR": "The provider did not respond."
-      }
+      },
+      "transactionId": "Customer transaction ID",
+      "payTo": "Sent to",
+      "manualMomoHint": "Check that this transaction reached the company Mobile Money account before confirming. The customer also sends it on WhatsApp."
     }
   },
   "contracts": {

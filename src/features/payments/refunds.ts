@@ -2,7 +2,7 @@ import { formatXaf } from "@/lib/money";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
-import { getPaymentProvider } from "@/server/payments/registry";
+import { getProviderForPayment } from "@/server/payments/registry";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { RefundStatus } from "@/generated/prisma/enums";
@@ -188,7 +188,7 @@ export async function executeRefund(refundId: string, actorId: string | null) {
   });
   if (!refund) throw new RefundError("NOT_FOUND");
   if (refund.status !== "APPROVED") throw new RefundError("INVALID_STATUS");
-  const provider = await getPaymentProvider(refund.payment.method);
+  const provider = await getProviderForPayment(refund.payment);
   await db.refund.update({ where: { id: refund.id }, data: { status: "PROCESSING" } });
   try {
     const result = await provider.initiateRefund({

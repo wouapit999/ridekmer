@@ -3,12 +3,13 @@ import { getFormatter, getLocale, getTranslations, setRequestLocale } from "next
 import { notFound } from "next/navigation";
 
 import { Alert } from "@/components/ui/alert";
-import { ButtonLink } from "@/components/ui/button";
+import { ButtonLink, buttonClasses } from "@/components/ui/button";
 import { Container, PageHeader } from "@/components/ui/container";
 import { AccountNav } from "@/features/account/account-nav";
 import { BookingError, getBookingForCustomer } from "@/features/bookings/service";
 import { PaymentMethodLabel, PaymentStatusBadge } from "@/features/payments/payment-badge";
 import {
+  CorrectTransactionIdForm,
   PaymentMethodForm,
   PaymentStatusPanel,
   type MethodOption,
@@ -17,11 +18,13 @@ import {
   OPEN_PAYMENT_STATUSES,
   amountDueForBooking,
   listPaymentsForBooking,
+  paymentTransactionId,
 } from "@/features/payments/service";
 import { getPaymentSettings } from "@/features/payments/settings";
+import { whatsappChatLink } from "@/features/payments/whatsapp";
 import { formatXaf } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
-import { listAvailableMethods } from "@/server/payments/registry";
+import { listAvailableMethods, manualMobileMoneyNumber } from "@/server/payments/registry";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -59,6 +62,33 @@ export default async function PayBookingPage({ params, searchParams }: Props) {
   const methods = (await listAvailableMethods()).filter(
     (m) => m.customerSelectable,
   ) as MethodOption[];
+  const tm = await getTranslations("payments.manualMomo");
+  // A Mobile Money transfer the customer made by hand: finance confirms it from WhatsApp.
+  const manualTransfer =
+    focus &&
+    (focus.method === "MTN_MOBILE_MONEY" || focus.method === "ORANGE_MONEY") &&
+    focus.provider.startsWith("manual-")
+      ? (() => {
+          const method = focus.method as "MTN_MOBILE_MONEY" | "ORANGE_MONEY";
+          const transactionId = paymentTransactionId(focus.metadata) ?? "—";
+          const payTo = manualMobileMoneyNumber(method, settings);
+          const message = tm("whatsappMessage", {
+            reference: booking.reference,
+            amount: formatXaf(focus.amountXaf, currentLocale),
+            method: t(`methods.${method}`),
+            number: payTo,
+            accountName: settings.manualMobileMoney.accountName,
+            transactionId,
+            name: user.name,
+          });
+          return {
+            method,
+            transactionId,
+            payTo,
+            link: whatsappChatLink(settings.manualMobileMoney.whatsappNumber, message),
+          };
+        })()
+      : null;
 
   return (
     <Container className="py-10">
@@ -88,7 +118,9 @@ export default async function PayBookingPage({ params, searchParams }: Props) {
                     ? t("waitingBank")
                     : focus.method === "CARD"
                       ? t("waitingCard")
-                      : t("waitingMomo")}
+                      : manualTransfer
+                        ? tm("waiting")
+                        : t("waitingMomo")}
                   {focus.expiresAt
                     ? ` ${t("expires", { time: format.dateTime(focus.expiresAt, "full") })}`
                     : ""}
@@ -98,13 +130,50 @@ export default async function PayBookingPage({ params, searchParams }: Props) {
                   {t("failedBody")}
                 </Alert>
               )}
+              {manualTransfer && OPEN_PAYMENT_STATUSES.includes(focus.status) ? (
+                <div className="space-y-3">
+                  <dl className="grid gap-2 rounded-lg bg-sand-50 p-4 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-sand-600">{tm("sentTo")}</dt>
+                      <dd className="font-medium">
+                        <span className="font-mono">{manualTransfer.payTo}</span>
+                        <span className="block text-xs text-sand-600">
+                          {settings.manualMobileMoney.accountName}
+                        </span>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-sand-600">{tm("transactionId")}</dt>
+                      <dd className="font-mono font-medium">{manualTransfer.transactionId}</dd>
+                    </div>
+                  </dl>
+                  <p className="text-sm text-sand-800">{tm("whatsappIntro")}</p>
+                  <a
+                    href={manualTransfer.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={buttonClasses(
+                      "primary",
+                      "lg",
+                      "w-full bg-[#1f8f4e] hover:bg-[#187a42] sm:w-auto",
+                    )}
+                  >
+                    {tm("whatsappButton")}
+                  </a>
+                  <CorrectTransactionIdForm
+                    bookingId={booking.id}
+                    method={manualTransfer.method}
+                    defaultPhone={user.phoneNumber ?? ""}
+                  />
+                </div>
+              ) : null}
               <PaymentStatusPanel
                 paymentId={focus.id}
                 status={focus.status}
                 instruction={
                   focus.method === "BANK_TRANSFER"
                     ? settings.bankTransferInstructions[currentLocale]
-                    : focus.providerEnvironment === "mock"
+                    : focus.providerEnvironment === "mock" || manualTransfer
                       ? null
                       : focus.customerInstruction
                 }
@@ -131,6 +200,12 @@ export default async function PayBookingPage({ params, searchParams }: Props) {
                   bookingId={booking.id}
                   methods={methods}
                   defaultPhone={user.phoneNumber ?? ""}
+                  amount={formatXaf(due.amountXaf, currentLocale)}
+                  accounts={{
+                    mtnNumber: settings.manualMobileMoney.mtnNumber,
+                    orangeNumber: settings.manualMobileMoney.orangeNumber,
+                    accountName: settings.manualMobileMoney.accountName,
+                  }}
                 />
               )}
             </section>

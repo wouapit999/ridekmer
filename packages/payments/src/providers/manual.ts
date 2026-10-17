@@ -18,18 +18,37 @@ import type {
   WebhookResult,
 } from "../types";
 
+export type ManualPaymentMethod = Extract<
+  PaymentMethod,
+  "BANK_TRANSFER" | "CASH" | "MTN_MOBILE_MONEY" | "ORANGE_MONEY"
+>;
+
+const MANUAL_IDS: Record<ManualPaymentMethod, string> = {
+  BANK_TRANSFER: "manual-bank-transfer",
+  CASH: "manual-cash",
+  MTN_MOBILE_MONEY: "manual-mtn-momo",
+  ORANGE_MONEY: "manual-orange-money",
+};
+
+/** True for payments recorded through a manual provider (no remote state to poll). */
+export function isManualProviderId(providerId: string): boolean {
+  return providerId.startsWith("manual-");
+}
+
 export interface ManualProviderOptions {
-  method: Extract<PaymentMethod, "BANK_TRANSFER" | "CASH">;
-  /** Instruction shown to the customer (bank details, branch address). */
+  method: ManualPaymentMethod;
+  /** Instruction shown to the customer (bank details, branch address, Mobile Money number). */
   customerInstruction: { fr: string; en: string };
   /** Pending bank transfers expire after this many hours unless confirmed by finance. */
   expiryHours?: number;
 }
 
 /**
- * Manual payment methods (bank transfer, cash). Nothing moves automatically: the provider
- * only records intent; an authorised finance user confirms receipt (`payment.record_manual`)
- * and the application marks the payment successful. Refunds and payouts are recorded by hand.
+ * Manual payment methods (bank transfer, cash, and Mobile Money sent by hand to the company
+ * number while the operator APIs are not integrated). Nothing moves automatically: the
+ * provider only records intent; an authorised finance user confirms receipt
+ * (`payment.record_manual`) and the application marks the payment successful. Refunds and
+ * payouts are recorded by hand.
  */
 export class ManualPaymentProvider implements PaymentProvider {
   readonly id: string;
@@ -45,7 +64,7 @@ export class ManualPaymentProvider implements PaymentProvider {
   private readonly expiryHours: number;
 
   constructor(options: ManualProviderOptions) {
-    this.id = options.method === "CASH" ? "manual-cash" : "manual-bank-transfer";
+    this.id = MANUAL_IDS[options.method];
     this.method = options.method;
     this.instruction = options.customerInstruction;
     this.expiryHours = options.expiryHours ?? 48;

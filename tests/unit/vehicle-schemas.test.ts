@@ -27,6 +27,29 @@ describe("vehicle onboarding schemas", () => {
     expect(basicsSchema.safeParse({ ...base, registrationNumber: "LT 123 AB" }).success).toBe(true);
   });
 
+  it("reads a small engine size as litres and reports out-of-range values", () => {
+    const base = {
+      registrationNumber: "RE3458",
+      make: "Toyota",
+      model: "Land Cruiser Prado",
+      manufacturingYear: 2025,
+      category: "SUV",
+      transmission: "AUTOMATIC",
+      fuelType: "DIESEL",
+      seats: 7,
+      currentMileageKm: 0,
+      cityId: "c1",
+    };
+    const cc = (v: string) => basicsSchema.parse({ ...base, engineCapacityCc: v }).engineCapacityCc;
+    expect(cc("2.8")).toBe(2800);
+    expect(cc("2,8")).toBe(2800);
+    expect(cc("3")).toBe(3000);
+    expect(cc("2755")).toBe(2755);
+    expect(cc("")).toBeUndefined();
+    const tooBig = basicsSchema.safeParse({ ...base, engineCapacityCc: "25000" });
+    expect(issuesToErrors(tooBig.error!).engineCapacityCc).toBe("too_big");
+  });
+
   it("normalises registration numbers and coerces numbers", () => {
     const parsed = basicsSchema.parse({
       registrationNumber: " lt 123 ab ",

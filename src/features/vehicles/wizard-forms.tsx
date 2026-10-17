@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState, useCallback, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 
 import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
@@ -36,8 +36,26 @@ const initial: VehicleActionResult = { ok: false };
 function useErrorText() {
   const te = useTranslations("owner.errors");
   const tv = useTranslations("validation");
-  return (code?: string) =>
-    code ? (te.has(code as "NOT_FOUND") ? te(code as "NOT_FOUND") : tv("required")) : null;
+  return (code?: string) => {
+    if (!code) return null;
+    if (te.has(code as "NOT_FOUND")) return te(code as "NOT_FOUND");
+    // Zod issue codes for numbers outside min/max.
+    if (code === "too_small" || code === "too_big") return tv("outOfRange");
+    return tv("required");
+  };
+}
+
+const LABEL_SECTIONS = ["basics", "equipment", "location", "pricing", "arrangement"] as const;
+const LABEL_ALIASES: Record<string, string> = { cityId: "city" };
+
+/** The label of a wizard field, looked up across the step sections. */
+function useFieldLabel() {
+  const t = useTranslations("owner.wizard");
+  return (field: string) => {
+    const key = LABEL_ALIASES[field] ?? field;
+    const section = LABEL_SECTIONS.find((s) => t.has(`${s}.${key}` as "title"));
+    return section ? t(`${section}.${key}` as "title") : field;
+  };
 }
 
 function FormShell({
@@ -53,10 +71,31 @@ function FormShell({
 }) {
   const t = useTranslations("owner.wizard");
   const err = useErrorText();
+  const fieldLabel = useFieldLabel();
+  const fieldErrors = Object.entries(state.errors ?? {});
+  const top = useRef<HTMLDivElement>(null);
+  // A rejected save must never look like "nothing happened": bring the reason into view.
+  useEffect(() => {
+    if (!state.ok && (state.message || state.errors))
+      top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [state]);
   return (
     <>
-      {state.ok ? <Alert tone="success">{t("saved")}</Alert> : null}
-      {!state.ok && state.message ? <Alert tone="danger">{err(state.message)}</Alert> : null}
+      <div ref={top} className="scroll-mt-24 space-y-3 empty:hidden">
+        {state.ok ? <Alert tone="success">{t("saved")}</Alert> : null}
+        {!state.ok && state.message ? <Alert tone="danger">{err(state.message)}</Alert> : null}
+        {!state.ok && fieldErrors.length > 0 ? (
+          <Alert tone="danger" title={t("fixFields")}>
+            <ul className="list-disc space-y-0.5 pl-5">
+              {fieldErrors.map(([field, code]) => (
+                <li key={field}>
+                  {fieldLabel(field)}: {err(code)}
+                </li>
+              ))}
+            </ul>
+          </Alert>
+        ) : null}
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">{children}</div>
       <Button type="submit" loading={pending}>
         {label}
@@ -209,12 +248,18 @@ export function BasicsForm({
                 ))}
               </Select>
             </Field>
-            <Field id="engineCapacityCc" label={t("basics.engineCapacityCc")}>
+            <Field
+              id="engineCapacityCc"
+              label={t("basics.engineCapacityCc")}
+              hint={t("basics.engineHint")}
+              error={err(state.errors?.engineCapacityCc)}
+            >
               <Input
                 id="engineCapacityCc"
                 name="engineCapacityCc"
                 type="number"
-                inputMode="numeric"
+                step="any"
+                inputMode="decimal"
                 defaultValue={str("engineCapacityCc")}
               />
             </Field>
