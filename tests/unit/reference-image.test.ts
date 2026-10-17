@@ -65,6 +65,19 @@ describe("reference vehicle photos", () => {
     expect(parseImageInfo(infoAnswer("CC0"))?.license).toBe("CC0");
   });
 
+  it("accepts Wikimedia's thumbnail host and rejects other hosts", () => {
+    const thumb =
+      "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e8/Prado.jpg/960px-Prado.jpg?utm_source=en.wikipedia.org";
+    expect(parseImageInfo(infoAnswer("CC BY-SA 4.0", thumb))?.url).toBe(thumb);
+    expect(parseImageInfo(infoAnswer("CC BY-SA 4.0", "https://example.com/x.jpg"))).toBeNull();
+    expect(
+      parseImageInfo(infoAnswer("CC BY-SA 4.0", "https://upload.wikimedia.org.evil.test/x.jpg")),
+    ).toBeNull();
+    expect(
+      parseImageInfo(infoAnswer("CC BY-SA 4.0", "http://upload.wikimedia.org/x.jpg")),
+    ).toBeNull();
+  });
+
   it("only accepts articles about the make when asked to", () => {
     const body = {
       query: {
