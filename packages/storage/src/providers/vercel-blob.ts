@@ -9,10 +9,9 @@ export interface VercelBlobConfig {
 }
 
 /**
- * Vercel Blob storage with private access by default. Reads use presigned GET URLs that
- * expire after the requested TTL. Public access is only used for approved vehicle photos.
- * Status: implemented against @vercel/blob; to be verified against a live store once the
- * Vercel project exists (docs/OPEN_ITEMS.md).
+ * Vercel Blob storage. A Blob store is created either public or private and rejects uploads
+ * of the other kind, so every object is stored private (the store must be a private one) and
+ * read through presigned GET URLs that expire after the requested TTL — vehicle photos too.
  */
 export class VercelBlobStorageProvider implements StorageProvider {
   readonly name = "vercel-blob";
@@ -21,8 +20,8 @@ export class VercelBlobStorageProvider implements StorageProvider {
 
   async put(input: PutObjectInput): Promise<PutObjectResult> {
     const body = Buffer.from(input.body);
-    const result = await put(input.key, body, {
-      access: input.access === "public" ? "public" : "private",
+    await put(input.key, body, {
+      access: "private",
       contentType: input.contentType,
       addRandomSuffix: false,
       allowOverwrite: false,
@@ -33,7 +32,6 @@ export class VercelBlobStorageProvider implements StorageProvider {
       sizeBytes: body.byteLength,
       checksumSha256: createHash("sha256").update(body).digest("hex"),
       provider: this.name,
-      publicUrl: input.access === "public" ? result.url : undefined,
     };
   }
 

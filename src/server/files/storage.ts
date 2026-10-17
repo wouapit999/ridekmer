@@ -20,9 +20,10 @@ export function getStorageProvider(): StorageProvider {
   const env = getEnv();
   switch (env.STORAGE_PROVIDER) {
     case "vercel-blob": {
-      if (!env.BLOB_READ_WRITE_TOKEN)
+      const token = resolveBlobToken(env.BLOB_READ_WRITE_TOKEN, process.env);
+      if (!token)
         throw new Error("BLOB_READ_WRITE_TOKEN is required for STORAGE_PROVIDER=vercel-blob");
-      provider = new VercelBlobStorageProvider({ token: env.BLOB_READ_WRITE_TOKEN });
+      provider = new VercelBlobStorageProvider({ token });
       break;
     }
     case "s3": {
@@ -50,6 +51,21 @@ export function getStorageProvider(): StorageProvider {
       );
   }
   return provider;
+}
+
+/**
+ * BLOB_READ_WRITE_TOKEN, or the token Vercel added under a custom prefix when the store was
+ * connected (e.g. RIDEKMER_FILES_READ_WRITE_TOKEN). Only an unambiguous single match is used.
+ */
+export function resolveBlobToken(
+  configured: string | undefined,
+  environment: Record<string, string | undefined>,
+): string | undefined {
+  if (configured) return configured;
+  const candidates = Object.entries(environment).filter(
+    ([name, value]) => name.endsWith("_READ_WRITE_TOKEN") && value?.startsWith("vercel_blob_rw_"),
+  );
+  return candidates.length === 1 ? candidates[0]![1] : undefined;
 }
 
 export function getMalwareScanner(): MalwareScanner {

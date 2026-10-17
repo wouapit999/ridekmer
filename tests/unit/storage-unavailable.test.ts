@@ -48,3 +48,35 @@ describe("storage unavailable", () => {
     expect(storageStatus().ok).toBe(true);
   });
 });
+
+describe("resolveBlobToken", () => {
+  it("prefers BLOB_READ_WRITE_TOKEN", async () => {
+    const { resolveBlobToken } =
+      await vi.importActual<typeof import("@/server/files/storage")>("@/server/files/storage");
+    expect(
+      resolveBlobToken("vercel_blob_rw_main", { OTHER_READ_WRITE_TOKEN: "vercel_blob_rw_x" }),
+    ).toBe("vercel_blob_rw_main");
+  });
+
+  it("finds a token Vercel added under a custom prefix", async () => {
+    const { resolveBlobToken } =
+      await vi.importActual<typeof import("@/server/files/storage")>("@/server/files/storage");
+    expect(
+      resolveBlobToken(undefined, {
+        RIDEKMER_FILES_READ_WRITE_TOKEN: "vercel_blob_rw_abc",
+        GITHUB_READ_WRITE_TOKEN: "ghp_not_blob",
+      }),
+    ).toBe("vercel_blob_rw_abc");
+  });
+
+  it("refuses to guess between several stores", async () => {
+    const { resolveBlobToken } =
+      await vi.importActual<typeof import("@/server/files/storage")>("@/server/files/storage");
+    expect(
+      resolveBlobToken(undefined, {
+        A_READ_WRITE_TOKEN: "vercel_blob_rw_a",
+        B_READ_WRITE_TOKEN: "vercel_blob_rw_b",
+      }),
+    ).toBeUndefined();
+  });
+});
