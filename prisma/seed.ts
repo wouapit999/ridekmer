@@ -7,6 +7,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { seedDemoData } from "./seed-data/demo";
 import { demoSeedAllowed } from "./seed-data/guard";
 import { seedReferenceData } from "./seed-data/reference";
+import { seedShowcaseData } from "./seed-data/showcase";
 
 const connectionString = process.env.DIRECT_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL (or DIRECT_DATABASE_URL) must be set to seed");
@@ -19,6 +20,7 @@ async function main() {
   if (demoSeedAllowed()) {
     console.log("Seeding SYNTHETIC demo data (ALLOW_DEMO_SEED=true, non-production)…");
     await seedDemoData(prisma);
+    await seedShowcaseData(prisma);
   } else if (isProduction) {
     console.log(
       "Production environment detected: demo data skipped (never created in production).",
