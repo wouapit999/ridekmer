@@ -43,14 +43,17 @@ jobs:
             ["Toyota", "RAV4", undefined],
             ["Hyundai", "Tucson", 2020],
           ];
-          for (const [make, model, year] of cases) {
-            const r = await findReferenceImage(make, model, fetch, year);
-            console.log(make, model, year ?? "-", "=>", r ? r.url : "NONE");
-          }
+          (async () => {
+            for (const [make, model, year] of cases) {
+              const r = await findReferenceImage(make, model, fetch, year);
+              console.log(make, model, year ?? "-", "=>", r ? r.url : "NONE");
+            }
+          })();
           TS
           cp /tmp/photo-check.ts ./photo-check.ts
           pnpm exec tsx ./photo-check.ts
       - name: Raw Wikipedia search answer
+        if: always()
         run: |
           curl -sS -A "RideKmer/1.0 (+https://ridekmerw.vercel.app)" \
             "https://en.wikipedia.org/w/api.php?format=json&formatversion=2&origin=*&action=query&generator=search&gsrsearch=Toyota%20Land%20Cruiser%20Prado%202025&gsrlimit=5&gsrnamespace=0&prop=pageimages&piprop=name&pilicense=free" | head -c 2000
