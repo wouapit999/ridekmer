@@ -4,7 +4,7 @@ import { safeEqual } from "@/lib/crypto";
 import { getEnv } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { db } from "@/server/db";
-import { getStorageProvider } from "@/server/files/storage";
+import { getStorageProvider, resolveBlobToken } from "@/server/files/storage";
 import { listAvailableMethods } from "@/server/payments/registry";
 import { commitSha } from "@/instrumentation";
 import { activeScheduler } from "@/server/cron/scheduler";
@@ -116,12 +116,25 @@ async function storageCheck(): Promise<Check> {
     return {
       state: env.STORAGE_PROVIDER === "local" && env.APP_ENV === "production" ? "failed" : "ok",
       latencyMs: Date.now() - startedAt,
-      detail: env.STORAGE_PROVIDER,
+      detail: storageDetail(env.STORAGE_PROVIDER),
     };
   } catch (error) {
     logger.warn("health.storage_probe_failed", { error });
-    return { state: "failed", latencyMs: Date.now() - startedAt, detail: env.STORAGE_PROVIDER };
+    // Blob SDK errors carry no secrets; the name says whether auth, the store or the network failed.
+    const reason = error instanceof Error ? error.name : "probe failed";
+    return {
+      state: "failed",
+      latencyMs: Date.now() - startedAt,
+      detail: `${storageDetail(env.STORAGE_PROVIDER)}: ${reason}`,
+    };
   }
+}
+
+/** Which Vercel Blob credentials are present (names only, never values). */
+function storageDetail(provider: string): string {
+  if (provider !== "vercel-blob") return provider;
+  const token = resolveBlobToken(getEnv().BLOB_READ_WRITE_TOKEN, process.env);
+  return `${provider} (${token ? "token" : "oidc"})`;
 }
 
 async function paymentsCheck(): Promise<Check> {

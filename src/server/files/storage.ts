@@ -21,8 +21,12 @@ export function getStorageProvider(): StorageProvider {
   switch (env.STORAGE_PROVIDER) {
     case "vercel-blob": {
       const token = resolveBlobToken(env.BLOB_READ_WRITE_TOKEN, process.env);
-      if (!token)
-        throw new Error("BLOB_READ_WRITE_TOKEN is required for STORAGE_PROVIDER=vercel-blob");
+      // Without a token, @vercel/blob authenticates with the deployment's OIDC token and
+      // BLOB_STORE_ID, both set by Vercel when a store is connected to the project.
+      if (!token && !process.env.BLOB_STORE_ID)
+        throw new Error(
+          "BLOB_READ_WRITE_TOKEN or BLOB_STORE_ID is required for STORAGE_PROVIDER=vercel-blob",
+        );
       provider = new VercelBlobStorageProvider({ token });
       break;
     }
