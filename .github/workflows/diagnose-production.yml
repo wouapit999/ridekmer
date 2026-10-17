@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Wait for the production deploy of the release
+        run: sleep 180
       - name: Detailed health (storage, migrations, environment)
         env:
           TARGET: ${{ secrets.CRON_TARGET_URL }}
@@ -19,9 +21,3 @@ jobs:
         run: |
           TARGET="${TARGET%/}"
           curl -sS -m 60 -H "Authorization: Bearer $SECRET" "$TARGET/api/health" | jq '.checks // .'
-      - name: Detailed health of the fix/blob-oidc preview
-        env:
-          SECRET: ${{ secrets.CRON_SECRET }}
-        run: |
-          curl -sS -m 60 -w "\nHTTP %{http_code}\n" -H "Authorization: Bearer $SECRET" \
-            "https://ridekmerw-git-fix-blob-oidc-wouapit999s-projects.vercel.app/api/health" | head -c 3000
