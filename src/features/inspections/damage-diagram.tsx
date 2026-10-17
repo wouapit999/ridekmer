@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 /**
@@ -29,6 +30,7 @@ export function DamageDiagram({
   interactive?: boolean;
   label: string;
 }) {
+  const t = useTranslations("inspections.diagram");
   const [point, setPoint] = useState<{ x: number; y: number } | null>(null);
   const onClick = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!interactive) return;
@@ -85,10 +87,10 @@ export function DamageDiagram({
         <rect x="16" y="150" width="14" height="10" rx="3" fill="#9a8c7a" />
         <rect x="170" y="150" width="14" height="10" rx="3" fill="#9a8c7a" />
         <text x="100" y="14" textAnchor="middle" fontSize="11" fill="#6b6b6b">
-          FRONT
+          {t("front")}
         </text>
         <text x="100" y="396" textAnchor="middle" fontSize="11" fill="#6b6b6b">
-          REAR
+          {t("rear")}
         </text>
         {markers.map((m) => (
           <g key={m.id}>

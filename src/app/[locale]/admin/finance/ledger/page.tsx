@@ -6,6 +6,7 @@ import { AdjustmentForm, IssueStatementForm } from "@/features/finance/forms";
 import { listLedgerEntries } from "@/features/finance/queries";
 import { Link } from "@/i18n/navigation";
 import { isoDateFromNow } from "@/lib/dates";
+import { enumLabel, ledgerAccountLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 import { db } from "@/server/db";
@@ -41,6 +42,7 @@ export default async function AdminLedgerPage({
   await requirePermission("ledger.view", "/admin/finance/ledger");
   const sp = await searchParams;
   const t = await getTranslations("finance.ledger");
+  const te = await getTranslations("enums");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const type = (TYPES.includes(sp.type as LedgerEntryType) ? sp.type : "ALL") as
@@ -71,7 +73,7 @@ export default async function AdminLedgerPage({
         <Select name="type" defaultValue={type} className="max-w-56" aria-label={t("type")}>
           {TYPES.map((x) => (
             <option key={x} value={x}>
-              {x === "ALL" ? t("allTypes") : x}
+              {x === "ALL" ? t("allTypes") : enumLabel(te, "ledgerEntryType", x)}
             </option>
           ))}
         </Select>
@@ -124,9 +126,10 @@ export default async function AdminLedgerPage({
                 <td className="px-4 py-2 font-mono text-xs text-sand-600">
                   {format.dateTime(e.effectiveAt, "short")}
                 </td>
-                <td className="px-4 py-2 text-xs">{e.type}</td>
-                <td className="px-4 py-2 font-mono text-xs">{e.debitAccount.key}</td>
-                <td className="px-4 py-2 font-mono text-xs">{e.creditAccount.key}</td>
+                <td className="px-4 py-2 text-xs">{enumLabel(te, "ledgerEntryType", e.type)}</td>
+                <td className="px-4 py-2 text-xs">{ledgerAccountLabel(te, e.debitAccount.key)}</td>
+                <td className="px-4 py-2 text-xs">{ledgerAccountLabel(te, e.creditAccount.key)}</td>
+
                 <td className="px-4 py-2 text-right font-semibold tabular-nums">
                   {formatXaf(e.amountXaf, currentLocale)}
                 </td>

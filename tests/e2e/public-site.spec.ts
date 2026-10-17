@@ -42,6 +42,20 @@ test.describe("public website", () => {
     }
   });
 
+  test("English pages are entirely in English, header and footer included", async ({ page }) => {
+    for (const [path, heading] of [
+      ["/en/how-it-works", "How RideKmer works"],
+      ["/en/faq", "Frequently asked questions"],
+      ["/en/terms", "Terms and conditions"],
+      ["/en/contact", "Contact and support"],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 }), path).toContainText(heading);
+      await expect(page.getByText("Politique de confidentialité"), path).toHaveCount(0);
+      await expect(page.getByText("Comment ça marche"), path).toHaveCount(0);
+    }
+  });
+
   test("unknown pages return the localised 404", async ({ page }) => {
     const response = await page.goto("/fr/does-not-exist");
     expect(response?.status()).toBe(404);

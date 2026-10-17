@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/alert";
 import { listExpensesForAdmin } from "@/features/finance/expenses";
 import { ExpenseDecisionForm } from "@/features/finance/forms";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 
@@ -30,6 +31,7 @@ export default async function AdminExpensesPage({
   await requirePermission("expense.approve", "/admin/expenses");
   const sp = await searchParams;
   const t = await getTranslations("finance.expenses");
+  const tm = await getTranslations("maintenance");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const status = (STATUSES.includes(sp.status as ExpenseStatus) ? sp.status : "PENDING") as
@@ -83,7 +85,7 @@ export default async function AdminExpensesPage({
               </Badge>
             </div>
             <p className="text-xs text-sand-600">
-              {e.category} · {e.description}
+              {enumLabel(tm, "types", e.category)} · {e.description}
               {e.maintenanceRecord ? ` · ${e.maintenanceRecord.title}` : ""} ·{" "}
               {format.dateTime(e.incurredOn, "short")} · {e.ownerProfile?.displayName ?? "RideKmer"}
               {e.status === "ALLOCATED"

@@ -7,6 +7,7 @@ import { getSettingsPageData } from "@/features/admin/queries";
 import { CityForm, SettingRow } from "@/features/admin/settings-forms";
 import { DocumentTypeForm } from "@/features/admin/review-forms";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -16,6 +17,7 @@ export default async function AdminSettingsPage({ params }: Props) {
   setRequestLocale(locale);
   const { access } = await requirePermission("settings.manage", "/admin/settings");
   const t = await getTranslations("admin.settings");
+  const te = await getTranslations("enums");
   const currentLocale = await getLocale();
   const { cities, settings, documentTypes } = await getSettingsPageData();
   const name = (o: { nameFr: string; nameEn: string }) =>
@@ -99,8 +101,8 @@ export default async function AdminSettingsPage({ params }: Props) {
           <table className="min-w-full text-sm">
             <thead className="bg-sand-100 text-left text-xs tracking-wide text-sand-600 uppercase">
               <tr>
-                <th className="px-4 py-3">{t("key")}</th>
                 <th className="px-4 py-3">{t("description")}</th>
+                <th className="px-4 py-3">{t("dtSubject")}</th>
                 <th className="px-4 py-3">{t("mandatory")}</th>
                 <th className="px-4 py-3">{t("blocksWhenExpired")}</th>
               </tr>
@@ -108,10 +110,11 @@ export default async function AdminSettingsPage({ params }: Props) {
             <tbody className="divide-y divide-sand-200">
               {documentTypes.map((d) => (
                 <tr key={d.id} className={d.isActive ? "" : "opacity-60"}>
-                  <td className="px-4 py-3 font-mono text-xs">{d.key}</td>
+                  <td className="px-4 py-3 font-medium">{name(d)}</td>
                   <td className="px-4 py-3">
-                    <Badge>{d.subjectType}</Badge> {name(d)}
+                    <Badge>{enumLabel(te, "documentSubject", d.subjectType)}</Badge>
                   </td>
+
                   <td className="px-4 py-3">{d.isMandatory ? "✓" : "—"}</td>
                   <td className="px-4 py-3">{d.blocksVehicleWhenExpired ? "✓" : "—"}</td>
                 </tr>

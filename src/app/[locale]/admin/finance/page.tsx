@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/field";
 import { LedgerCatchUpForm } from "@/features/finance/forms";
 import { getFinanceDashboard, listOwnerBalances } from "@/features/finance/queries";
 import { Link } from "@/i18n/navigation";
+import { enumLabel, ledgerAccountLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 
@@ -21,6 +22,8 @@ export default async function AdminFinancePage({
   const { access } = await requirePermission("report.view", "/admin/finance");
   const sp = await searchParams;
   const t = await getTranslations("finance.dashboard");
+  const te = await getTranslations("enums");
+  const tpm = await getTranslations("finance.payouts");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const [d, owners] = await Promise.all([getFinanceDashboard(sp.month), listOwnerBalances()]);
@@ -138,7 +141,9 @@ export default async function AdminFinancePage({
                     {o.owner.displayName}
                     <span className="block text-xs text-sand-600">{o.owner.user.email}</span>
                   </td>
-                  <td className="px-4 py-3 text-xs">{o.owner.payoutMethod ?? "—"}</td>
+                  <td className="px-4 py-3 text-xs">
+                    {enumLabel(tpm, "methods", o.owner.payoutMethod)}
+                  </td>
                   <td className="px-4 py-3 text-right font-semibold tabular-nums">
                     {xaf(o.balanceXaf)}
                   </td>
@@ -157,8 +162,9 @@ export default async function AdminFinancePage({
                 <span className="font-mono text-xs text-sand-500">
                   {format.dateTime(e.effectiveAt, "short")}
                 </span>{" "}
-                · {e.type} · {e.debitAccount.key} → {e.creditAccount.key} ·{" "}
-                {e.booking?.reference ?? ""}
+                · {enumLabel(te, "ledgerEntryType", e.type)} ·{" "}
+                {ledgerAccountLabel(te, e.debitAccount.key)} →{" "}
+                {ledgerAccountLabel(te, e.creditAccount.key)} · {e.booking?.reference ?? ""}
               </span>
               <span className="font-semibold tabular-nums">{xaf(e.amountXaf)}</span>
             </li>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/alert";
 import { listDataRequestsForAdmin } from "@/features/account/privacy";
 import { DataRequestActions } from "@/features/admin/data-request-forms";
 import { formatIsoDate } from "@/lib/dates";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -13,6 +14,7 @@ export default async function DataRequestsPage({ params }: Props) {
   setRequestLocale(locale);
   const { access } = await requirePermission("user.view_all", "/admin/data-requests");
   const t = await getTranslations("admin.dataRequests");
+  const te = await getTranslations("enums");
   const requests = await listDataRequestsForAdmin();
   const canProcess = access.permissions.has("user.suspend");
 
@@ -45,7 +47,7 @@ export default async function DataRequestsPage({ params }: Props) {
                     <div className="font-medium text-sand-900">{r.user.name}</div>
                     <div className="text-xs text-sand-600">{r.user.email}</div>
                   </td>
-                  <td className="px-4 py-3">{r.type}</td>
+                  <td className="px-4 py-3">{enumLabel(te, "dataRequestType", r.type)}</td>
                   <td className="px-4 py-3">
                     <Badge
                       tone={
@@ -56,7 +58,7 @@ export default async function DataRequestsPage({ params }: Props) {
                             : "warn"
                       }
                     >
-                      {r.status}
+                      {enumLabel(te, "dataRequestStatus", r.status)}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">{formatIsoDate(r.createdAt)}</td>

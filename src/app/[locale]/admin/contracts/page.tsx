@@ -7,6 +7,7 @@ import {
   listTemplatesForAdmin,
 } from "@/features/contracts/service";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 
 export default async function AdminContractsPage({
@@ -21,6 +22,8 @@ export default async function AdminContractsPage({
   const { access } = await requirePermission("contract.view_all", "/admin/contracts");
   const sp = await searchParams;
   const t = await getTranslations("contracts.admin");
+  const te = await getTranslations("enums");
+  const tc = await getTranslations("contracts");
   const currentLocale = await getLocale();
   const format = await getFormatter();
   const page = Math.max(1, Number(sp.page ?? 1) || 1);
@@ -38,15 +41,14 @@ export default async function AdminContractsPage({
             <li key={tpl.id} className="rounded-xl border border-sand-200 bg-white p-4 text-sm">
               <p className="font-semibold">
                 {currentLocale === "en" ? tpl.nameEn : tpl.nameFr}{" "}
-                <code className="font-mono text-xs text-sand-500">{tpl.key}</code>{" "}
-                <Badge>{tpl.type}</Badge>
+                <Badge>{enumLabel(te, "contractType", tpl.type)}</Badge>
               </p>
               <ul className="mt-1 text-xs text-sand-600">
                 {tpl.versions.map((v) => (
                   <li key={v.id}>
                     v{v.version} · {v.locale} ·{" "}
                     {v.publishedAt ? format.dateTime(v.publishedAt, "short") : t("draft")} ·{" "}
-                    {v.author?.name ?? "seed"} ·{" "}
+                    {v.author?.name ?? t("seedAuthor")} ·{" "}
                     <code className="font-mono">{v.checksumSha256.slice(0, 12)}…</code>
                   </li>
                 ))}
@@ -85,7 +87,7 @@ export default async function AdminContractsPage({
                   <td className="px-4 py-3 text-xs text-sand-600">
                     {format.dateTime(c.createdAt, "full")}
                   </td>
-                  <td className="px-4 py-3 text-xs">{c.type}</td>
+                  <td className="px-4 py-3 text-xs">{enumLabel(te, "contractType", c.type)}</td>
                   <td className="px-4 py-3 font-mono text-xs">
                     {c.booking ? (
                       <Link
@@ -109,11 +111,11 @@ export default async function AdminContractsPage({
                             : "warn"
                       }
                     >
-                      {c.status}
+                      {enumLabel(tc, "statuses", c.status)}
                     </Badge>
                     {c.signatures[0] ? (
                       <span className="block text-xs text-sand-600">
-                        {c.signatures[0].method} ·{" "}
+                        {enumLabel(te, "signatureMethod", c.signatures[0].method)} ·{" "}
                         {format.dateTime(c.signatures[0].acceptedAt, "short")}
                       </span>
                     ) : null}

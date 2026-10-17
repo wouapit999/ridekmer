@@ -10,6 +10,8 @@ import { SearchForm } from "@/features/vehicles/search-form";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { getCurrentSession } from "@/server/auth/session";
+import { VehiclePhoto } from "@/features/vehicles/vehicle-photo";
+import { findReferenceImages } from "@/server/vehicles/reference-image";
 import { signedDownloadUrl } from "@/server/files/service";
 
 type Props = {
@@ -45,6 +47,10 @@ export default async function CarsPage({ params, searchParams }: Props) {
           await signedDownloadUrl({ storageKey: v.images[0].storageKey, ttlSeconds: 3600 }),
         );
     }),
+  );
+
+  const referenceImages = await findReferenceImages(
+    result.vehicles.filter((v) => !photoUrls.has(v.id)),
   );
 
   const defaults = Object.fromEntries(
@@ -201,19 +207,11 @@ export default async function CarsPage({ params, searchParams }: Props) {
                     href={`/cars/${v.id}${datesQuery ? `?${datesQuery}` : ""}`}
                     className="block aspect-[4/3] bg-sand-100"
                   >
-                    {photoUrls.get(v.id) ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL
-                      <img
-                        src={photoUrls.get(v.id)}
-                        alt={`${v.make} ${v.model}`}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <span className="flex h-full items-center justify-center text-sm text-sand-500">
-                        RideKmer
-                      </span>
-                    )}
+                    <VehiclePhoto
+                      photoUrl={photoUrls.get(v.id)}
+                      reference={referenceImages.get(v.id)}
+                      alt={`${v.make} ${v.model}`}
+                    />
                   </Link>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="flex flex-wrap items-center gap-2">

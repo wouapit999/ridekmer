@@ -8,6 +8,7 @@ import {
   UnassignDeviceForm,
 } from "@/features/tracking/forms";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { requirePermission } from "@/server/auth/session";
 import { db } from "@/server/db";
 import { getTrackingProvider } from "@/server/tracking/registry";
@@ -21,6 +22,7 @@ export default async function AdminDevicesPage({
   setRequestLocale(locale);
   await requirePermission("tracking.manage_devices", "/admin/devices");
   const t = await getTranslations("tracking.devices");
+  const te = await getTranslations("enums");
   const format = await getFormatter();
   const [devices, vehicles] = await Promise.all([
     listDevices(),
@@ -88,8 +90,8 @@ export default async function AdminDevicesPage({
                 ? `${t("lastSeen")}: ${format.dateTime(d.lastSeenAt, "full")}`
                 : t("neverSeen")}
               {d.batteryPercent !== null ? ` · ${d.batteryPercent} %` : ""}
-              {d.powerStatus ? ` · ${d.powerStatus}` : ""} · {t("registeredBy")}:{" "}
-              {d.registeredBy?.name ?? "—"}
+              {d.powerStatus ? ` · ${enumLabel(te, "powerStatus", d.powerStatus)}` : ""} ·{" "}
+              {t("registeredBy")}: {d.registeredBy?.name ?? "—"}
             </p>
             {d.assignments[0] ? (
               <div className="space-y-2">

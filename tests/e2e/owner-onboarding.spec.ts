@@ -10,7 +10,8 @@ async function login(page: Page, email: string) {
   await page.getByLabel("Adresse e-mail").fill(email);
   await page.getByLabel("Mot de passe").fill(DEMO_PASSWORD);
   await page.getByRole("button", { name: "Se connecter", exact: true }).click();
-  await expect(page).toHaveURL(/\/fr\/account$/);
+  // Customers land on their account, staff on the administration.
+  await expect(page).toHaveURL(/\/fr\/(account|admin)$/);
 }
 
 test.describe("owner onboarding and vehicle approval", () => {
@@ -62,8 +63,8 @@ test.describe("owner onboarding and vehicle approval", () => {
     // 6. Vehicle basics
     await page.goto("/fr/owner/vehicles/new");
     await page.getByLabel("Immatriculation").fill(plate);
-    await page.getByLabel("Marque").fill("Hyundai");
-    await page.getByLabel("Modèle").fill("i10");
+    await page.getByLabel("Marque").selectOption("Hyundai");
+    await page.getByLabel("Modèle").selectOption("i10");
     await page.getByLabel("Année").fill("2021");
     await page.getByRole("button", { name: "Enregistrer et continuer" }).click();
     await expect(page).toHaveURL(/\/edit\?step=equipment/);

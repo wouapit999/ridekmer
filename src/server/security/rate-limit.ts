@@ -32,6 +32,7 @@ export const RATE_LIMIT_RULES = {
   "booking.create": { limit: 20, windowSeconds: 3600 },
   "incident.report": { limit: 10, windowSeconds: 3600 },
   "webhook.ingest": { limit: 600, windowSeconds: 60 },
+  "vehicle.referenceImage": { limit: 60, windowSeconds: 600 },
 } as const satisfies Record<string, RateLimitRule>;
 
 export type RateLimitAction = keyof typeof RATE_LIMIT_RULES;

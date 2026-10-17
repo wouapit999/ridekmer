@@ -18,6 +18,7 @@ import { RecordForm, RecordTransitionForm, ScheduleForm } from "@/features/maint
 import { listMaintenanceForVehicle } from "@/features/maintenance/service";
 import { activeAssignmentForVehicle } from "@/features/tracking/devices";
 import { Link } from "@/i18n/navigation";
+import { enumLabel } from "@/lib/i18n-enum";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
 
@@ -55,6 +56,8 @@ export default async function AdminVehicleDetailPage({
   const tt = await getTranslations("tracking.vehicle");
   const ts = await getTranslations("owner.vehicles.status");
   const ta = await getTranslations("owner.wizard.arrangement");
+  const te = await getTranslations("enums");
+  const tds = await getTranslations("tracking.devices");
   const currentLocale = (await getLocale()) === "en" ? "en" : "fr";
   const format = await getFormatter();
   const name = (o: { nameFr: string; nameEn: string }) =>
@@ -122,7 +125,7 @@ export default async function AdminVehicleDetailPage({
               ? ta("SELF_MANAGED_MARKETPLACE_VEHICLE")
               : vehicle.ownershipModel === "FULLY_MANAGED_OWNER_VEHICLE"
                 ? ta("FULLY_MANAGED_OWNER_VEHICLE")
-                : "RIDEKMER_OWNED"}
+                : enumLabel(te, "ownershipModel", vehicle.ownershipModel)}
           </dd>
         </div>
       </dl>
@@ -191,7 +194,7 @@ export default async function AdminVehicleDetailPage({
           <p>
             {tt(`types.${tracker.device.type}`)} ·{" "}
             <Badge tone={tracker.device.status === "ACTIVE" ? "good" : "warn"}>
-              {tracker.device.status}
+              {enumLabel(tds, "statuses", tracker.device.status)}
             </Badge>
             {tracker.device.lastSeenAt
               ? ` · ${tt("lastSeen", { date: format.dateTime(tracker.device.lastSeenAt, "full") })}`
@@ -274,9 +277,9 @@ export default async function AdminVehicleDetailPage({
                 {r.scheduledFor
                   ? `${tm("scheduledFor")}: ${format.dateTime(r.scheduledFor, "short")} · `
                   : ""}
-                {r.quoteXaf ? `${tm("quoteXaf")}: ${formatXaf(r.quoteXaf, "fr")} · ` : ""}
+                {r.quoteXaf ? `${tm("quoteXaf")}: ${formatXaf(r.quoteXaf, currentLocale)} · ` : ""}
                 {r.finalCostXaf
-                  ? `${tm("finalCostXaf")}: ${formatXaf(r.finalCostXaf, "fr")} · `
+                  ? `${tm("finalCostXaf")}: ${formatXaf(r.finalCostXaf, currentLocale)} · `
                   : ""}
                 {r.providerName ?? ""} {r.createdBy?.name ? `· ${r.createdBy.name}` : ""}
               </p>

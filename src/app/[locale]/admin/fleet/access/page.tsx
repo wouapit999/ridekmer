@@ -58,13 +58,21 @@ export default async function AdminTrackingAccessPage({
                   <span className="block text-xs text-sand-600">{l.user.email}</span>
                 </td>
                 <td className="px-4 py-2 text-xs">{t(`types.${l.accessType}`)}</td>
-                <td className="px-4 py-2 font-mono text-xs">{l.vehicleId}</td>
+                <td className="px-4 py-2 font-mono text-xs">
+                  {l.vehicleId === "FLEET" ? (
+                    <span className="font-sans">{t("wholeFleet")}</span>
+                  ) : (
+                    l.vehicleId
+                  )}
+                </td>
                 <td className="px-4 py-2 text-xs">
                   {l.rangeStart
                     ? `${format.dateTime(l.rangeStart, "short")} → ${l.rangeEnd ? format.dateTime(l.rangeEnd, "short") : ""}`
                     : "—"}
                 </td>
-                <td className="px-4 py-2 text-xs">{l.reason ?? "—"}</td>
+                <td className="px-4 py-2 text-xs">
+                  {l.reason === "fleet map" ? t("fleetMapReason") : (l.reason ?? "—")}
+                </td>
               </tr>
             ))}
           </tbody>
