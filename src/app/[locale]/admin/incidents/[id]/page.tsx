@@ -11,7 +11,7 @@ import { getIncidentForStaff } from "@/features/incidents/service";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
-import { signedDownloadUrl } from "@/server/files/service";
+import { trySignedDownloadUrl } from "@/server/files/service";
 
 export default async function AdminIncidentDetailPage({
   params,
@@ -29,7 +29,7 @@ export default async function AdminIncidentDetailPage({
   const photos = await Promise.all(
     incident.photoKeys.map(async (key) => ({
       key,
-      url: await signedDownloadUrl({ storageKey: key, actorId: user.id }),
+      url: (await trySignedDownloadUrl({ storageKey: key, actorId: user.id })) ?? "",
     })),
   );
   const canResolve = access.permissions.has("incident.resolve");

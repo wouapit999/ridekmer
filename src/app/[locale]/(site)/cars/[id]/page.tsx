@@ -16,7 +16,7 @@ import { BookingError, getBookableVehicle, quoteBooking } from "@/features/booki
 import { FileLink } from "@/features/documents/file-link";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { getCurrentSession } from "@/server/auth/session";
-import { signedDownloadUrl } from "@/server/files/service";
+import { trySignedDownloadUrl } from "@/server/files/service";
 import { isSamplePlate, samplePhotoUrl } from "@/features/vehicles/showcase-data";
 import { VehicleCredit, VehiclePhoto } from "@/features/vehicles/vehicle-photo";
 import { findReferenceImage } from "@/server/vehicles/reference-image";
@@ -59,8 +59,8 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
     Promise.all(
       vehicle.images
         .slice(0, 6)
-        .map((img) => signedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 })),
-    ),
+        .map((img) => trySignedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 })),
+    ).then((urls) => urls.filter((u): u is string => Boolean(u))),
   ]);
   const sample = isSamplePlate(vehicle.registrationNumber);
   if (!photoUrls.length && samplePhotoUrl(vehicle.registrationNumber))

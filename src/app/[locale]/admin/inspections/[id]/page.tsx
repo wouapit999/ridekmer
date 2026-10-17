@@ -17,7 +17,7 @@ import type { Settlement } from "@/features/inspections/settlement";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { requirePermission } from "@/server/auth/session";
-import { signedDownloadUrl } from "@/server/files/service";
+import { trySignedDownloadUrl } from "@/server/files/service";
 
 const REQUIRED_PHOTOS = 4;
 
@@ -41,7 +41,7 @@ export default async function AdminInspectionPage({
   const photos = await Promise.all(
     inspection.photos.map(async (p) => ({
       ...p,
-      url: await signedDownloadUrl({ storageKey: p.storageKey, actorId: user.id }),
+      url: (await trySignedDownloadUrl({ storageKey: p.storageKey, actorId: user.id })) ?? "",
     })),
   );
   const checks: Partial<Record<CheckGroup, Record<string, string>>> = {

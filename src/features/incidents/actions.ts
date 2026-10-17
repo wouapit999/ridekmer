@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { FileRejectedError } from "@/server/files/service";
+import { FileRejectedError, StorageUnavailableError } from "@/server/files/service";
 import { getCurrentSession, requirePermissionOrThrow } from "@/server/auth/session";
 import { enforceRateLimit, RateLimitedError } from "@/server/security/rate-limit";
 import { db } from "@/server/db";
@@ -25,6 +25,7 @@ export interface IncidentActionResult {
 function fail(error: unknown): IncidentActionResult {
   if (error instanceof IncidentError) return { ok: false, message: error.code };
   if (error instanceof FileRejectedError) return { ok: false, message: "FILE_REJECTED" };
+  if (error instanceof StorageUnavailableError) return { ok: false, message: error.code };
   if (error instanceof RateLimitedError) return { ok: false, message: "RATE_LIMITED" };
   throw error;
 }
