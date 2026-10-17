@@ -7,7 +7,7 @@ const { chromium } = require("@playwright/test");
 const [, , out, L, url] = process.argv;
 const copy = JSON.parse(await readFile(new URL("./copy.json", import.meta.url), "utf8"))[L];
 const credits = JSON.parse(
-  await readFile(`${process.cwd()}/prisma/seed-data/showcase-photos/credits.json`, "utf8"),
+  await readFile(`${process.cwd()}/src/features/vehicles/showcase-credits.json`, "utf8"),
 );
 await mkdir(out, { recursive: true });
 

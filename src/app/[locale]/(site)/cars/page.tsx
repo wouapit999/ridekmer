@@ -10,6 +10,7 @@ import { SearchForm } from "@/features/vehicles/search-form";
 import { Link } from "@/i18n/navigation";
 import { formatXaf } from "@/lib/money";
 import { getCurrentSession } from "@/server/auth/session";
+import { isSamplePlate, samplePhotoUrl } from "@/features/vehicles/showcase-data";
 import { VehiclePhoto } from "@/features/vehicles/vehicle-photo";
 import { findReferenceImages } from "@/server/vehicles/reference-image";
 import { signedDownloadUrl } from "@/server/files/service";
@@ -46,6 +47,8 @@ export default async function CarsPage({ params, searchParams }: Props) {
           v.id,
           await signedDownloadUrl({ storageKey: v.images[0].storageKey, ttlSeconds: 3600 }),
         );
+      else if (samplePhotoUrl(v.registrationNumber))
+        photoUrls.set(v.id, samplePhotoUrl(v.registrationNumber)!);
     }),
   );
 
@@ -215,6 +218,9 @@ export default async function CarsPage({ params, searchParams }: Props) {
                   </Link>
                   <div className="flex flex-1 flex-col p-4">
                     <div className="flex flex-wrap items-center gap-2">
+                      {isSamplePlate(v.registrationNumber) ? (
+                        <Badge tone="warn">{t("sample.badge")}</Badge>
+                      ) : null}
                       <Badge tone="brand">{t(`categories.${v.category}`)}</Badge>
                       {v.instantBooking ? <Badge tone="good">{t("instantOnly")}</Badge> : null}
                       {v.chauffeurAvailable ? <Badge>{tc("nav.chauffeur")}</Badge> : null}

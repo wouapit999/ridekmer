@@ -26,6 +26,7 @@ import { humanReference } from "@/lib/ids";
 import { logger } from "@/lib/logger";
 import { formatXaf } from "@/lib/money";
 import { recordAudit } from "@/server/audit";
+import { isSamplePlate } from "@/features/vehicles/showcase-data";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
 import { openRefundForCancelledBooking } from "@/features/payments/refunds";
@@ -162,9 +163,13 @@ export async function quoteBooking(
   options: BookingOptions,
   userId: string | null = null,
   now = new Date(),
+  /** Sample cars (EX- plates) can show a price but never be booked. */
+  opts: { allowSample?: boolean } = {},
 ): Promise<QuoteResult> {
   const vehicle = await getBookableVehicle(vehicleId);
   if (!vehicle) throw new BookingError("VEHICLE_NOT_BOOKABLE");
+  if (isSamplePlate(vehicle.registrationNumber) && !opts.allowSample)
+    throw new BookingError("VEHICLE_NOT_BOOKABLE");
   if (options.chauffeur && !vehicle.chauffeurAvailable) throw new BookingError("DRIVE_OPTION");
   if (!options.chauffeur && !vehicle.selfDriveAllowed) throw new BookingError("DRIVE_OPTION");
   const settings = await getPricingSettings();

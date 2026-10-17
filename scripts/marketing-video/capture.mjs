@@ -99,7 +99,7 @@ async function shot(page, url, name, opts = {}) {
   const credits = JSON.parse(
     await (
       await import("node:fs/promises")
-    ).readFile(`${process.cwd()}/prisma/seed-data/showcase-photos/credits.json`, "utf8"),
+    ).readFile(`${process.cwd()}/src/features/vehicles/showcase-credits.json`, "utf8"),
   );
   const prado = credits.find((c) => c.slug === "toyota-land-cruiser-prado");
   await page.route("**/api/vehicles/reference-image**", (route) =>
@@ -116,7 +116,7 @@ async function shot(page, url, name, opts = {}) {
   );
   await page.route("https://upload.wikimedia.org/**", (route) =>
     route.fulfill({
-      path: `${process.cwd()}/prisma/seed-data/showcase-photos/toyota-land-cruiser-prado.jpg`,
+      path: `${process.cwd()}/public/showcase/toyota-land-cruiser-prado.jpg`,
       contentType: "image/jpeg",
     }),
   );

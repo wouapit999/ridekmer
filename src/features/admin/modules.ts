@@ -203,6 +203,13 @@ export const ADMIN_MODULES: readonly AdminModule[] = [
     anyOf: ["settings.manage"],
     nav: false,
   },
+  {
+    key: "samples",
+    href: "/admin/samples",
+    group: "administration",
+    anyOf: ["settings.manage"],
+    nav: true,
+  },
 ];
 
 export function canOpenModule(module: AdminModule, permissions: ReadonlySet<string>): boolean {

@@ -65,6 +65,32 @@ describe("reference vehicle photos", () => {
     expect(parseImageInfo(infoAnswer("CC0"))?.license).toBe("CC0");
   });
 
+  it("only accepts articles about the make when asked to", () => {
+    const body = {
+      query: {
+        pages: [
+          { title: "2008 in sports", index: 1, pageimage: "Stadium.jpg" },
+          { title: "Toyota Corolla (E140)", index: 2, pageimage: "Corolla_E140.jpg" },
+        ],
+      },
+    };
+    expect(pickPageImage(body)).toBe("Stadium.jpg");
+    expect(pickPageImage(body, "Toyota")).toBe("Corolla_E140.jpg");
+  });
+
+  it("searches the year's generation first and falls back to the model", async () => {
+    const empty = { query: { pages: [] } };
+    const fetchImpl = fakeFetch(empty, searchAnswer, infoAnswer("CC BY 4.0"));
+    const image = await findReferenceImage("Toyota", "RAV4", fetchImpl, 2019);
+    expect(image?.license).toBe("CC BY 4.0");
+    expect(fetchImpl).toHaveBeenCalledTimes(3);
+    const urls = fetchImpl.mock.calls.map((c) =>
+      decodeURIComponent(String((c as unknown[])[0]).replace(/\+/g, " ")),
+    );
+    expect(urls[0]).toContain("Toyota RAV4 2019");
+    expect(urls[1]).toContain("Toyota RAV4 car");
+  });
+
   it("refuses non-free licences and images hosted elsewhere", () => {
     expect(parseImageInfo(infoAnswer("Fair use"))).toBeNull();
     expect(parseImageInfo(infoAnswer("All rights reserved"))).toBeNull();
