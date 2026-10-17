@@ -57,9 +57,13 @@ export function RegisterForm({ intent }: { intent?: string }) {
       setError(
         err.code === "USER_ALREADY_EXISTS"
           ? t("errorExists")
-          : err.message
-            ? `${t("errorGeneric")} (${err.message})`
-            : t("errorGeneric"),
+          : err.message === "PHONE_NUMBER_ALREADY_IN_USE"
+            ? tv("phoneInUse")
+            : err.code === "FAILED_TO_CREATE_USER"
+              ? t("errorCreate")
+              : err.message
+                ? `${t("errorGeneric")} (${err.message})`
+                : t("errorGeneric"),
       );
       return;
     }
