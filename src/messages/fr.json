@@ -492,6 +492,7 @@
       "login": "Se connecter",
       "errorExists": "Un compte existe déjà pour cet e-mail.",
       "errorGeneric": "L'inscription a échoué. Vérifiez le formulaire et réessayez.",
+      "errorCreate": "Le compte n'a pas pu être créé. Vérifiez l'e-mail et le numéro de mobile, ou connectez-vous si vous avez déjà un compte.",
       "success": "Compte créé. Consultez votre e-mail pour confirmer votre adresse."
     },
     "mfa": {
@@ -1260,6 +1261,7 @@
     "required": "Ce champ est obligatoire.",
     "email": "Saisissez une adresse e-mail valide.",
     "phone": "Saisissez un numéro de mobile valide.",
+    "phoneInUse": "Ce numéro de mobile est déjà utilisé par un autre compte. Connectez-vous avec ce compte : un même compte peut être client et propriétaire.",
     "passwordMin": "Le mot de passe doit contenir au moins {min} caractères.",
     "minLength": "Saisissez au moins {min} caractères.",
     "maxLength": "Saisissez au plus {max} caractères.",

@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth";
+import { APIError } from "better-auth/api";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { phoneNumber, twoFactor } from "better-auth/plugins";
@@ -118,6 +119,24 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        before: async (user) => {
+          // User.phoneNumber is unique; without this check the database violation surfaces
+          // as a bare "Failed to create user". One person holds one account and can be
+          // customer and owner at the same time.
+          const phone = (user as { phoneNumber?: string | null }).phoneNumber;
+          if (phone) {
+            const taken = await db.user.findUnique({
+              where: { phoneNumber: phone },
+              select: { id: true },
+            });
+            if (taken) {
+              throw new APIError("UNPROCESSABLE_ENTITY", {
+                message: "PHONE_NUMBER_ALREADY_IN_USE",
+              });
+            }
+          }
+          return { data: user };
+        },
         after: async (user) => {
           await assignDefaultRole(user.id);
         },
