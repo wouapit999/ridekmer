@@ -153,6 +153,7 @@ export async function searchVehicles(
         deliveryAvailable: true,
         hasAirConditioning: true,
         ownershipModel: true,
+        registrationNumber: true,
         city: { select: { nameFr: true, nameEn: true, slug: true } },
         images: {
           where: { isPublic: true },

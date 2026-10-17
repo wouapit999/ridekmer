@@ -10,6 +10,7 @@ export const runtime = "nodejs";
 const query = z.object({
   make: z.string().trim().min(2).max(60),
   model: z.string().trim().min(1).max(60),
+  year: z.coerce.number().int().min(1950).max(2100).optional(),
 });
 
 /**
@@ -28,6 +29,11 @@ export async function GET(request: NextRequest) {
       { status: 429, headers: { "retry-after": String(limit.retryAfterSeconds) } },
     );
   }
-  const image = await findReferenceImage(parsed.data.make, parsed.data.model);
+  const image = await findReferenceImage(
+    parsed.data.make,
+    parsed.data.model,
+    fetch,
+    parsed.data.year,
+  );
   return NextResponse.json({ image }, { headers: { "cache-control": "private, max-age=3600" } });
 }

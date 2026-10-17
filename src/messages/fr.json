@@ -258,7 +258,13 @@
       "previewTitle": "Photo que verront les clients tant que vous n'avez pas ajouté les vôtres",
       "previewBody": "Trouvée automatiquement parmi les photos sous licence libre de ce modèle et signalée « illustration ». Vos propres photos la remplacent dès que vous les téléversez.",
       "previewLoading": "Recherche d'une photo de ce modèle…",
-      "previewNone": "Aucune photo libre trouvée pour ce modèle. Les clients verront une image générique jusqu'à ce que vous ajoutiez des photos."
+      "previewNone": "Aucune photo libre trouvée pour ce modèle. Les clients verront une image générique jusqu'à ce que vous ajoutiez des photos.",
+      "sideHint": "Choisissez la marque, le modèle et l'année : la photo du modèle s'affiche ici."
+    },
+    "sample": {
+      "badge": "Exemple",
+      "title": "Voiture d'exemple",
+      "notBookable": "Ce véhicule est un exemple qui montre le fonctionnement de RideKmer. Il ne peut pas être réservé."
     }
   },
   "howItWorks": {
@@ -938,7 +944,8 @@
       "names": "Prénom et nom sont obligatoires.",
       "company": "Raison sociale et représentant sont obligatoires.",
       "mobile": "Numéro Mobile Money obligatoire.",
-      "bank": "Banque et numéro de compte sont obligatoires."
+      "bank": "Banque et numéro de compte sont obligatoires.",
+      "RESERVED_PLATE": "Les immatriculations commençant par EX- sont réservées aux voitures d'exemple. Saisissez la vraie immatriculation."
     }
   },
   "admin": {
@@ -963,7 +970,8 @@
       "expenses": "Dépenses",
       "fleet": "Carte de la flotte",
       "dataRequests": "Demandes RGPD",
-      "reports": "Rapports"
+      "reports": "Rapports",
+      "samples": "Voitures d'exemple"
     },
     "dashboard": {
       "bookingsToday": "Réservations du jour",
@@ -1391,7 +1399,34 @@
         "paymentSettings": {
           "title": "Prestataires de paiement",
           "body": "Configurer MTN MoMo, Orange Money, la carte et le virement ainsi que leurs identifiants."
+        },
+        "samples": {
+          "title": "Voitures d'exemple",
+          "body": "Ajouter 10 voitures d'exemple pour montrer le fonctionnement du site, puis les retirer en un clic."
         }
+      }
+    },
+    "samples": {
+      "title": "Voitures d'exemple",
+      "intro": "Montrez aux visiteurs et aux partenaires le fonctionnement de RideKmer avec 10 voitures d'exemple (photos, prix, caractéristiques). Elles portent le badge « Exemple » sur le site et ne peuvent pas être réservées. Aucune personne, aucun compte ni aucune réservation n'est créé.",
+      "statusOnline": "{count, plural, one {# voiture d'exemple est} other {# voitures d'exemple sont}} actuellement visibles sur le site.",
+      "statusNone": "Aucune voiture d'exemple n'est sur le site.",
+      "addTitle": "Ajouter les voitures d'exemple",
+      "addBody": "Publie les 10 voitures d'exemple dans le catalogue. Relancer l'action ne fait que rétablir celles qui manquent.",
+      "addButton": "Ajouter les 10 voitures d'exemple",
+      "removeTitle": "Retirer les voitures d'exemple",
+      "removeBody": "{count, plural, =0 {Rien à retirer.} one {Retire la voiture d'exemple du site.} other {Retire les # voitures d'exemple du site.}} Les vrais véhicules ne sont jamais touchés.",
+      "removeConfirm": "Je confirme : retirer toutes les voitures d'exemple (immatriculations commençant par EX-).",
+      "removeButton": "Retirer les voitures d'exemple",
+      "listTitle": "Les 10 voitures d'exemple",
+      "rules": "Les immatriculations commençant par EX- sont réservées à ces exemples ; les propriétaires ne peuvent pas les utiliser. Chaque voiture crédite sa photo sous licence libre (Wikimedia Commons).",
+      "seeCatalogue": "Voir le catalogue",
+      "result": {
+        "added": "{count, plural, =0 {Les voitures d'exemple étaient déjà sur le site.} one {# voiture d'exemple ajoutée.} other {# voitures d'exemple ajoutées.}}",
+        "removed": "{count, plural, =0 {Il n'y avait aucune voiture d'exemple à retirer.} one {# voiture d'exemple retirée.} other {# voitures d'exemple retirées.}}",
+        "noCity": "Ajoutez d'abord au moins une ville active dans les Paramètres.",
+        "confirm": "Cochez la case de confirmation pour retirer les voitures d'exemple.",
+        "error": "Les voitures d'exemple n'ont pas pu être ajoutées. Réessayez ou consultez les journaux."
       }
     }
   },

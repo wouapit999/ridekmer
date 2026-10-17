@@ -1,30 +1,21 @@
 /* eslint-disable no-console */
-import { createHash, randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-
-import {
-  buildObjectKey,
-  LocalDiskStorageProvider,
-  S3StorageProvider,
-  VercelBlobStorageProvider,
-  type StorageProvider,
-} from "@ridekmer/storage";
 import { hashPassword } from "better-auth/crypto";
 
 import type { PrismaClient } from "../../src/generated/prisma/client";
+import {
+  sampleVehicleData,
+  SHOWCASE_VEHICLES,
+  type ShowcaseVehicle,
+} from "../../src/features/vehicles/showcase-data";
 import { DEMO_PASSWORD } from "./demo";
 
 /**
- * SHOWCASE sample data: 10 listings across five Cameroonian cities, 3 owners, 4 customers and
- * bookings at every stage, so the catalogue, the booking flow, the owner space and the
- * administration all have something to show. Every person, phone number and plate is
- * fictional ("(exemple)" in names, `.test` e-mails, `EX-` plates). Photos are free-licence
- * pictures of each model from Wikimedia Commons (see showcase-photos/credits.json).
- * Non-production only: called from seedDemoData behind ALLOW_DEMO_SEED.
+ * SHOWCASE demo data: the 10 sample listings (src/features/vehicles/showcase-data.ts), plus 3
+ * owners, 4 customers and bookings at every stage, so the catalogue, the booking flow, the
+ * owner space and the administration all have something to show. Every person, phone number
+ * and plate is fictional ("(exemple)" names, `.test` e-mails, `EX-` plates). Photos are
+ * served from /public/showcase. Non-production only: called behind ALLOW_DEMO_SEED.
  */
-
-const PHOTO_DIR = path.resolve(process.cwd(), "prisma/seed-data/showcase-photos");
 
 const EXTRA_CITIES = [
   {
@@ -91,328 +82,6 @@ const CUSTOMERS = [
     phone: "+237600000024",
   },
 ] as const;
-
-type Owner = (typeof OWNERS)[number]["email"] | null;
-
-interface ShowcaseVehicle {
-  plate: string;
-  /** Neighbourhood shown next to the city for owner vehicles (agency vehicles show the branch). */
-  area?: string;
-  photo: string;
-  make: string;
-  model: string;
-  year: number;
-  city: string;
-  category: "ECONOMY" | "COMPACT" | "SEDAN" | "SUV" | "PICKUP" | "MINIBUS" | "LUXURY";
-  bodyType: "HATCHBACK" | "SEDAN" | "SUV" | "PICKUP" | "MINIBUS";
-  transmission: "MANUAL" | "AUTOMATIC";
-  fuelType: "PETROL" | "DIESEL" | "HYBRID";
-  seats: number;
-  doors: number;
-  colour: string;
-  daily: number;
-  weekly: number;
-  monthly: number;
-  deposit: number;
-  owner: Owner;
-  ownership: "RIDEKMER_OWNED" | "FULLY_MANAGED_OWNER_VEHICLE" | "SELF_MANAGED_MARKETPLACE_VEHICLE";
-  chauffeurFee?: number;
-  selfDrive?: boolean;
-  delivery?: boolean;
-  instant: boolean;
-  fr: string;
-  en: string;
-}
-
-export const SHOWCASE_VEHICLES: ShowcaseVehicle[] = [
-  {
-    plate: "EX-101-DLA",
-    photo: "toyota-corolla.jpg",
-    make: "Toyota",
-    model: "Corolla",
-    year: 2022,
-    city: "douala",
-    category: "SEDAN",
-    bodyType: "SEDAN",
-    transmission: "AUTOMATIC",
-    fuelType: "HYBRID",
-    seats: 5,
-    doors: 5,
-    colour: "Blanc",
-    daily: 30000,
-    weekly: 190000,
-    monthly: 700000,
-    deposit: 150000,
-    owner: null,
-    ownership: "RIDEKMER_OWNED",
-    instant: true,
-    fr: "Berline hybride sobre et climatisée, parfaite pour les déplacements en ville et les rendez-vous d'affaires à Douala.",
-    en: "Fuel-efficient air-conditioned hybrid, ideal for city driving and business meetings in Douala.",
-  },
-  {
-    plate: "EX-102-YDE",
-    area: "Bastos",
-    photo: "toyota-land-cruiser-prado.jpg",
-    make: "Toyota",
-    model: "Land Cruiser Prado",
-    year: 2023,
-    city: "yaounde",
-    category: "SUV",
-    bodyType: "SUV",
-    transmission: "AUTOMATIC",
-    fuelType: "DIESEL",
-    seats: 7,
-    doors: 5,
-    colour: "Blanc nacré",
-    daily: 85000,
-    weekly: 550000,
-    monthly: 2000000,
-    deposit: 400000,
-    owner: "showcase.owner.paul@ridekmer.test",
-    ownership: "FULLY_MANAGED_OWNER_VEHICLE",
-    chauffeurFee: 20000,
-    instant: true,
-    fr: "4x4 7 places, robuste et confortable pour les missions, les mariages et les routes de l'intérieur. Chauffeur disponible.",
-    en: "Rugged, comfortable 7-seat 4x4 for assignments, weddings and upcountry roads. Chauffeur available.",
-  },
-  {
-    plate: "EX-103-DLA",
-    area: "Bonapriso",
-    photo: "hyundai-tucson.jpg",
-    make: "Hyundai",
-    model: "Tucson",
-    year: 2022,
-    city: "douala",
-    category: "SUV",
-    bodyType: "SUV",
-    transmission: "AUTOMATIC",
-    fuelType: "PETROL",
-    seats: 5,
-    doors: 5,
-    colour: "Gris",
-    daily: 50000,
-    weekly: 320000,
-    monthly: 1150000,
-    deposit: 250000,
-    owner: "showcase.owner.aicha@ridekmer.test",
-    ownership: "SELF_MANAGED_MARKETPLACE_VEHICLE",
-    delivery: true,
-    instant: false,
-    fr: "SUV récent et spacieux, caméra de recul et Bluetooth. Livraison possible à Bonapriso, Akwa et Bonamoussadi.",
-    en: "Recent, roomy SUV with reversing camera and Bluetooth. Delivery available in Bonapriso, Akwa and Bonamoussadi.",
-  },
-  {
-    plate: "EX-104-BFS",
-    area: "Tamdja",
-    photo: "toyota-hilux.jpg",
-    make: "Toyota",
-    model: "Hilux",
-    year: 2021,
-    city: "bafoussam",
-    category: "PICKUP",
-    bodyType: "PICKUP",
-    transmission: "MANUAL",
-    fuelType: "DIESEL",
-    seats: 5,
-    doors: 4,
-    colour: "Blanc",
-    daily: 55000,
-    weekly: 350000,
-    monthly: 1250000,
-    deposit: 300000,
-    owner: "showcase.owner.kmerauto@ridekmer.test",
-    ownership: "FULLY_MANAGED_OWNER_VEHICLE",
-    instant: true,
-    fr: "Pick-up double cabine 4x4, idéal pour les chantiers, l'agriculture et les pistes de l'Ouest.",
-    en: "Double-cab 4x4 pickup, ideal for building sites, farming and the tracks of the West region.",
-  },
-  {
-    plate: "EX-105-DLA",
-    area: "Akwa",
-    photo: "suzuki-swift.jpg",
-    make: "Suzuki",
-    model: "Swift",
-    year: 2023,
-    city: "douala",
-    category: "ECONOMY",
-    bodyType: "HATCHBACK",
-    transmission: "MANUAL",
-    fuelType: "PETROL",
-    seats: 5,
-    doors: 5,
-    colour: "Gris clair",
-    daily: 20000,
-    weekly: 125000,
-    monthly: 450000,
-    deposit: 100000,
-    owner: "showcase.owner.aicha@ridekmer.test",
-    ownership: "SELF_MANAGED_MARKETPLACE_VEHICLE",
-    instant: true,
-    fr: "Citadine économique et facile à garer, la solution la moins chère pour circuler en ville.",
-    en: "Economical city car that is easy to park: the cheapest way to get around town.",
-  },
-  {
-    plate: "EX-106-YDE",
-    area: "Golf",
-    photo: "mercedes-benz-e-class.jpg",
-    make: "Mercedes-Benz",
-    model: "E-Class",
-    year: 2024,
-    city: "yaounde",
-    category: "LUXURY",
-    bodyType: "SEDAN",
-    transmission: "AUTOMATIC",
-    fuelType: "PETROL",
-    seats: 5,
-    doors: 4,
-    colour: "Blanc",
-    daily: 120000,
-    weekly: 780000,
-    monthly: 2800000,
-    deposit: 600000,
-    owner: "showcase.owner.kmerauto@ridekmer.test",
-    ownership: "FULLY_MANAGED_OWNER_VEHICLE",
-    chauffeurFee: 25000,
-    selfDrive: false,
-    instant: false,
-    fr: "Berline de prestige avec chauffeur professionnel pour délégations, cérémonies et accueil VIP.",
-    en: "Executive sedan with a professional chauffeur for delegations, ceremonies and VIP pick-ups.",
-  },
-  {
-    plate: "EX-107-KRI",
-    area: "Centre-ville",
-    photo: "toyota-rav4.jpg",
-    make: "Toyota",
-    model: "RAV4",
-    year: 2022,
-    city: "kribi",
-    category: "SUV",
-    bodyType: "SUV",
-    transmission: "AUTOMATIC",
-    fuelType: "PETROL",
-    seats: 5,
-    doors: 5,
-    colour: "Gris",
-    daily: 45000,
-    weekly: 290000,
-    monthly: 1050000,
-    deposit: 250000,
-    owner: "showcase.owner.paul@ridekmer.test",
-    ownership: "FULLY_MANAGED_OWNER_VEHICLE",
-    delivery: true,
-    instant: true,
-    fr: "SUV fiable pour un week-end à la plage ou une mission au port de Kribi. Livraison à l'hôtel possible.",
-    en: "Reliable SUV for a beach weekend or a job at the port of Kribi. Hotel delivery available.",
-  },
-  {
-    plate: "EX-108-DLA",
-    area: "Bonamoussadi",
-    photo: "toyota-hiace.jpg",
-    make: "Toyota",
-    model: "HiAce",
-    year: 2020,
-    city: "douala",
-    category: "MINIBUS",
-    bodyType: "MINIBUS",
-    transmission: "MANUAL",
-    fuelType: "DIESEL",
-    seats: 14,
-    doors: 4,
-    colour: "Gris argent",
-    daily: 70000,
-    weekly: 450000,
-    monthly: 1600000,
-    deposit: 300000,
-    owner: "showcase.owner.kmerauto@ridekmer.test",
-    ownership: "FULLY_MANAGED_OWNER_VEHICLE",
-    chauffeurFee: 20000,
-    selfDrive: false,
-    instant: true,
-    fr: "Minibus 14 places avec chauffeur pour les transferts aéroport, les sorties d'équipe et les événements.",
-    en: "14-seat minibus with chauffeur for airport transfers, team outings and events.",
-  },
-  {
-    plate: "EX-109-LMB",
-    area: "Down Beach",
-    photo: "nissan-x-trail.jpg",
-    make: "Nissan",
-    model: "X-Trail",
-    year: 2021,
-    city: "limbe",
-    category: "SUV",
-    bodyType: "SUV",
-    transmission: "AUTOMATIC",
-    fuelType: "PETROL",
-    seats: 7,
-    doors: 5,
-    colour: "Cuivre",
-    daily: 45000,
-    weekly: 290000,
-    monthly: 1050000,
-    deposit: 250000,
-    owner: "showcase.owner.paul@ridekmer.test",
-    ownership: "SELF_MANAGED_MARKETPLACE_VEHICLE",
-    instant: false,
-    fr: "SUV 7 places pour découvrir Limbé, Buea et le mont Cameroun en famille.",
-    en: "7-seat SUV to explore Limbe, Buea and Mount Cameroon with the family.",
-  },
-  {
-    plate: "EX-110-YDE",
-    photo: "hyundai-accent.jpg",
-    make: "Hyundai",
-    model: "Accent",
-    year: 2021,
-    city: "yaounde",
-    category: "COMPACT",
-    bodyType: "SEDAN",
-    transmission: "AUTOMATIC",
-    fuelType: "PETROL",
-    seats: 5,
-    doors: 4,
-    colour: "Bleu gris",
-    daily: 25000,
-    weekly: 160000,
-    monthly: 580000,
-    deposit: 120000,
-    owner: null,
-    ownership: "RIDEKMER_OWNED",
-    instant: true,
-    fr: "Berline compacte automatique, économique et confortable pour circuler à Yaoundé.",
-    en: "Compact automatic sedan, economical and comfortable for getting around Yaoundé.",
-  },
-];
-
-function storageFromEnv(): StorageProvider | null {
-  try {
-    const kind = process.env.STORAGE_PROVIDER ?? "local";
-    if (kind === "vercel-blob" && process.env.BLOB_READ_WRITE_TOKEN)
-      return new VercelBlobStorageProvider({ token: process.env.BLOB_READ_WRITE_TOKEN });
-    if (
-      kind === "s3" &&
-      process.env.S3_BUCKET &&
-      process.env.S3_REGION &&
-      process.env.S3_ACCESS_KEY_ID &&
-      process.env.S3_SECRET_ACCESS_KEY
-    )
-      return new S3StorageProvider({
-        endpoint: process.env.S3_ENDPOINT,
-        region: process.env.S3_REGION,
-        bucket: process.env.S3_BUCKET,
-        accessKeyId: process.env.S3_ACCESS_KEY_ID,
-        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-      });
-    if (kind === "local" && process.env.BETTER_AUTH_SECRET && process.env.NEXT_PUBLIC_APP_URL)
-      return new LocalDiskStorageProvider(
-        process.env.STORAGE_LOCAL_ROOT ?? path.resolve(process.cwd(), ".ridekmer-local-storage"),
-        process.env.BETTER_AUTH_SECRET,
-        process.env.NEXT_PUBLIC_APP_URL,
-        { allowInProduction: Boolean(process.env.STORAGE_LOCAL_ROOT) },
-      );
-  } catch (error) {
-    console.warn("Showcase photos skipped: storage not usable", error);
-  }
-  return null;
-}
 
 async function upsertUser(
   prisma: PrismaClient,
@@ -508,116 +177,28 @@ export async function seedShowcaseData(prisma: PrismaClient) {
     customers.set(c.email, user.id);
   }
 
-  const credits = JSON.parse(
-    await readFile(path.join(PHOTO_DIR, "credits.json"), "utf8"),
-  ) as Array<{
-    file: string;
-    author: string | null;
-    license: string;
-  }>;
-  const creditFor = (file: string, lang: "fr" | "en") => {
-    const c = credits.find((x) => x.file === file);
-    if (!c) return "";
-    const who = c.author ? `${c.author}, ` : "";
-    return lang === "fr"
-      ? ` Photo du modèle : ${who}${c.license}, via Wikimedia Commons.`
-      : ` Model photo: ${who}${c.license}, via Wikimedia Commons.`;
-  };
-  const storage = storageFromEnv();
   const vehicles = new Map<string, { id: string; v: ShowcaseVehicle }>();
   for (const v of SHOWCASE_VEHICLES) {
     const city = cities.get(v.city);
     if (!city) throw new Error(`City ${v.city} missing`);
-    const vehicle = await prisma.vehicle.upsert({
-      where: { registrationNumber: v.plate },
-      update: {
-        descriptionFr: v.fr + creditFor(v.photo, "fr"),
-        descriptionEn: v.en + creditFor(v.photo, "en"),
-        locationLabel: v.ownership === "RIDEKMER_OWNED" ? null : (v.area ?? null),
-        existingDamageNotes: null,
-      },
-      create: {
-        registrationNumber: v.plate,
-        make: v.make,
-        model: v.model,
-        manufacturingYear: v.year,
-        category: v.category,
-        bodyType: v.bodyType,
-        transmission: v.transmission,
-        fuelType: v.fuelType,
-        seats: v.seats,
-        doors: v.doors,
-        colour: v.colour,
-        currentMileageKm: 20000 + (v.year % 7) * 9000,
-        dailyPriceXaf: v.daily,
-        weeklyPriceXaf: v.weekly,
-        monthlyPriceXaf: v.monthly,
-        securityDepositXaf: v.deposit,
-        dailyKmAllowance: 250,
-        extraKmRateXaf: 150,
-        ownershipModel: v.ownership,
-        ownerProfileId: v.owner ? (ownerProfiles.get(v.owner) ?? null) : null,
+    const data = sampleVehicleData(
+      v,
+      {
         cityId: city.id,
-        branchId: v.ownership === "RIDEKMER_OWNED" ? (branches.get(city.id)?.id ?? null) : null,
-        locationLabel: v.ownership === "RIDEKMER_OWNED" ? null : (v.area ?? null),
         latitude: city.latitude,
         longitude: city.longitude,
-        status: "ACTIVE",
-        documentsValid: true,
-        publishedAt: new Date(now.getTime() - 45 * day),
-        hasAirConditioning: true,
-        hasBluetooth: true,
-        hasUsbCharging: true,
-        hasReversingCamera: v.daily >= 45000,
-        safetyEquipment: [
-          "spare_wheel",
-          "jack",
-          "warning_triangle",
-          "fire_extinguisher",
-          "first_aid_kit",
-        ],
-        chauffeurAvailable: Boolean(v.chauffeurFee),
-        chauffeurDailyFeeXaf: v.chauffeurFee ?? null,
-        selfDriveAllowed: v.selfDrive ?? true,
-        deliveryAvailable: Boolean(v.delivery),
-        deliveryRadiusKm: v.delivery ? 15 : null,
-        instantBooking: v.instant,
-        descriptionFr: v.fr + creditFor(v.photo, "fr"),
-        descriptionEn: v.en + creditFor(v.photo, "en"),
+        branchId: branches.get(city.id)?.id ?? null,
+        ownCity: true,
+        ownerProfileId: v.owner ? (ownerProfiles.get(v.owner) ?? null) : null,
       },
+      new Date(now.getTime() - 45 * day),
+    );
+    const vehicle = await prisma.vehicle.upsert({
+      where: { registrationNumber: v.plate },
+      update: { ...data, deletedAt: null, publishedAt: undefined },
+      create: data,
     });
     vehicles.set(v.plate, { id: vehicle.id, v });
-
-    const hasImage = await prisma.vehicleImage.count({ where: { vehicleId: vehicle.id } });
-    if (!hasImage && storage) {
-      try {
-        const body = await readFile(path.join(PHOTO_DIR, v.photo));
-        const key = buildObjectKey({
-          scope: "vehicle-images",
-          entityId: vehicle.id,
-          fileId: randomUUID(),
-          extension: "jpg",
-        });
-        await storage.put({ key, body, contentType: "image/jpeg" });
-        await prisma.vehicleImage.create({
-          data: {
-            vehicleId: vehicle.id,
-            storageKey: key,
-            checksumSha256: createHash("sha256").update(body).digest("hex"),
-            altTextFr: `${v.make} ${v.model} (photo du modèle, licence libre)`,
-            altTextEn: `${v.make} ${v.model} (model photo, free licence)`,
-            sortOrder: 0,
-            isPrimary: true,
-            isPublic: true,
-          },
-        });
-      } catch (error) {
-        console.warn(
-          `Showcase photo for ${v.plate} skipped:`,
-          error instanceof Error ? error.message : error,
-        );
-      }
-    }
   }
 
   // Bookings at every stage. Prices follow the listing (daily rate × days + chauffeur).

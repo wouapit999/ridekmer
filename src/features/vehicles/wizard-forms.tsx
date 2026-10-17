@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState, useState } from "react";
+import { useActionState, useCallback, useState } from "react";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ import {
   VEHICLE_CATEGORIES,
 } from "./schemas";
 import { MakeModelFields } from "./make-model-fields";
+import { ModelPhotoPreview, useReferencePhoto } from "./model-photo-preview";
 
 const initial: VehicleActionResult = { ok: false };
 
@@ -95,150 +96,167 @@ export function BasicsForm({
   );
   const v = vehicle ?? {};
   const str = (k: string) => (v[k] === undefined || v[k] === null ? "" : String(v[k]));
+  const [makeModel, setMakeModel] = useState({ make: str("make"), model: str("model") });
+  const [year, setYear] = useState(str("manufacturingYear"));
+  const onMakeModel = useCallback(
+    (make: string, model: string) => setMakeModel({ make, model }),
+    [],
+  );
+  const photo = useReferencePhoto(makeModel.make, makeModel.model, year);
   return (
     <form action={action} className="space-y-4">
       {vehicle?.id ? <input type="hidden" name="vehicleId" value={vehicle.id} /> : null}
-      <FormShell state={state} pending={pending} label={t("saveContinue")}>
-        <Field
-          id="registrationNumber"
-          label={t("basics.registrationNumber")}
-          required
-          error={err(state.errors?.registrationNumber)}
-        >
-          <Input
-            id="registrationNumber"
-            name="registrationNumber"
-            defaultValue={str("registrationNumber")}
-            required
-          />
-        </Field>
-        <Field id="vin" label={t("basics.vin")}>
-          <Input id="vin" name="vin" maxLength={17} autoComplete="off" />
-        </Field>
-        <MakeModelFields
-          make={str("make")}
-          model={str("model")}
-          errors={{ make: err(state.errors?.make), model: err(state.errors?.model) }}
-        />
-        <Field id="trim" label={t("basics.trim")}>
-          <Input id="trim" name="trim" defaultValue={str("trim")} />
-        </Field>
-        <Field
-          id="manufacturingYear"
-          label={t("basics.manufacturingYear")}
-          required
-          error={err(state.errors?.manufacturingYear)}
-        >
-          <Input
-            id="manufacturingYear"
-            name="manufacturingYear"
-            type="number"
-            inputMode="numeric"
-            min={1990}
-            max={new Date().getFullYear() + 1}
-            defaultValue={str("manufacturingYear")}
-            required
-          />
-        </Field>
-        <Field id="firstRegistrationDate" label={t("basics.firstRegistrationDate")}>
-          <Input id="firstRegistrationDate" name="firstRegistrationDate" type="date" />
-        </Field>
-        <Field id="cityId" label={t("basics.city")} required>
-          <Select id="cityId" name="cityId" defaultValue={str("cityId")} required>
-            {cities.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="category" label={t("basics.category")} required>
-          <Select id="category" name="category" defaultValue={str("category") || "SEDAN"}>
-            {VEHICLE_CATEGORIES.map((c) => (
-              <option key={c} value={c}>
-                {tc(`categories.${c}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="bodyType" label={t("basics.bodyType")}>
-          <Select id="bodyType" name="bodyType" defaultValue={str("bodyType") || "OTHER"}>
-            {BODY_TYPES.map((b) => (
-              <option key={b} value={b}>
-                {tb.has(b) ? tb(b) : b}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="colour" label={t("basics.colour")}>
-          <Input id="colour" name="colour" defaultValue={str("colour")} />
-        </Field>
-        <Field id="transmission" label={t("basics.transmission")} required>
-          <Select
-            id="transmission"
-            name="transmission"
-            defaultValue={str("transmission") || "MANUAL"}
-          >
-            {TRANSMISSIONS.map((x) => (
-              <option key={x} value={x}>
-                {x === "MANUAL" ? tc("manual") : tc("automatic")}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="fuelType" label={t("basics.fuelType")} required>
-          <Select id="fuelType" name="fuelType" defaultValue={str("fuelType") || "PETROL"}>
-            {FUEL_TYPES.map((f) => (
-              <option key={f} value={f}>
-                {tc(`fuels.${f}`)}
-              </option>
-            ))}
-          </Select>
-        </Field>
-        <Field id="engineCapacityCc" label={t("basics.engineCapacityCc")}>
-          <Input
-            id="engineCapacityCc"
-            name="engineCapacityCc"
-            type="number"
-            inputMode="numeric"
-            defaultValue={str("engineCapacityCc")}
-          />
-        </Field>
-        <Field id="seats" label={t("basics.seats")} required error={err(state.errors?.seats)}>
-          <Input
-            id="seats"
-            name="seats"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={60}
-            defaultValue={str("seats") || "5"}
-            required
-          />
-        </Field>
-        <Field id="doors" label={t("basics.doors")}>
-          <Input
-            id="doors"
-            name="doors"
-            type="number"
-            inputMode="numeric"
-            min={2}
-            max={6}
-            defaultValue={str("doors")}
-          />
-        </Field>
-        <Field id="currentMileageKm" label={t("basics.currentMileageKm")} required>
-          <Input
-            id="currentMileageKm"
-            name="currentMileageKm"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            defaultValue={str("currentMileageKm") || "0"}
-            required
-          />
-        </Field>
-      </FormShell>
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+        <div className="space-y-4">
+          <FormShell state={state} pending={pending} label={t("saveContinue")}>
+            <Field
+              id="registrationNumber"
+              label={t("basics.registrationNumber")}
+              required
+              error={err(state.errors?.registrationNumber)}
+            >
+              <Input
+                id="registrationNumber"
+                name="registrationNumber"
+                defaultValue={str("registrationNumber")}
+                required
+              />
+            </Field>
+            <Field id="vin" label={t("basics.vin")}>
+              <Input id="vin" name="vin" maxLength={17} autoComplete="off" />
+            </Field>
+            <MakeModelFields
+              make={str("make")}
+              model={str("model")}
+              errors={{ make: err(state.errors?.make), model: err(state.errors?.model) }}
+              onChange={onMakeModel}
+              inlinePreview={<ModelPhotoPreview lookup={photo} variant="inline" />}
+            />
+            <Field id="trim" label={t("basics.trim")}>
+              <Input id="trim" name="trim" defaultValue={str("trim")} />
+            </Field>
+            <Field
+              id="manufacturingYear"
+              label={t("basics.manufacturingYear")}
+              required
+              error={err(state.errors?.manufacturingYear)}
+            >
+              <Input
+                id="manufacturingYear"
+                name="manufacturingYear"
+                type="number"
+                inputMode="numeric"
+                min={1990}
+                max={new Date().getFullYear() + 1}
+                defaultValue={str("manufacturingYear")}
+                onChange={(e) => setYear(e.target.value)}
+                required
+              />
+            </Field>
+            <Field id="firstRegistrationDate" label={t("basics.firstRegistrationDate")}>
+              <Input id="firstRegistrationDate" name="firstRegistrationDate" type="date" />
+            </Field>
+            <Field id="cityId" label={t("basics.city")} required>
+              <Select id="cityId" name="cityId" defaultValue={str("cityId")} required>
+                {cities.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field id="category" label={t("basics.category")} required>
+              <Select id="category" name="category" defaultValue={str("category") || "SEDAN"}>
+                {VEHICLE_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>
+                    {tc(`categories.${c}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field id="bodyType" label={t("basics.bodyType")}>
+              <Select id="bodyType" name="bodyType" defaultValue={str("bodyType") || "OTHER"}>
+                {BODY_TYPES.map((b) => (
+                  <option key={b} value={b}>
+                    {tb.has(b) ? tb(b) : b}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field id="colour" label={t("basics.colour")}>
+              <Input id="colour" name="colour" defaultValue={str("colour")} />
+            </Field>
+            <Field id="transmission" label={t("basics.transmission")} required>
+              <Select
+                id="transmission"
+                name="transmission"
+                defaultValue={str("transmission") || "MANUAL"}
+              >
+                {TRANSMISSIONS.map((x) => (
+                  <option key={x} value={x}>
+                    {x === "MANUAL" ? tc("manual") : tc("automatic")}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field id="fuelType" label={t("basics.fuelType")} required>
+              <Select id="fuelType" name="fuelType" defaultValue={str("fuelType") || "PETROL"}>
+                {FUEL_TYPES.map((f) => (
+                  <option key={f} value={f}>
+                    {tc(`fuels.${f}`)}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field id="engineCapacityCc" label={t("basics.engineCapacityCc")}>
+              <Input
+                id="engineCapacityCc"
+                name="engineCapacityCc"
+                type="number"
+                inputMode="numeric"
+                defaultValue={str("engineCapacityCc")}
+              />
+            </Field>
+            <Field id="seats" label={t("basics.seats")} required error={err(state.errors?.seats)}>
+              <Input
+                id="seats"
+                name="seats"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={60}
+                defaultValue={str("seats") || "5"}
+                required
+              />
+            </Field>
+            <Field id="doors" label={t("basics.doors")}>
+              <Input
+                id="doors"
+                name="doors"
+                type="number"
+                inputMode="numeric"
+                min={2}
+                max={6}
+                defaultValue={str("doors")}
+              />
+            </Field>
+            <Field id="currentMileageKm" label={t("basics.currentMileageKm")} required>
+              <Input
+                id="currentMileageKm"
+                name="currentMileageKm"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                defaultValue={str("currentMileageKm") || "0"}
+                required
+              />
+            </Field>
+          </FormShell>
+        </div>
+        <aside className="hidden lg:sticky lg:top-6 lg:block">
+          <ModelPhotoPreview lookup={photo} variant="side" />
+        </aside>
+      </div>
     </form>
   );
 }

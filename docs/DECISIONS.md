@@ -460,3 +460,23 @@ default locale on the `/en` marketing and legal pages (the request locale was no
 prerendering), so the whole page, header included, stayed in French. The flag is removed;
 those pages are rendered on demand like the rest of the site until static rendering can be
 restored with a verified locale (tracked in OPEN_ITEMS #74).
+
+## ADR-041 Sample cars from the administration
+
+**Context.** The owner wants to show how the platform works on the live site, before real
+owners list their cars, and to remove the examples afterwards without a developer.
+
+**Decision.** Administration → **Sample cars** (`settings.manage`) adds or removes the 10
+listings of `src/features/vehicles/showcase-data.ts`. Only vehicles are created: no people,
+accounts, bookings or payments, so the rule "no demo accounts in production" still holds. Sample
+cars are recognised by the reserved plate prefix `EX-` (owners cannot register it), which needs
+no schema change. They belong to RideKmer, show an **Example** badge in the catalogue and on
+the car page, display their price but cannot be booked (`quoteBooking` refuses them unless
+asked only for a price), and use the free-licence photos bundled in `public/showcase` with the
+credit in each description. Removal deletes them, or takes them offline when a demo database
+holds sample bookings. Both actions are audited.
+
+**Consequences.** Visitors may see example cars on the live site; the badge and the
+"cannot be booked" notice keep that honest. The owner form's photo preview now also uses the
+year (a year search finds the matching generation, then falls back to the model) and sits
+beside the form on wide screens.
