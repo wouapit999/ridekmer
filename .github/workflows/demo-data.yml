@@ -1,0 +1,63 @@
+# Loads the SYNTHETIC demo and showcase data (10 sample listings, owners, customers, bookings)
+# into a SEPARATE demo database, never the production one.
+#
+# Run it from Actions → "Demo data" → Run workflow, after creating the demo database
+# (docs/DEMO_ENVIRONMENT.md).
+#
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   DEMO_DATABASE_URL           Neon *direct* connection string of the demo branch/database (required)
+#   DEMO_BLOB_READ_WRITE_TOKEN  Vercel Blob token of the demo project (optional: uploads the
+#                               sample photos; without it the site shows the model photos live)
+#   DIRECT_DATABASE_URL         production URL, read only to refuse running against it
+name: Demo data
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: demo-data
+  cancel-in-progress: false
+
+jobs:
+  demo:
+    name: Migrate and load demo data
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Refuse anything but a separate demo database
+        env:
+          DEMO: ${{ secrets.DEMO_DATABASE_URL }}
+          PROD: ${{ secrets.DIRECT_DATABASE_URL }}
+        run: |
+          if [ -z "$DEMO" ]; then
+            echo "::error::DEMO_DATABASE_URL secret is missing (see docs/DEMO_ENVIRONMENT.md)"; exit 1
+          fi
+          host() { echo "$1" | sed -E 's#^[a-z]+://[^@]*@([^/:?]+).*#\1#; s#-pooler##'; }
+          dbname() { echo "$1" | sed -E 's#^[a-z]+://[^/]*/([^?]*).*#\1#'; }
+          if [ -n "$PROD" ] && [ "$(host "$DEMO")/$(dbname "$DEMO")" = "$(host "$PROD")/$(dbname "$PROD")" ]; then
+            echo "::error::DEMO_DATABASE_URL points at the production database. Demo data is never loaded into production."; exit 1
+          fi
+          echo "Demo database host: $(host "$DEMO" | sed -E 's#^(.{6}).*#\1…#')"
+      - name: Apply migrations
+        env:
+          DIRECT_DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+        run: pnpm db:migrate:deploy
+      - name: Load reference, demo and showcase data
+        env:
+          DIRECT_DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          APP_ENV: preview
+          ALLOW_DEMO_SEED: "true"
+          STORAGE_PROVIDER: ${{ secrets.DEMO_BLOB_READ_WRITE_TOKEN != '' && 'vercel-blob' || 'none' }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.DEMO_BLOB_READ_WRITE_TOKEN }}
+        run: pnpm db:seed

@@ -1,0 +1,52 @@
+{
+  "fr": {
+    "intro": {
+      "title": "La voiture qu'il vous faut,<br>partout au Cameroun.",
+      "sub": "Location · Avec ou sans chauffeur · Longue durée"
+    },
+    "captions": {
+      "home": "Louez une voiture en quelques clics",
+      "search": "Choisissez la ville et vos dates",
+      "catalogue": "Des véhicules vérifiés,<br>prix clairs en FCFA",
+      "detail": "Photos, équipements et<br>caution affichés d'avance",
+      "price": "Le prix total, sans surprise",
+      "chauffeur": "Avec ou sans chauffeur",
+      "bookings": "Suivez vos réservations<br>depuis votre téléphone",
+      "partner": "Propriétaire ? Votre voiture<br>peut vous rapporter",
+      "ownerForm": "Ajoutez votre véhicule<br>en quelques minutes",
+      "owner": "Suivez vos véhicules<br>et vos revenus",
+      "admin": "Une équipe qui vérifie véhicules,<br>documents et paiements"
+    },
+    "outro": {
+      "cta": "Inscrivez-vous gratuitement",
+      "owners": "Propriétaires : confiez-nous votre véhicule",
+      "note": "Interface réelle de la plateforme · véhicules et données d'exemple"
+    },
+    "credits": "Crédits photos : licences libres, Wikimedia Commons"
+  },
+  "en": {
+    "intro": {
+      "title": "The car you need,<br>anywhere in Cameroon.",
+      "sub": "Rental · With or without a chauffeur · Long term"
+    },
+    "captions": {
+      "home": "Rent a car in a few taps",
+      "search": "Pick your city and dates",
+      "catalogue": "Verified vehicles,<br>clear prices in XAF",
+      "detail": "Photos, equipment and<br>deposit shown up front",
+      "price": "The full price, no surprises",
+      "chauffeur": "With or without a chauffeur",
+      "bookings": "Track your bookings<br>from your phone",
+      "partner": "Own a car? Let it<br>earn money for you",
+      "ownerForm": "List your vehicle<br>in minutes",
+      "owner": "Follow your vehicles<br>and your earnings",
+      "admin": "A team that checks vehicles,<br>documents and payments"
+    },
+    "outro": {
+      "cta": "Sign up for free",
+      "owners": "Car owners: list your vehicle with us",
+      "note": "Real platform interface · sample vehicles and data"
+    },
+    "credits": "Photo credits: free licences, Wikimedia Commons"
+  }
+}
