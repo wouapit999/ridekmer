@@ -9,6 +9,7 @@ import { parsePhone } from "@/lib/phone";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
 
+import { trustedOrigins } from "./origins";
 import { assignDefaultRole } from "./rbac";
 
 const env = getEnv();
@@ -32,12 +33,15 @@ export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
   database: prismaAdapter(db, { provider: "postgresql" }),
-  trustedOrigins: [
-    env.NEXT_PUBLIC_APP_URL,
-    ...(env.AUTH_TRUSTED_ORIGINS?.split(",")
-      .map((s) => s.trim())
-      .filter(Boolean) ?? []),
-  ],
+  trustedOrigins: trustedOrigins({
+    appUrl: env.NEXT_PUBLIC_APP_URL,
+    extra: env.AUTH_TRUSTED_ORIGINS,
+    vercel: {
+      VERCEL_URL: process.env.VERCEL_URL,
+      VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
+      VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    },
+  }),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 10,
