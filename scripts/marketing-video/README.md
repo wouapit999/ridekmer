@@ -18,7 +18,8 @@ psql …/ridekmer_video -c "update \"Vehicle\" set status='DRAFT' where \"regist
 # 2. Serve the production build on :3000 against that database
 pnpm build && DATABASE_URL=…/ridekmer_video pnpm start
 
-# 3. Screens, cards and offsets (IDs of EX-102-YDE and EX-108-DLA from the database)
+# 3. Screens, cards and offsets (DEMO_PASSWORD = the demo accounts password, see docs/DEMO_ENVIRONMENT.md)
+export DEMO_PASSWORD=… (IDs of EX-102-YDE and EX-108-DLA from the database)
 IDS='{"prado":"<id of EX-102-YDE>","hiace":"<id of EX-108-DLA>"}'
 node scripts/marketing-video/capture.mjs out/fr fr "$IDS"
 node scripts/marketing-video/cards.mjs out/cards-fr fr ridekmerw.vercel.app

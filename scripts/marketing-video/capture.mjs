@@ -9,7 +9,9 @@ const [, , out, L, idsJson] = process.argv;
 const ids = JSON.parse(idsJson);
 const B = "http://localhost:3000";
 const SCALE = 1080 / 390;
-const PW = "RideKmer-Demo-2026!";
+const PW = process.env.DEMO_PASSWORD;
+if (!PW)
+  throw new Error("Set DEMO_PASSWORD to the demo accounts password (docs/DEMO_ENVIRONMENT.md)");
 await mkdir(out, { recursive: true });
 
 const fmt = (d) => d.toISOString().slice(0, 10);

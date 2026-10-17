@@ -3,6 +3,9 @@ const require = createRequire(`${process.cwd()}/package.json`);
 const { chromium } = require("@playwright/test");
 const [, , L, idsJson] = process.argv;
 const ids = JSON.parse(idsJson);
+const PW = process.env.DEMO_PASSWORD;
+if (!PW)
+  throw new Error("Set DEMO_PASSWORD to the demo accounts password (docs/DEMO_ENVIRONMENT.md)");
 const B = "http://localhost:3000",
   S = 1080 / 390;
 const fmt = (d) => d.toISOString().slice(0, 10);
@@ -45,7 +48,7 @@ const login = async (email) => {
     isMobile: true,
   });
   await c.request.post(`${B}/api/auth/sign-in/email`, {
-    data: { email, password: "RideKmer-Demo-2026!" },
+    data: { email, password: PW },
     headers: { origin: B },
   });
   return c;
