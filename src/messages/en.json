@@ -991,7 +991,7 @@
       "enabled": "enabled",
       "disabled": "disabled (development)",
       "storageDownTitle": "File storage is not working",
-      "storageDownBody": "Document, photo and contract uploads fail. Storage is set to “{provider}” but its configuration is missing. On Vercel: Storage → Create → Blob → connect it to this project (this adds BLOB_READ_WRITE_TOKEN), then redeploy."
+      "storageDownBody": "Document, photo and contract uploads fail. Storage is set to “{provider}” but its configuration is missing. On Vercel: Storage → Create → Blob → connect it to this project for Production (this adds BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN), then redeploy. Details: /api/health with the cron secret."
     },
     "users": {
       "title": "Users",
