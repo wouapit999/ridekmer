@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: fix/keep-form-values
       - uses: pnpm/action-setup@v4
         with:
           run_install: false
@@ -35,25 +35,19 @@ jobs:
           CRON_SECRET: diagnosis-only-secret-0123
         run: |
           cat > ./photo-check.ts <<'TS'
-          import { parseImageInfo, pickPageImage } from "./src/server/vehicles/reference-image";
-          import { referenceQuery } from "./src/features/vehicles/catalog";
-          const API = "https://en.wikipedia.org/w/api.php";
-          const get = async (params: Record<string, string>) => {
-            const url = `${API}?${new URLSearchParams({ format: "json", formatversion: "2", origin: "*", ...params })}`;
-            const res = await fetch(url, { headers: { "user-agent": "RideKmer/1.0 (+https://ridekmerw.vercel.app)" } });
-            console.log("HTTP", res.status, url.slice(0, 160));
-            return res.json();
-          };
+          import { findReferenceImage } from "./src/server/vehicles/reference-image";
+          const cases: Array<[string, string, number | undefined]> = [
+            ["Toyota", "Land Cruiser Prado", 2025],
+            ["Toyota", "Corolla", 2018],
+            ["Toyota", "RAV4", undefined],
+            ["Hyundai", "Tucson", 2020],
+            ["Kia", "Sportage", 2016],
+          ];
           (async () => {
-            const q = referenceQuery("Toyota", "Land Cruiser Prado");
-            console.log("referenceQuery =", JSON.stringify(q));
-            const search = await get({ action: "query", generator: "search", gsrsearch: `${q} 2025`, gsrlimit: "5", gsrnamespace: "0", prop: "pageimages", piprop: "name", pilicense: "free" });
-            const file = pickPageImage(search, "Toyota");
-            console.log("picked file =", file);
-            if (!file) return;
-            const info = await get({ action: "query", titles: `File:${file}`, prop: "imageinfo", iiprop: "url|size|extmetadata", iiurlwidth: "960", iiextmetadatafilter: "Artist|LicenseShortName|LicenseUrl" });
-            console.log("imageinfo raw =", JSON.stringify(info).slice(0, 1500));
-            console.log("parsed =", JSON.stringify(parseImageInfo(info)));
+            for (const [make, model, year] of cases) {
+              const r = await findReferenceImage(make, model, fetch, year);
+              console.log(make, model, year ?? "-", "=>", r ? `${r.url} (${r.license})` : "NONE");
+            }
           })();
           TS
           pnpm exec tsx ./photo-check.ts
