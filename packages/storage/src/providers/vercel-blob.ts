@@ -1,11 +1,15 @@
 import { createHash } from "node:crypto";
 
-import { del, get, head, issueSignedToken, presignUrl, put } from "@vercel/blob";
+import { BlobNotFoundError, del, get, head, issueSignedToken, presignUrl, put } from "@vercel/blob";
 
 import type { PutObjectInput, PutObjectResult, SignedUrlOptions, StorageProvider } from "../types";
 
 export interface VercelBlobConfig {
-  token: string;
+  /**
+   * Read-write token. Omit it to use Vercel's OIDC authentication (VERCEL_OIDC_TOKEN with
+   * BLOB_STORE_ID), which is what newer Blob store connections provide instead of a token.
+   */
+  token?: string;
 }
 
 /**
@@ -67,8 +71,10 @@ export class VercelBlobStorageProvider implements StorageProvider {
     try {
       await head(key, { token: this.config.token });
       return true;
-    } catch {
-      return false;
+    } catch (error) {
+      // Only "not found" means absent; credential or store errors must surface (health check).
+      if (error instanceof BlobNotFoundError) return false;
+      throw error;
     }
   }
 }

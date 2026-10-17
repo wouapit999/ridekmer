@@ -991,7 +991,7 @@
       "enabled": "activée",
       "disabled": "désactivée (développement)",
       "storageDownTitle": "Le stockage des fichiers ne fonctionne pas",
-      "storageDownBody": "Les téléversements de documents, de photos et de contrats échouent. Le stockage est réglé sur « {provider} » mais sa configuration manque. Sur Vercel : Storage → Create → Blob → le connecter à ce projet (cela ajoute BLOB_READ_WRITE_TOKEN), puis redéployer."
+      "storageDownBody": "Les téléversements de documents, de photos et de contrats échouent. Le stockage est réglé sur « {provider} » mais sa configuration manque. Sur Vercel : Storage → Create → Blob → le connecter à ce projet pour Production (cela ajoute BLOB_STORE_ID ou BLOB_READ_WRITE_TOKEN), puis redéployer. Détails : /api/health avec le secret cron."
     },
     "users": {
       "title": "Utilisateurs",
