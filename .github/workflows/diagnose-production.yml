@@ -10,8 +10,10 @@ permissions: {}
 jobs:
   health:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
+      - name: Wait for the production deploy of the release
+        run: sleep 180
       - name: Detailed health (storage, migrations, environment)
         env:
           TARGET: ${{ secrets.CRON_TARGET_URL }}
