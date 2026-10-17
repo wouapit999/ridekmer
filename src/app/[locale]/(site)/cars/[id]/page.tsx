@@ -17,6 +17,7 @@ import { FileLink } from "@/features/documents/file-link";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { getCurrentSession } from "@/server/auth/session";
 import { signedDownloadUrl } from "@/server/files/service";
+import { isSamplePlate, samplePhotoUrl } from "@/features/vehicles/showcase-data";
 import { VehicleCredit, VehiclePhoto } from "@/features/vehicles/vehicle-photo";
 import { findReferenceImage } from "@/server/vehicles/reference-image";
 import { enumLabel } from "@/lib/i18n-enum";
@@ -61,7 +62,12 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
         .map((img) => signedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 })),
     ),
   ]);
-  const reference = photoUrls.length ? null : await findReferenceImage(vehicle.make, vehicle.model);
+  const sample = isSamplePlate(vehicle.registrationNumber);
+  if (!photoUrls.length && samplePhotoUrl(vehicle.registrationNumber))
+    photoUrls.push(samplePhotoUrl(vehicle.registrationNumber)!);
+  const reference = photoUrls.length
+    ? null
+    : await findReferenceImage(vehicle.make, vehicle.model, fetch, vehicle.manufacturingYear);
 
   const pickupDate = sp.pickupDate ?? "";
   const pickupTime = sp.pickupTime ?? "09:00";
@@ -83,6 +89,8 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
           additionalDrivers: 0,
         },
         session?.user.id ?? null,
+        undefined,
+        { allowSample: sample },
       );
     } catch (error) {
       if (error instanceof BookingError || error instanceof AvailabilityError)
@@ -110,6 +118,7 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
         <div className="space-y-6 lg:col-span-2">
           <header>
             <div className="flex flex-wrap items-center gap-2">
+              {sample ? <Badge tone="warn">{t("sample.badge")}</Badge> : null}
               <Badge tone="brand">{t(`categories.${vehicle.category}`)}</Badge>
               {vehicle.instantBooking ? (
                 <Badge tone="good">{t("detail.instant")}</Badge>
@@ -351,7 +360,11 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
           {quote ? (
             <>
               <QuoteBreakdown quote={quote.quote} />
-              {session ? (
+              {sample ? (
+                <Alert tone="warning" title={t("sample.title")}>
+                  {t("sample.notBookable")}
+                </Alert>
+              ) : session ? (
                 <ButtonLink href={`/book/${vehicle.id}?${bookQuery}`} size="lg" className="w-full">
                   {t("detail.book")}
                 </ButtonLink>

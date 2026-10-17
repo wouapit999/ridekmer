@@ -9,6 +9,24 @@ import {
 import { VEHICLE_TRANSITIONS, canTransitionVehicle } from "@/features/vehicles/service";
 
 describe("vehicle onboarding schemas", () => {
+  it("reserves EX- plates for the administration's sample cars", () => {
+    const base = {
+      make: "Toyota",
+      model: "Corolla",
+      manufacturingYear: 2020,
+      category: "SEDAN",
+      transmission: "MANUAL",
+      fuelType: "PETROL",
+      seats: 5,
+      currentMileageKm: 1000,
+      cityId: "c1",
+    };
+    const sample = basicsSchema.safeParse({ ...base, registrationNumber: "ex-101-dla" });
+    expect(sample.success).toBe(false);
+    expect(issuesToErrors(sample.error!).registrationNumber).toBe("RESERVED_PLATE");
+    expect(basicsSchema.safeParse({ ...base, registrationNumber: "LT 123 AB" }).success).toBe(true);
+  });
+
   it("normalises registration numbers and coerces numbers", () => {
     const parsed = basicsSchema.parse({
       registrationNumber: " lt 123 ab ",

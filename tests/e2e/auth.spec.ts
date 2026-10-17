@@ -57,6 +57,9 @@ test.describe("authentication and authorisation", () => {
     await expect(page.getByRole("link", { name: /Owner payouts/ })).toBeVisible();
     await page.goto("/en/admin/users?q=demo.customer");
     await expect(page.getByRole("cell", { name: "demo.customer@ridekmer.test" })).toBeVisible();
+    await page.goto("/en/admin/samples");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Sample cars");
+    await expect(page.getByRole("button", { name: "Add the 10 sample cars" })).toBeVisible();
     await page.goto("/en/admin/audit");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Audit log");
   });

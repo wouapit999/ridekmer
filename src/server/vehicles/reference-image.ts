@@ -74,11 +74,19 @@ interface ImageInfoResponse {
   };
 }
 
-/** Picks the lead free image of the best-matching article. Exported for unit tests. */
-export function pickPageImage(body: unknown): string | null {
+/**
+ * Picks the lead free image of the best-ranked article, optionally only among articles whose
+ * title contains `mustInclude` (the make), so a search like "Toyota Corolla 2008" cannot land
+ * on an unrelated page about the year. Exported for unit tests.
+ */
+export function pickPageImage(body: unknown, mustInclude?: string): string | null {
   const pages = (body as PageImagesResponse).query?.pages ?? [];
   const sorted = [...pages].sort((a, b) => (a.index ?? 99) - (b.index ?? 99));
-  return sorted.find((p) => p.pageimage)?.pageimage ?? null;
+  const want = mustInclude?.trim().toLowerCase();
+  return (
+    sorted.find((p) => p.pageimage && (!want || (p.title ?? "").toLowerCase().includes(want)))
+      ?.pageimage ?? null
+  );
 }
 
 /** Turns an imageinfo answer into a credited image, or null when the licence is not free. */
@@ -105,21 +113,31 @@ export async function findReferenceImage(
   make: string,
   model: string,
   fetchImpl: FetchLike = fetch,
+  year?: number | null,
 ): Promise<ReferenceImage | null> {
   const query = referenceQuery(make, model).slice(0, 120);
   if (query.trim().length < 3) return null;
+  const searchFor = async (text: string) =>
+    pickPageImage(
+      await getJson(fetchImpl, {
+        action: "query",
+        generator: "search",
+        gsrsearch: text,
+        gsrlimit: "5",
+        gsrnamespace: "0",
+        prop: "pageimages",
+        piprop: "name",
+        pilicense: "free",
+      }),
+      make,
+    );
   try {
-    const search = await getJson(fetchImpl, {
-      action: "query",
-      generator: "search",
-      gsrsearch: `${query} car`,
-      gsrlimit: "3",
-      gsrnamespace: "0",
-      prop: "pageimages",
-      piprop: "name",
-      pilicense: "free",
-    });
-    const file = pickPageImage(search);
+    // With a year, prefer the article of that generation ("Toyota Corolla (E140)" for 2008),
+    // then fall back to the model's main article.
+    const validYear = year && year >= 1950 && year <= new Date().getFullYear() + 1 ? year : null;
+    const file =
+      (validYear ? await searchFor(`${query} ${validYear}`) : null) ??
+      (await searchFor(`${query} car`));
     if (!file) return null;
     const info = await getJson(fetchImpl, {
       action: "query",
@@ -140,16 +158,17 @@ export async function findReferenceImage(
   }
 }
 
-/** Looks up several vehicles at once; duplicates (same make and model) share one lookup. */
+/** Looks up several vehicles at once; duplicates (same make, model and year) share one lookup. */
 export async function findReferenceImages(
-  vehicles: Array<{ id: string; make: string; model: string }>,
+  vehicles: Array<{ id: string; make: string; model: string; manufacturingYear?: number | null }>,
 ): Promise<Map<string, ReferenceImage>> {
   const byKey = new Map<string, Promise<ReferenceImage | null>>();
   const result = new Map<string, ReferenceImage>();
   await Promise.all(
     vehicles.map(async (v) => {
-      const key = `${v.make}|${v.model}`.toLowerCase();
-      if (!byKey.has(key)) byKey.set(key, findReferenceImage(v.make, v.model));
+      const key = `${v.make}|${v.model}|${v.manufacturingYear ?? ""}`.toLowerCase();
+      if (!byKey.has(key))
+        byKey.set(key, findReferenceImage(v.make, v.model, fetch, v.manufacturingYear));
       const image = await byKey.get(key);
       if (image) result.set(v.id, image);
     }),

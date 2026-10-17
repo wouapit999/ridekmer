@@ -19,13 +19,19 @@ the free Neon and Vercel plans and takes about 15 minutes to set up once.
 Every name ends with "(exemple)", e-mails use `.test`, plates start with `EX-`, payments are
 marked sandbox. All accounts use the password `RideKmer-Demo-2026!`. Photos are free-licence
 pictures of each model from Wikimedia Commons; each listing credits its photo
-(`prisma/seed-data/showcase-photos/CREDITS.md`).
+(`public/showcase/CREDITS.md`).
 
 | To see            | Sign in as                          |
 | ----------------- | ----------------------------------- |
 | Administration    | `demo.superadmin@ridekmer.test`     |
 | Owner space       | `showcase.owner.paul@ridekmer.test` |
 | Customer bookings | `showcase.jean@ridekmer.test`       |
+
+## Sample cars on any site (administration button)
+
+Without a separate demo site, an administrator can open **Administration → Sample cars** and add
+the 10 sample listings (cars only, badged "Example", not bookable), then remove them in one
+click. See ADR-041.
 
 ## One-time setup
 

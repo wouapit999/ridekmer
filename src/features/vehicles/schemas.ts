@@ -78,7 +78,9 @@ export const basicsSchema = z.object({
     .trim()
     .min(4)
     .max(20)
-    .transform((v) => v.toUpperCase().replace(/\s+/g, " ")),
+    .transform((v) => v.toUpperCase().replace(/\s+/g, " "))
+    // "EX-" is reserved for the sample cars the administration can add and remove.
+    .refine((v) => !v.startsWith("EX-"), { message: "RESERVED_PLATE" }),
   vin: optionalString(17),
   make: z.string().trim().min(2).max(60),
   model: z.string().trim().min(1).max(60),
@@ -204,7 +206,8 @@ export function issuesToErrors(error: z.ZodError): Record<string, string> {
       i.message === "driveOption" ||
       i.message === "chauffeurFee" ||
       i.message === "maxDays" ||
-      i.message === "dateOrder"
+      i.message === "dateOrder" ||
+      i.message === "RESERVED_PLATE"
         ? i.message
         : i.code,
     ]),

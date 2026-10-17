@@ -258,7 +258,13 @@
       "previewTitle": "Photo customers will see until you add your own",
       "previewBody": "Found automatically from free-licence photos of this model and marked “illustrative”. Your own photos replace it as soon as you upload them.",
       "previewLoading": "Looking for a photo of this model…",
-      "previewNone": "No free photo found for this model. Customers will see a placeholder until you upload photos."
+      "previewNone": "No free photo found for this model. Customers will see a placeholder until you upload photos.",
+      "sideHint": "Choose the make, the model and the year: the photo of the model appears here."
+    },
+    "sample": {
+      "badge": "Example",
+      "title": "Example car",
+      "notBookable": "This is an example used to show how RideKmer works. It cannot be booked."
     }
   },
   "howItWorks": {
@@ -938,7 +944,8 @@
       "names": "First and last name are required.",
       "company": "Legal name and representative are required.",
       "mobile": "Mobile Money number required.",
-      "bank": "Bank name and account are required."
+      "bank": "Bank name and account are required.",
+      "RESERVED_PLATE": "Plates starting with EX- are reserved for example cars. Enter the real registration number."
     }
   },
   "admin": {
@@ -963,7 +970,8 @@
       "expenses": "Expenses",
       "fleet": "Fleet map",
       "dataRequests": "Data requests",
-      "reports": "Reports"
+      "reports": "Reports",
+      "samples": "Sample cars"
     },
     "dashboard": {
       "bookingsToday": "Bookings today",
@@ -1391,7 +1399,34 @@
         "paymentSettings": {
           "title": "Payment providers",
           "body": "Configure MTN MoMo, Orange Money, card and bank settings and their credentials."
+        },
+        "samples": {
+          "title": "Sample cars",
+          "body": "Add 10 example cars to show how the site works, then remove them in one click."
         }
+      }
+    },
+    "samples": {
+      "title": "Sample cars",
+      "intro": "Show visitors and partners how RideKmer works with 10 example cars (photos, prices, specifications). They are badged \"Example\" on the site and cannot be booked. No people, accounts or bookings are created.",
+      "statusOnline": "{count, plural, one {# sample car is} other {# sample cars are}} currently visible on the site.",
+      "statusNone": "No sample cars are on the site.",
+      "addTitle": "Add the sample cars",
+      "addBody": "Publishes the 10 example cars in the catalogue. Running it again only restores missing ones.",
+      "addButton": "Add the 10 sample cars",
+      "removeTitle": "Remove the sample cars",
+      "removeBody": "{count, plural, =0 {Nothing to remove.} one {Removes the # sample car from the site.} other {Removes the # sample cars from the site.}} Real vehicles are never touched.",
+      "removeConfirm": "I confirm: remove every sample car (plates starting with EX-).",
+      "removeButton": "Remove the sample cars",
+      "listTitle": "The 10 sample cars",
+      "rules": "Plates starting with EX- are reserved for these examples; owners cannot register them. Each car credits its free-licence photo (Wikimedia Commons).",
+      "seeCatalogue": "See the catalogue",
+      "result": {
+        "added": "{count, plural, =0 {The sample cars were already on the site.} one {# sample car added.} other {# sample cars added.}}",
+        "removed": "{count, plural, =0 {There were no sample cars to remove.} one {# sample car removed.} other {# sample cars removed.}}",
+        "noCity": "Add at least one active city in Settings first.",
+        "confirm": "Tick the confirmation box to remove the sample cars.",
+        "error": "The sample cars could not be added. Try again or check the logs."
       }
     }
   },
