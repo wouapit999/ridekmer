@@ -32,7 +32,7 @@ jobs:
           BETTER_AUTH_URL: https://ridekmerw.vercel.app
           APP_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
           DATABASE_URL: postgresql://unused:unused@localhost:5432/unused
-          CRON_SECRET: diagnosis-only
+          CRON_SECRET: diagnosis-only-secret-0123
         run: |
           cat > /tmp/photo-check.ts <<'TS'
           import { findReferenceImage } from "./src/server/vehicles/reference-image";
