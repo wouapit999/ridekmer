@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input, Select, Textarea } from "@/components/ui/field";
@@ -33,8 +34,9 @@ export function RegisterDeviceForm({ providerId }: { providerId: string }) {
   const t = useTranslations("tracking.devices");
   const [state, action, pending] = useActionState(registerDeviceAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <h3 className="font-semibold sm:col-span-3">{t("register")}</h3>
@@ -79,7 +81,7 @@ export function RegisterDeviceForm({ providerId }: { providerId: string }) {
           {t("registerButton")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -93,8 +95,9 @@ export function AssignDeviceForm({
   const t = useTranslations("tracking.devices");
   const [state, action, pending] = useActionState(assignDeviceAction, initial);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-2 rounded-lg border border-sand-200 bg-sand-50 p-3 sm:grid-cols-4 sm:items-end"
     >
       <input type="hidden" name="deviceId" value={deviceId} />
@@ -120,7 +123,7 @@ export function AssignDeviceForm({
       <Button type="submit" size="sm" loading={pending}>
         {t("assign")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -128,7 +131,7 @@ export function UnassignDeviceForm({ deviceId }: { deviceId: string }) {
   const t = useTranslations("tracking.devices");
   const [state, action, pending] = useActionState(unassignDeviceAction, initial);
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="deviceId" value={deviceId} />
       <Result state={state} />
       <Field id={`un-r-${deviceId}`} label={t("reason")} className="min-w-40 flex-1">
@@ -141,7 +144,7 @@ export function UnassignDeviceForm({ deviceId }: { deviceId: string }) {
       <Button type="submit" size="sm" variant="outline" loading={pending}>
         {t("unassign")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -171,8 +174,9 @@ export function GeofenceForm({
       ? geofence.geometry.ring.map((r) => r.join(", ")).join("\n")
       : "";
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-3 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-3"
     >
       <h3 className="font-semibold sm:col-span-3">{geofence ? t("edit") : t("create")}</h3>
@@ -271,7 +275,7 @@ export function GeofenceForm({
           {t("save")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -283,7 +287,11 @@ export function RequestImmobilisationForm({
   const t = useTranslations("tracking.immobilisation");
   const [state, action, pending] = useActionState(requestImmobilisationAction, initial);
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-danger-500/40 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-danger-500/40 bg-white p-5"
+    >
       <h3 className="font-semibold">{t("request")}</h3>
       <p className="text-xs text-sand-700">{t("requestHint")}</p>
       <Result state={state} />
@@ -309,7 +317,7 @@ export function RequestImmobilisationForm({
       <Button type="submit" variant="danger" loading={pending}>
         {t("requestButton")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -333,7 +341,7 @@ export function ImmobilisationStepForm({
   const closed = ["ACKNOWLEDGED", "REJECTED", "CANCELLED", "UNAVAILABLE"].includes(status);
   if (closed) return null;
   return (
-    <form action={action} className="flex flex-wrap items-end gap-2">
+    <ActionForm action={action} state={state} className="flex flex-wrap items-end gap-2">
       <input type="hidden" name="requestId" value={requestId} />
       <div className="w-full">
         <Result state={state} />
@@ -394,6 +402,6 @@ export function ImmobilisationStepForm({
           {t("cancel")}
         </Button>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }

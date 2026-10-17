@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Textarea } from "@/components/ui/field";
@@ -30,7 +31,7 @@ export function DeletionRequestForm({ graceDays }: { graceDays: number }) {
   const [state, action, pending] = useActionState(requestDeletionAction, initial);
   const message = messageFor(t, state);
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <p className="text-sm text-sand-700">{t("deleteBody", { days: graceDays })}</p>
       {message ? <Alert tone={state.ok ? "success" : "danger"}>{message}</Alert> : null}
       {!state.ok ? (
@@ -49,7 +50,7 @@ export function DeletionRequestForm({ graceDays }: { graceDays: number }) {
           </Button>
         </>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }
 
@@ -58,7 +59,7 @@ export function CancelDeletionForm({ requestedAt }: { requestedAt: string }) {
   const [state, action, pending] = useActionState(cancelDeletionAction, initial);
   const message = messageFor(t, state);
   return (
-    <form action={action} className="space-y-4">
+    <ActionForm action={action} state={state} className="space-y-4">
       <p className="text-sm text-sand-700">{t("pendingBody", { date: requestedAt })}</p>
       {message ? <Alert tone={state.ok ? "success" : "danger"}>{message}</Alert> : null}
       {!state.ok ? (
@@ -66,6 +67,6 @@ export function CancelDeletionForm({ requestedAt }: { requestedAt: string }) {
           {t("cancelButton")}
         </Button>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }

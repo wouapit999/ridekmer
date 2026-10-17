@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
@@ -43,8 +44,9 @@ export function UserAdminForms({
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {canManageRoles ? (
-        <form
+        <ActionForm
           action={rolesAction}
+          state={rolesState}
           className="space-y-4 rounded-xl border border-sand-200 bg-white p-5"
         >
           <h2 className="text-lg font-semibold">{t("assignRoles")}</h2>
@@ -68,11 +70,12 @@ export function UserAdminForms({
           <Button type="submit" loading={rolesPending}>
             {t("saveRoles")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
       {canSuspend ? (
-        <form
+        <ActionForm
           action={statusAction}
+          state={statusState}
           className="space-y-4 rounded-xl border border-sand-200 bg-white p-5"
         >
           <h2 className="text-lg font-semibold">
@@ -95,7 +98,7 @@ export function UserAdminForms({
           >
             {status === "ACTIVE" ? t("suspend") : t("reinstate")}
           </Button>
-        </form>
+        </ActionForm>
       ) : null}
     </div>
   );

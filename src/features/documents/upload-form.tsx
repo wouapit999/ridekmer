@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -42,8 +43,9 @@ export function DocumentUploadForm({
   const [state, formAction, pending] = useActionState(action, { ok: false } as Result);
   const prefix = lockType ?? "doc";
   return (
-    <form
+    <ActionForm
       action={formAction}
+      state={state}
       className="grid gap-4 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
       encType="multipart/form-data"
     >
@@ -111,6 +113,6 @@ export function DocumentUploadForm({
           {t("upload")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }

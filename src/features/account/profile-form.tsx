@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -17,7 +18,7 @@ export function ProfileForm({
   const t = useTranslations("account.profile");
   const [state, action, pending] = useActionState(updateProfile, { ok: false } as ActionResult);
   return (
-    <form action={action} className="max-w-lg space-y-4">
+    <ActionForm action={action} state={state} className="max-w-lg space-y-4">
       {state.ok ? <Alert tone="success">{t("saved")}</Alert> : null}
       <Field id="name" label={t("name")} required>
         <Input id="name" name="name" defaultValue={user.name} required minLength={2} />
@@ -37,6 +38,6 @@ export function ProfileForm({
       <Button type="submit" loading={pending}>
         {t("save")}
       </Button>
-    </form>
+    </ActionForm>
   );
 }

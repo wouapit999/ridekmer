@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Checkbox, Field, Input } from "@/components/ui/field";
@@ -40,7 +41,11 @@ export function StaffTransitionForm({
         ? "outline"
         : "primary";
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+    <ActionForm
+      action={action}
+      state={state}
+      className="space-y-3 rounded-xl border border-sand-200 bg-white p-5"
+    >
       <h2 className="text-lg font-semibold">{t("transitions")}</h2>
       <input type="hidden" name="bookingId" value={bookingId} />
       {state.message ? (
@@ -94,6 +99,6 @@ export function StaffTransitionForm({
           </Button>
         ))}
       </div>
-    </form>
+    </ActionForm>
   );
 }

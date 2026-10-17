@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useActionState } from "react";
 
+import { ActionForm } from "@/components/ui/action-form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
@@ -14,8 +15,9 @@ export function CityForm() {
   const t = useTranslations("admin.settings");
   const [state, action, pending] = useActionState(addCity, { ok: false } as AdminActionResult);
   return (
-    <form
+    <ActionForm
       action={action}
+      state={state}
       className="grid gap-4 rounded-xl border border-sand-200 bg-white p-5 sm:grid-cols-2"
     >
       <h3 className="text-lg font-semibold sm:col-span-2">{t("addCity")}</h3>
@@ -41,7 +43,7 @@ export function CityForm() {
           {t("addCity")}
         </Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }
 
@@ -66,7 +68,7 @@ export function SettingRow({
       <td className="px-4 py-3 align-top font-mono text-xs">{settingKey}</td>
       <td className="px-4 py-3 align-top text-sand-700">{description}</td>
       <td className="px-4 py-3 align-top">
-        <form action={action} className="flex items-start gap-2">
+        <ActionForm action={action} state={state} className="flex items-start gap-2">
           <input type="hidden" name="key" value={settingKey} />
           <label htmlFor={`setting-${settingKey}`} className="sr-only">
             {t("value")}
@@ -84,7 +86,7 @@ export function SettingRow({
           <Button type="submit" variant="outline" size="sm" loading={pending}>
             {t("update")}
           </Button>
-        </form>
+        </ActionForm>
         {state.ok ? <p className="mt-1 text-xs text-success-600">{t("settingSaved")}</p> : null}
         {!state.ok && state.message === "invalid" ? (
           <p className="mt-1 text-xs text-danger-700">
