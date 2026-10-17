@@ -5,19 +5,52 @@ on:
     branches: [assets/showcase-photos]
     paths: [.github/workflows/diagnose-production.yml]
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
-  health:
+  photos:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Wait for the production deploy of the release
-        run: sleep 180
-      - name: Detailed health (storage, migrations, environment)
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run the reference photo lookup against Wikipedia
         env:
-          TARGET: ${{ secrets.CRON_TARGET_URL }}
-          SECRET: ${{ secrets.CRON_SECRET }}
+          APP_ENV: development
+          NEXT_PUBLIC_APP_URL: https://ridekmerw.vercel.app
+          BETTER_AUTH_SECRET: diagnosis-only-secret-0123456789abcdef
+          BETTER_AUTH_URL: https://ridekmerw.vercel.app
+          APP_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DATABASE_URL: postgresql://unused:unused@localhost:5432/unused
+          CRON_SECRET: diagnosis-only
         run: |
-          TARGET="${TARGET%/}"
-          curl -sS -m 60 -H "Authorization: Bearer $SECRET" "$TARGET/api/health" | jq '.checks // .'
+          cat > /tmp/photo-check.ts <<'TS'
+          import { findReferenceImage } from "./src/server/vehicles/reference-image";
+          const cases: Array<[string, string, number | undefined]> = [
+            ["Toyota", "Land Cruiser Prado", 2025],
+            ["Toyota", "Land Cruiser Prado", undefined],
+            ["Toyota", "Corolla", 2018],
+            ["Toyota", "RAV4", undefined],
+            ["Hyundai", "Tucson", 2020],
+          ];
+          for (const [make, model, year] of cases) {
+            const r = await findReferenceImage(make, model, fetch, year);
+            console.log(make, model, year ?? "-", "=>", r ? r.url : "NONE");
+          }
+          TS
+          cp /tmp/photo-check.ts ./photo-check.ts
+          pnpm exec tsx ./photo-check.ts
+      - name: Raw Wikipedia search answer
+        run: |
+          curl -sS -A "RideKmer/1.0 (+https://ridekmerw.vercel.app)" \
+            "https://en.wikipedia.org/w/api.php?format=json&formatversion=2&origin=*&action=query&generator=search&gsrsearch=Toyota%20Land%20Cruiser%20Prado%202025&gsrlimit=5&gsrnamespace=0&prop=pageimages&piprop=name&pilicense=free" | head -c 2000
