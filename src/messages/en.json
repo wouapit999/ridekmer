@@ -811,7 +811,8 @@
         "chooseModel": "Choose a model",
         "chooseMakeFirst": "Choose the make first",
         "otherModel": "Other model (type it)",
-        "modelOther": "Model (not in the list)"
+        "modelOther": "Model (not in the list)",
+        "engineHint": "In cc, or in litres (2.8 = 2800 cc)."
       },
       "equipment": {
         "hasAirConditioning": "Air conditioning",
@@ -893,7 +894,8 @@
           "ownerAgreement": "Owner agreement acceptance",
           "document": "Document: {type}"
         }
-      }
+      },
+      "fixFields": "The vehicle was not saved. Please correct:"
     },
     "detail": {
       "title": "Vehicle",
@@ -1456,7 +1458,8 @@
     "maxLength": "Enter at most {max} characters.",
     "accept": "You must accept the terms to continue.",
     "dateOrder": "The return date must be after the pickup date.",
-    "slug": "Use lowercase letters, digits and hyphens only."
+    "slug": "Use lowercase letters, digits and hyphens only.",
+    "outOfRange": "This value is outside the allowed range."
   },
   "documents": {
     "status": {
