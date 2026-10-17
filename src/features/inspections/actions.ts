@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { z } from "zod";
 
-import { FileRejectedError } from "@/server/files/service";
+import { FileRejectedError, StorageUnavailableError } from "@/server/files/service";
 import { getCurrentSession, requirePermissionOrThrow } from "@/server/auth/session";
 
 import { settleReturnDeposit } from "./deposit";
@@ -31,6 +31,7 @@ export interface InspectionActionResult {
 function fail(error: unknown): InspectionActionResult {
   if (error instanceof InspectionError) return { ok: false, message: error.code };
   if (error instanceof FileRejectedError) return { ok: false, message: "FILE_REJECTED" };
+  if (error instanceof StorageUnavailableError) return { ok: false, message: error.code };
   if (error instanceof Error && error.name === "RefundError")
     return { ok: false, message: "REFUND_ERROR" };
   throw error;

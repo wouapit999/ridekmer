@@ -11,7 +11,7 @@ import { InspectionError, getInspectionForCustomer } from "@/features/inspection
 import type { Settlement } from "@/features/inspections/settlement";
 import { formatXaf } from "@/lib/money";
 import { requireUser } from "@/server/auth/session";
-import { signedDownloadUrl } from "@/server/files/service";
+import { trySignedDownloadUrl } from "@/server/files/service";
 
 export default async function CustomerInspectionPage({
   params,
@@ -35,7 +35,7 @@ export default async function CustomerInspectionPage({
   const photos = await Promise.all(
     inspection.photos.map(async (p) => ({
       ...p,
-      url: await signedDownloadUrl({ storageKey: p.storageKey, actorId: user.id }),
+      url: (await trySignedDownloadUrl({ storageKey: p.storageKey, actorId: user.id })) ?? "",
     })),
   );
   const settlement = inspection.settlement as unknown as Settlement | null;

@@ -101,8 +101,15 @@ async function migrationsCheck(): Promise<Check> {
 async function storageCheck(): Promise<Check> {
   const env = getEnv();
   const startedAt = Date.now();
+  let provider;
   try {
-    const provider = getStorageProvider();
+    provider = getStorageProvider();
+  } catch (error) {
+    // Configuration errors only name the missing variables, never their values.
+    const reason = error instanceof Error ? error.message : "not configured";
+    return { state: "failed", detail: `${env.STORAGE_PROVIDER}: ${reason}` };
+  }
+  try {
     // A HEAD-style probe on a key that does not exist: proves credentials and reachability
     // without creating objects. Providers return null for a missing object.
     await provider.exists("health/probe-does-not-exist");

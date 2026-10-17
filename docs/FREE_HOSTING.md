@@ -44,7 +44,9 @@ to Path B.
    ALLOW_DEMO_SEED=false
    ```
 
-2. Storage → Create → Blob → connect it to the project; Vercel adds `BLOB_READ_WRITE_TOKEN`.
+2. Storage → Create → Blob, choose **Private** access, connect it to the project (Production and
+   Preview); Vercel adds `BLOB_READ_WRITE_TOKEN` (a custom prefix such as
+   `RIDEKMER_FILES_READ_WRITE_TOKEN` is detected too). Redeploy so the new variable is picked up.
 3. Deploy. The first build takes about 2 minutes. The project URL replaces `<project>` above;
    update the three URL variables and redeploy once.
 4. Apply the migrations and the reference data. Vercel never runs them; the easiest way is

@@ -7,6 +7,7 @@ import { ADMIN_MODULE_GROUPS, ADMIN_MODULES, canOpenModule } from "@/features/ad
 import { getDashboardCounts } from "@/features/admin/queries";
 import { Link } from "@/i18n/navigation";
 import { getEnv } from "@/lib/env";
+import { storageStatus } from "@/server/files/service";
 import { requireUser } from "@/server/auth/session";
 
 type Props = { params: Promise<{ locale: string }> };
@@ -26,6 +27,7 @@ export default async function AdminDashboard({ params }: Props) {
   const to = await getTranslations("admin.overview");
   const counts = await getDashboardCounts();
   const mfa = getEnv().AUTH_REQUIRE_STAFF_MFA;
+  const storage = storageStatus();
   const tiles: Array<{ key: keyof typeof counts; tone?: "default" | "warn" | "good" }> = [
     { key: "bookingsToday" },
     { key: "activeRentals", tone: "good" },
@@ -46,6 +48,11 @@ export default async function AdminDashboard({ params }: Props) {
     <div className="space-y-8">
       <div className="space-y-3">
         <h1 className="text-2xl font-bold text-sand-900">{ta("title")}</h1>
+        {!storage.ok ? (
+          <Alert tone="danger" title={t("storageDownTitle")}>
+            {t("storageDownBody", { provider: storage.provider })}
+          </Alert>
+        ) : null}
         <Alert tone={mfa ? "success" : "warning"}>
           {t("mfaNotice", { state: mfa ? t("enabled") : t("disabled") })}
         </Alert>
