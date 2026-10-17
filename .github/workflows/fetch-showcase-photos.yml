@@ -1,0 +1,27 @@
+name: Fetch showcase photos (temporary)
+
+on:
+  push:
+    branches: [assets/showcase-photos]
+    paths: [scripts/showcase/fetch-photos.mjs, .github/workflows/fetch-showcase-photos.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/showcase/fetch-photos.mjs
+      - name: Commit photos back to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add showcase-photos
+          git commit -m "Showcase photos from Wikimedia Commons (free licences, credits.json)" || echo "nothing to commit"
+          git push
