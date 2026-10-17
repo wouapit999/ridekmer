@@ -2,18 +2,19 @@
 // model from Wikimedia Commons, with author, licence and source page for the credits.
 import { mkdir, writeFile } from "node:fs/promises";
 
-const MODELS = [
+const ALL = [
   ["toyota-corolla", "Toyota Corolla"],
   ["toyota-land-cruiser-prado", "Toyota Land Cruiser Prado"],
   ["hyundai-tucson", "Hyundai Tucson"],
   ["toyota-hilux", "Toyota Hilux"],
   ["suzuki-swift", "Suzuki Swift"],
   ["mercedes-benz-e-class", "Mercedes-Benz E-Class"],
-  ["kia-sportage", "Kia Sportage"],
+  ["toyota-rav4", "Toyota RAV4"],
   ["toyota-hiace", "Toyota HiAce"],
   ["nissan-x-trail", "Nissan X-Trail"],
   ["hyundai-accent", "Hyundai Accent"],
 ];
+const MODELS = ALL.filter(([slug]) => slug === "toyota-rav4");
 const API = "https://en.wikipedia.org/w/api.php";
 const UA = { "user-agent": "RideKmer showcase builder (+https://ridekmerw.vercel.app)" };
 const FREE = /^(cc[\s-]|cc0|public domain|pd\b|pd-)/i;
@@ -27,7 +28,7 @@ async function api(params) {
 }
 
 await mkdir("showcase-photos", { recursive: true });
-const credits = [];
+const credits = JSON.parse(await (await import("node:fs/promises")).readFile("showcase-photos/credits.json", "utf8")).filter((c) => c.slug !== "kia-sportage");
 for (const [slug, title] of MODELS) {
   const page = await api({ action: "query", titles: title, redirects: "1", prop: "pageimages", piprop: "name", pilicense: "free" });
   let file = page.query?.pages?.[0]?.pageimage;
@@ -50,4 +51,5 @@ for (const [slug, title] of MODELS) {
   });
   console.log(`ok ${title}: ${license} by ${credits.at(-1).author}`);
 }
+await (await import("node:fs/promises")).rm("showcase-photos/kia-sportage.jpg", { force: true });
 await writeFile("showcase-photos/credits.json", JSON.stringify(credits, null, 2) + "\n");
