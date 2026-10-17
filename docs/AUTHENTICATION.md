@@ -61,6 +61,16 @@ Guards (`src/server/auth/session.ts`):
 
 Changing roles or status is itself audited and cannot be done on one's own account.
 
+## Trusted origins
+
+Better Auth rejects sign-up and sign-in requests whose `Origin` is not trusted ("Invalid
+origin"). Trusted are `NEXT_PUBLIC_APP_URL`, the comma-separated `AUTH_TRUSTED_ORIGINS`, and,
+on Vercel, the deployment's own hosts (`VERCEL_URL`, `VERCEL_BRANCH_URL`,
+`VERCEL_PROJECT_PRODUCTION_URL`, exposed automatically as system variables), so the
+`<project>-git-<branch>-<team>.vercel.app` aliases and preview links work without extra
+configuration (`src/server/auth/origins.ts`). A custom domain must be added to
+`NEXT_PUBLIC_APP_URL` or `AUTH_TRUSTED_ORIGINS`.
+
 ## First administrator in production
 
 Demo accounts are never created in production. The first super administrator is created by
