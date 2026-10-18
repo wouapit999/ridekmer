@@ -10,13 +10,19 @@ import { DocumentUploadForm } from "@/features/documents/upload-form";
 import { requireOwnerPage } from "@/features/owner/guards";
 import { OwnerNav } from "@/features/owner/owner-nav";
 import { removeImageAction, uploadVehicleDocumentAction } from "@/features/vehicles/actions";
-import { ONBOARDING_STEPS, type OnboardingStep } from "@/features/vehicles/schemas";
+import {
+  EXTRA_PHOTO_START,
+  ONBOARDING_STEPS,
+  PHOTO_VIEWS,
+  type OnboardingStep,
+} from "@/features/vehicles/schemas";
 import { VehicleError, getOwnedVehicle } from "@/features/vehicles/service";
 import {
   ArrangementForm,
   BasicsForm,
   EquipmentForm,
   LocationForm,
+  PhotoSlotForm,
   PhotosForm,
   PricingForm,
   SubmitForm,
@@ -25,6 +31,7 @@ import { Link } from "@/i18n/navigation";
 import { getEnv } from "@/lib/env";
 import { formatXaf } from "@/lib/money";
 import { db } from "@/server/db";
+import { trySignedDownloadUrl } from "@/server/files/service";
 
 type Props = {
   params: Promise<{ locale: string; id: string }>;
@@ -121,41 +128,12 @@ export default async function EditVehiclePage({ params, searchParams }: Props) {
         ) : null}
         {step === "pricing" && editable ? <PricingForm vehicle={plain} /> : null}
         {step === "photos" ? (
-          <>
-            <PhotosForm vehicleId={vehicle.id} />
-            <p className="text-sm text-sand-600">
-              {t("photos.count", { count: vehicle.images.length })}
-            </p>
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {vehicle.images.map((img) => (
-                <li
-                  key={img.id}
-                  className="space-y-2 rounded-lg border border-sand-200 bg-white p-2 text-xs"
-                >
-                  <FileLink
-                    storageKey={img.storageKey}
-                    label={img.isPrimary ? `★ ${t("photos.primary")}` : t("photos.files")}
-                    actorId={user.id}
-                  />
-                  <form action={removeImageAction}>
-                    <input type="hidden" name="vehicleId" value={vehicle.id} />
-                    <input type="hidden" name="imageId" value={img.id} />
-                    <Button type="submit" variant="ghost" size="sm">
-                      {t("photos.remove")}
-                    </Button>
-                  </form>
-                </li>
-              ))}
-            </ul>
-            {editable ? (
-              <Link
-                href={`/owner/vehicles/${vehicle.id}/edit?step=documents`}
-                className="inline-block font-medium text-brand-700 hover:underline"
-              >
-                {t("saveContinue")} →
-              </Link>
-            ) : null}
-          </>
+          <PhotosStep
+            vehicleId={vehicle.id}
+            images={vehicle.images}
+            editable={editable}
+            removeLabel={t("photos.remove")}
+          />
         ) : null}
         {step === "documents" ? (
           <>
@@ -258,5 +236,127 @@ export default async function EditVehiclePage({ params, searchParams }: Props) {
         ) : null}
       </div>
     </Container>
+  );
+}
+
+async function PhotosStep({
+  vehicleId,
+  images,
+  editable,
+  removeLabel,
+}: {
+  vehicleId: string;
+  images: { id: string; storageKey: string; sortOrder: number }[];
+  editable: boolean;
+  removeLabel: string;
+}) {
+  const t = await getTranslations("owner.wizard");
+  const urls = new Map(
+    await Promise.all(
+      images.map(
+        async (img) =>
+          [
+            img.id,
+            await trySignedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 }),
+          ] as const,
+      ),
+    ),
+  );
+  const extras = images.filter((img) => img.sortOrder >= EXTRA_PHOTO_START);
+  const filled = PHOTO_VIEWS.filter((_, slot) => images.some((i) => i.sortOrder === slot)).length;
+  const remove = (imageId: string) => (
+    <form action={removeImageAction}>
+      <input type="hidden" name="vehicleId" value={vehicleId} />
+      <input type="hidden" name="imageId" value={imageId} />
+      <Button type="submit" variant="ghost" size="sm">
+        {removeLabel}
+      </Button>
+    </form>
+  );
+  return (
+    <>
+      <section className="space-y-3 rounded-xl border border-sand-200 bg-white p-5">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="font-semibold text-sand-900">{t("photos.viewsTitle")}</h2>
+          <span
+            className={
+              filled === PHOTO_VIEWS.length
+                ? "text-sm font-medium text-success-600"
+                : "text-sm text-sand-600"
+            }
+          >
+            {t("photos.viewsCount", { count: filled, total: PHOTO_VIEWS.length })}
+          </span>
+        </div>
+        <p className="text-sm text-sand-700">{t("photos.viewsIntro")}</p>
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {PHOTO_VIEWS.map((view, slot) => {
+            const img = images.find((i) => i.sortOrder === slot);
+            const url = img ? urls.get(img.id) : null;
+            return (
+              <li key={view} className="space-y-2 rounded-lg border border-sand-200 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-medium text-sand-900">
+                    {slot === 0 ? "★ " : ""}
+                    {t(`photos.views.${view}`)}
+                  </span>
+                  {img && editable ? remove(img.id) : null}
+                </div>
+                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-md border border-dashed border-sand-300 bg-sand-50">
+                  {url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL
+                    <img
+                      src={url}
+                      alt={t(`photos.views.${view}`)}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="px-4 text-center text-xs text-sand-500">
+                      {t(`photos.hints.${view}`)}
+                    </span>
+                  )}
+                </div>
+                {editable ? (
+                  <PhotoSlotForm vehicleId={vehicleId} view={view} filled={Boolean(img)} />
+                ) : null}
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+      <section className="space-y-3">
+        <h2 className="font-semibold text-sand-900">{t("photos.extraTitle")}</h2>
+        {editable ? <PhotosForm vehicleId={vehicleId} /> : null}
+        {extras.length ? (
+          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {extras.map((img) => {
+              const url = urls.get(img.id);
+              return (
+                <li
+                  key={img.id}
+                  className="space-y-2 rounded-lg border border-sand-200 bg-white p-2 text-xs"
+                >
+                  <div className="aspect-[4/3] overflow-hidden rounded-md bg-sand-100">
+                    {url ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL
+                      <img src={url} alt="" className="h-full w-full object-cover" />
+                    ) : null}
+                  </div>
+                  {editable ? remove(img.id) : null}
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+      </section>
+      {editable ? (
+        <Link
+          href={`/owner/vehicles/${vehicleId}/edit?step=documents`}
+          className="inline-block font-medium text-brand-700 hover:underline"
+        >
+          {t("saveContinue")} →
+        </Link>
+      ) : null}
+    </>
   );
 }

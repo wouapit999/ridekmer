@@ -13,6 +13,8 @@ import type { VehicleStatus } from "@/generated/prisma/enums";
 import { evaluateVehicleCompliance } from "@/features/documents/lifecycle";
 import { recomputeVehicleCompliance } from "@/features/documents/service";
 
+import { EXTRA_PHOTO_START, PHOTO_VIEWS, type PhotoView } from "./schemas";
+
 import type {
   ArrangementInput,
   BasicsInput,
@@ -298,9 +300,40 @@ export async function updateVehicleArrangement(
 const MAX_IMAGES = 12;
 const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-export async function addVehicleImage(vehicleId: string, userId: string, file: File) {
+/** The main photo is the first by position: the front view once it is uploaded. */
+async function syncPrimaryImage(vehicleId: string) {
+  const first = await db.vehicleImage.findFirst({
+    where: { vehicleId },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+  });
+  if (!first) return;
+  await db.vehicleImage.updateMany({
+    where: { vehicleId, isPrimary: true, id: { not: first.id } },
+    data: { isPrimary: false },
+  });
+  if (!first.isPrimary)
+    await db.vehicleImage.update({ where: { id: first.id }, data: { isPrimary: true } });
+}
+
+function hasAllViews(images: { sortOrder: number }[]) {
+  return PHOTO_VIEWS.every((_, slot) => images.some((i) => i.sortOrder === slot));
+}
+
+/**
+ * Add a photo. With a `view` it fills (or replaces) that view's slot; without one it is an
+ * optional extra photo placed after the four views.
+ */
+export async function addVehicleImage(
+  vehicleId: string,
+  userId: string,
+  file: File,
+  view?: PhotoView,
+) {
   const { vehicle } = await getOwnedVehicle(vehicleId, userId);
-  if (vehicle.images.length >= MAX_IMAGES) throw new VehicleError("INCOMPLETE", ["maxImages"]);
+  const slot = view ? PHOTO_VIEWS.indexOf(view) : -1;
+  const replaced = slot >= 0 ? vehicle.images.find((i) => i.sortOrder === slot) : undefined;
+  if (!replaced && vehicle.images.length >= MAX_IMAGES)
+    throw new VehicleError("INCOMPLETE", ["maxImages"]);
   const stored = await storeFile({
     scope: "vehicle-images",
     entityId: vehicleId,
@@ -310,17 +343,24 @@ export async function addVehicleImage(vehicleId: string, userId: string, file: F
     actorId: userId,
     access: "private",
   });
+  const lastSort = Math.max(EXTRA_PHOTO_START - 1, ...vehicle.images.map((i) => i.sortOrder));
   const image = await db.vehicleImage.create({
     data: {
       vehicleId,
       storageKey: stored.storageKey,
       checksumSha256: stored.checksumSha256,
-      sortOrder: vehicle.images.length,
-      isPrimary: vehicle.images.length === 0,
+      sortOrder: slot >= 0 ? slot : lastSort + 1,
+      isPrimary: false,
       isPublic: false,
     },
   });
-  if (vehicle.onboardingStep === "photos")
+  if (replaced) {
+    await db.vehicleImage.delete({ where: { id: replaced.id } });
+    await deleteStoredFile(replaced.storageKey, userId);
+  }
+  await syncPrimaryImage(vehicleId);
+  const images = [...vehicle.images.filter((i) => i.id !== replaced?.id), image];
+  if (vehicle.onboardingStep === "photos" && hasAllViews(images))
     await db.vehicle.update({ where: { id: vehicleId }, data: { onboardingStep: "documents" } });
   return image;
 }
@@ -331,13 +371,7 @@ export async function removeVehicleImage(vehicleId: string, userId: string, imag
   if (!image) throw new VehicleError("NOT_FOUND");
   await db.vehicleImage.delete({ where: { id: imageId } });
   await deleteStoredFile(image.storageKey, userId);
-  if (image.isPrimary) {
-    const next = await db.vehicleImage.findFirst({
-      where: { vehicleId },
-      orderBy: { sortOrder: "asc" },
-    });
-    if (next) await db.vehicleImage.update({ where: { id: next.id }, data: { isPrimary: true } });
-  }
+  if (image.isPrimary) await syncPrimaryImage(vehicleId);
 }
 
 /** Validate completeness and move the draft to SUBMITTED; notifies the owner. */
@@ -346,7 +380,7 @@ export async function submitVehicle(vehicleId: string, userId: string) {
   if (!canTransitionVehicle(vehicle.status, "SUBMITTED")) throw new VehicleError("INVALID_STATUS");
   const missing: string[] = [];
   if (vehicle.dailyPriceXaf <= 0) missing.push("pricing");
-  if (vehicle.images.length === 0) missing.push("photos");
+  if (!hasAllViews(vehicle.images)) missing.push("photos");
   if (!vehicle.managementConfig) missing.push("arrangement");
   const mandatoryTypes = await db.documentType.findMany({
     where: {

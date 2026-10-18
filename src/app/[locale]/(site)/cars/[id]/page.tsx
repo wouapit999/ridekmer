@@ -13,11 +13,12 @@ import {
 } from "@/features/availability/service";
 import { QuoteBreakdown } from "@/features/bookings/quote-breakdown";
 import { BookingError, getBookableVehicle, quoteBooking } from "@/features/bookings/service";
-import { FileLink } from "@/features/documents/file-link";
 import { getPricingSettings } from "@/features/pricing/settings";
 import { getCurrentSession } from "@/server/auth/session";
 import { trySignedDownloadUrl } from "@/server/files/service";
+import { photoViewAt } from "@/features/vehicles/schemas";
 import { isSamplePlate, samplePhotoUrl } from "@/features/vehicles/showcase-data";
+import { VehicleGallery, type GalleryPhoto } from "@/features/vehicles/vehicle-gallery";
 import { VehicleCredit, VehiclePhoto } from "@/features/vehicles/vehicle-photo";
 import { findReferenceImage } from "@/server/vehicles/reference-image";
 import { enumLabel } from "@/lib/i18n-enum";
@@ -57,14 +58,15 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
   const [ranges, photoUrls] = await Promise.all([
     unavailableRanges(vehicle.id),
     Promise.all(
-      vehicle.images
-        .slice(0, 6)
-        .map((img) => trySignedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 })),
-    ).then((urls) => urls.filter((u): u is string => Boolean(u))),
+      vehicle.images.slice(0, 12).map(async (img) => {
+        const url = await trySignedDownloadUrl({ storageKey: img.storageKey, ttlSeconds: 3600 });
+        return url ? { url, view: photoViewAt(img.sortOrder) } : null;
+      }),
+    ).then((photos) => photos.filter((p): p is GalleryPhoto => Boolean(p))),
   ]);
   const sample = isSamplePlate(vehicle.registrationNumber);
   if (!photoUrls.length && samplePhotoUrl(vehicle.registrationNumber))
-    photoUrls.push(samplePhotoUrl(vehicle.registrationNumber)!);
+    photoUrls.push({ url: samplePhotoUrl(vehicle.registrationNumber)!, view: null });
   const reference = photoUrls.length
     ? null
     : await findReferenceImage(vehicle.make, vehicle.model, fetch, vehicle.manufacturingYear);
@@ -141,25 +143,7 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
             </p>
           </header>
           {photoUrls.length ? (
-            <ul
-              className={
-                photoUrls.length === 1
-                  ? "grid grid-cols-1 gap-2"
-                  : "grid grid-cols-2 gap-2 sm:grid-cols-3"
-              }
-            >
-              {photoUrls.map((url, i) => (
-                <li key={url} className="overflow-hidden rounded-lg bg-sand-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- signed, short-lived storage URL */}
-                  <img
-                    src={url}
-                    alt={`${vehicle.make} ${vehicle.model} ${i + 1}`}
-                    className="aspect-[4/3] h-full w-full object-cover"
-                    loading={i === 0 ? "eager" : "lazy"}
-                  />
-                </li>
-              ))}
-            </ul>
+            <VehicleGallery photos={photoUrls} alt={`${vehicle.make} ${vehicle.model}`} />
           ) : (
             <div className="overflow-hidden rounded-lg">
               <div className="aspect-[16/9] bg-sand-100">
@@ -378,14 +362,6 @@ export default async function VehicleDetailPage({ params, searchParams }: Props)
                 </ButtonLink>
               )}
             </>
-          ) : null}
-          {vehicle.images[0] ? (
-            <p className="text-xs text-sand-500">
-              <FileLink
-                storageKey={vehicle.images[0].storageKey}
-                label={t("detail.photos", { count: vehicle.images.length })}
-              />
-            </p>
           ) : null}
         </aside>
       </div>

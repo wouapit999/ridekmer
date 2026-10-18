@@ -643,7 +643,7 @@ export function PhotosForm({ vehicleId }: { vehicleId: string }) {
       <input type="hidden" name="vehicleId" value={vehicleId} />
       <p className="text-sm text-sand-700">{t("intro")}</p>
       {!state.ok && state.message ? <Alert tone="danger">{err(state.message)}</Alert> : null}
-      <Field id="files" label={t("files")} required>
+      <Field id="files" label={t("files")}>
         <Input
           id="files"
           name="files"
@@ -651,12 +651,54 @@ export function PhotosForm({ vehicleId }: { vehicleId: string }) {
           accept="image/jpeg,image/png,image/webp"
           multiple
           required
-          capture="environment"
         />
       </Field>
       <Button type="submit" loading={pending}>
         {t("upload")}
       </Button>
+    </ActionForm>
+  );
+}
+
+/** One of the four required views: picking a file uploads it straight away. */
+export function PhotoSlotForm({
+  vehicleId,
+  view,
+  filled,
+}: {
+  vehicleId: string;
+  view: string;
+  filled: boolean;
+}) {
+  const t = useTranslations("owner.wizard.photos");
+  const [state, action, pending] = useActionState(uploadImageAction, initial);
+  const err = useErrorText();
+  const id = `photo-${view}`;
+  return (
+    <ActionForm action={action} state={state} encType="multipart/form-data">
+      <input type="hidden" name="vehicleId" value={vehicleId} />
+      <input type="hidden" name="view" value={view} />
+      {!state.ok && state.message ? (
+        <p className="mb-1 text-xs text-danger-700">{err(state.message)}</p>
+      ) : null}
+      <label
+        htmlFor={id}
+        className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-md border border-sand-300 bg-white px-3 py-1.5 text-sm font-semibold text-sand-900 hover:bg-sand-100 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-brand-600"
+      >
+        {pending ? t("uploading") : filled ? t("replace") : t("add")}
+        <input
+          id={id}
+          name="files"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          capture="environment"
+          className="sr-only"
+          disabled={pending}
+          onChange={(e) => {
+            if (e.currentTarget.files?.length) e.currentTarget.form?.requestSubmit();
+          }}
+        />
+      </label>
     </ActionForm>
   );
 }
