@@ -39,7 +39,9 @@
       "support": "Assistance",
       "cities": "Villes : Douala, Yaoundé",
       "rights": "© {year} RideKmer. Tous droits réservés.",
-      "legalNotice": "Les documents juridiques sont des versions provisoires en attente de validation par un conseil juridique camerounais qualifié."
+      "legalNotice": "Les documents juridiques sont des versions provisoires en attente de validation par un conseil juridique camerounais qualifié.",
+      "maker": "RideKmer est un produit de Bouquet Innovation SA, développé par Wouapit Roland. Tous droits réservés.",
+      "makerLogoAlt": "Bouquet Innovation (s'ouvre dans un nouvel onglet)"
     },
     "actions": {
       "search": "Rechercher",

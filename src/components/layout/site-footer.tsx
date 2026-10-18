@@ -80,6 +80,25 @@ export function SiteFooter() {
         <p className="mx-auto max-w-6xl px-4 pb-4 text-xs text-sand-500 sm:px-6 lg:px-8">
           {t("footer.legalNotice")}
         </p>
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 pb-6 text-xs text-sand-600 sm:px-6 lg:px-8">
+          <a
+            href="https://bouquet-innovation.net/bouquet-innovation"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
+            title="Bouquet Innovation"
+          >
+            <img
+              src="/brand/bouquet-innovation.jpg"
+              alt={t("footer.makerLogoAlt")}
+              width={64}
+              height={64}
+              loading="lazy"
+              className="h-16 w-16 object-contain"
+            />
+          </a>
+          <p>{t("footer.maker")}</p>
+        </div>
       </div>
     </footer>
   );
