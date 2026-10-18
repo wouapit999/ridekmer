@@ -6,6 +6,7 @@ import { Logo } from "@/components/layout/logo";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ADMIN_MODULES, canOpenModule } from "@/features/admin/modules";
+import { countUnreadNotifications } from "@/features/notifications/queries";
 import { Link, redirect } from "@/i18n/navigation";
 import { requireStaffMfa, requireUser } from "@/server/auth/session";
 
@@ -22,6 +23,7 @@ export default async function AdminLayout({
   await requireStaffMfa(user, access);
   if (!access.isStaff) redirect({ href: "/account?forbidden=1", locale: await getLocale() });
   const t = await getTranslations("admin.nav");
+  const unread = await countUnreadNotifications(user.id);
   const items = [
     { key: "dashboard", href: "/admin" },
     ...ADMIN_MODULES.filter((m) => m.nav && canOpenModule(m, access.permissions)),
@@ -55,7 +57,7 @@ export default async function AdminLayout({
         <div className="flex flex-1 flex-col">
           <header className="flex items-center justify-end gap-3 border-b border-sand-200 bg-white px-4 py-2">
             <LanguageSwitcher />
-            <UserMenu viewer={{ name: user.name, isStaff: true }} />
+            <UserMenu viewer={{ name: user.name, isStaff: true, unread }} />
           </header>
           <main id="main" className="flex-1 bg-sand-50 p-4 sm:p-6 lg:p-8">
             {children}

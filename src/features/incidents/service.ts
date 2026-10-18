@@ -4,6 +4,7 @@ import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { storeFile } from "@/server/files/service";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 
 import type { IncidentStatus, IncidentType } from "@/generated/prisma/enums";
 
@@ -112,8 +113,37 @@ export async function reportIncident(input: {
     },
   });
   await notifyIncident(incident.id);
+  const [vehicle, booking] = await Promise.all([
+    db.vehicle.findUnique({
+      where: { id: input.vehicleId },
+      select: { make: true, model: true, registrationNumber: true },
+    }),
+    input.bookingId
+      ? db.booking.findUnique({ where: { id: input.bookingId }, select: { reference: true } })
+      : null,
+  ]);
+  await alertStaff("incident.manage", {
+    templateKey: "staff_incident",
+    variables: (locale) => ({
+      reference: booking?.reference ?? incident.reference,
+      vehicle: vehicle ? `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})` : "",
+      type: INCIDENT_TYPE_LABELS[input.type][locale],
+    }),
+    entityType: "Incident",
+    entityId: incident.id,
+    dedupeKey: `incident_reported:${incident.id}`,
+    exceptUserId: input.reporterId,
+  });
   return incident;
 }
+
+const INCIDENT_TYPE_LABELS: Record<IncidentType, { fr: string; en: string }> = {
+  ACCIDENT: { fr: "accident", en: "accident" },
+  DAMAGE: { fr: "dommage", en: "damage" },
+  BREAKDOWN: { fr: "panne", en: "breakdown" },
+  THEFT: { fr: "vol", en: "theft" },
+  OTHER: { fr: "autre", en: "other" },
+};
 
 export async function transitionIncident(input: {
   incidentId: string;

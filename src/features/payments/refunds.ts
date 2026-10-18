@@ -2,6 +2,7 @@ import { formatXaf } from "@/lib/money";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 import { getProviderForPayment } from "@/server/payments/registry";
 
 import type { Prisma } from "@/generated/prisma/client";
@@ -86,6 +87,21 @@ export async function requestRefund(input: {
     entityId: refund.id,
     after: { amountXaf: refund.amountXaf, requiresDualApproval: refund.requiresDualApproval },
     reason: input.reason,
+  });
+  const booking = refund.bookingId
+    ? await db.booking.findUnique({ where: { id: refund.bookingId }, select: { reference: true } })
+    : null;
+  await alertStaff("refund.approve", {
+    templateKey: "staff_refund_approval",
+    variables: (locale) => ({
+      amount: formatXaf(refund.amountXaf, locale),
+      reference: booking?.reference ?? refund.paymentId,
+      reason: refund.reason,
+    }),
+    entityType: "Payment",
+    entityId: refund.paymentId,
+    dedupeKey: `refund_requested:${refund.id}`,
+    exceptUserId: input.requestedById,
   });
   return refund;
 }

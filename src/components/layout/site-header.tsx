@@ -8,7 +8,9 @@ import { Link } from "@/i18n/navigation";
 
 import { LanguageSwitcher } from "./language-switcher";
 import { Logo } from "./logo";
+import { NotificationBell } from "./notification-bell";
 import { UserMenu } from "./user-menu";
+import { useViewer } from "./viewer-provider";
 
 const NAV: Array<{
   href: string;
@@ -25,6 +27,7 @@ const NAV: Array<{
 export function SiteHeader() {
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
+  const { viewer } = useViewer();
 
   return (
     <header className="sticky top-0 z-40 border-b border-sand-200 bg-white/95 backdrop-blur">
@@ -47,16 +50,20 @@ export function SiteHeader() {
           <LanguageSwitcher />
           <UserMenu />
         </div>
-        <button
-          type="button"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-sand-800 hover:bg-sand-100 lg:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-nav"
-          aria-label={open ? t("nav.closeMenu") : t("nav.menu")}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-        </button>
+        <div className="flex items-center gap-1 lg:hidden">
+          {/* On phones the bell stays visible next to the menu button. */}
+          {viewer ? <NotificationBell unread={viewer.unread ?? 0} /> : null}
+          <button
+            type="button"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-sand-800 hover:bg-sand-100"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            aria-label={open ? t("nav.closeMenu") : t("nav.menu")}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
       </div>
       {open ? (
         <div id="mobile-nav" className="border-t border-sand-200 bg-white lg:hidden">
@@ -87,7 +94,7 @@ export function SiteHeader() {
             </Link>
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-sand-200 px-3 pt-4">
               <LanguageSwitcher />
-              <UserMenu />
+              <UserMenu showBell={false} />
             </div>
           </nav>
         </div>

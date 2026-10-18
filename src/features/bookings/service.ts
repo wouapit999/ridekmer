@@ -21,7 +21,7 @@ import {
   getPricingSettings,
   type PricingSettings,
 } from "@/features/pricing/settings";
-import { formatIsoDate, rentalDaysBetween } from "@/lib/dates";
+import { formatDoualaDateTime, formatIsoDate, rentalDaysBetween } from "@/lib/dates";
 import { humanReference } from "@/lib/ids";
 import { logger } from "@/lib/logger";
 import { formatXaf } from "@/lib/money";
@@ -29,6 +29,7 @@ import { recordAudit } from "@/server/audit";
 import { isSamplePlate } from "@/features/vehicles/showcase-data";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 import { openRefundForCancelledBooking } from "@/features/payments/refunds";
 import { ensureRentalContract } from "@/features/contracts/service";
 import { bookingInspectionState } from "@/features/inspections/service";
@@ -633,6 +634,16 @@ export async function requestExtension(
     entityType: "Booking",
     entityId: booking.id,
     after: { newEndAt, extraDays, extensionTotalXaf: quote.totalRentalXaf },
+  });
+  await alertStaff("booking.override", {
+    templateKey: "staff_extension_request",
+    variables: (locale) => ({
+      reference: booking.reference,
+      newEnd: formatDoualaDateTime(newEndAt, locale),
+    }),
+    entityType: "Booking",
+    entityId: booking.id,
+    dedupeKey: `extension_requested:${booking.id}:${newEndAt.getTime()}`,
   });
   return { booking: updated, quote, extraDays };
 }

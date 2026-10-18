@@ -2742,5 +2742,23 @@
       "EXTERNAL": "Alimentation du véhicule",
       "BATTERY": "Batterie de secours"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "intro": "Tout ce qui demande votre attention, avec un lien vers l'endroit où agir.",
+    "bell": "Notifications",
+    "bellUnread": "{count, plural, one {# notification non lue} other {# notifications non lues}}",
+    "unreadCount": "{count, plural, =0 {Tout est lu} one {# non lue} other {# non lues}}",
+    "markAllRead": "Tout marquer comme lu",
+    "empty": "Aucune notification pour l'instant. Quand quelque chose demande votre attention, cela apparaît ici et nous vous envoyons un e-mail.",
+    "untitled": "Notification",
+    "new": "nouvelle",
+    "open": "Ouvrir",
+    "markRead": "Marquer comme lue",
+    "emailTitle": "Alertes par e-mail",
+    "emailOn": "Nous vous envoyons un e-mail quand quelque chose demande votre attention (réservation à payer, document à corriger, demande à approuver…).",
+    "emailOff": "Les alertes par e-mail sont désactivées : vous les voyez seulement ici.",
+    "emailDisable": "Désactiver les alertes par e-mail",
+    "emailEnable": "Activer les alertes par e-mail"
   }
 }

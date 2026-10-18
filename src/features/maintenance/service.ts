@@ -2,9 +2,11 @@ import { addDays } from "date-fns";
 
 import { formatIsoDate } from "@/lib/dates";
 import { logger } from "@/lib/logger";
+import { formatXaf } from "@/lib/money";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 
 import type { MaintenanceStatus, MaintenanceType } from "@/generated/prisma/enums";
 
@@ -286,6 +288,25 @@ export async function transitionMaintenance(input: {
   });
   if (input.to === "COMPLETED" || input.to === "IN_PROGRESS")
     await notifyOwner(record.id, input.to.toLowerCase());
+  if (input.to === "COMPLETED") {
+    const expense = await db.expense.findFirst({
+      where: { maintenanceRecordId: record.id, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    });
+    if (expense)
+      await alertStaff("expense.approve", {
+        templateKey: "staff_expense_approval",
+        variables: (locale) => ({
+          amount: formatXaf(expense.amountXaf, locale),
+          vehicle: `${record.vehicle.make} ${record.vehicle.model} (${record.vehicle.registrationNumber})`,
+          description: expense.description ?? record.title,
+        }),
+        entityType: "Expense",
+        entityId: expense.id,
+        dedupeKey: `expense_pending:${expense.id}`,
+        exceptUserId: input.actorId,
+      });
+  }
   return updated;
 }
 
