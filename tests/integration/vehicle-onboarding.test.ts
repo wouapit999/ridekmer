@@ -150,7 +150,8 @@ describe("vehicle onboarding and approval", () => {
       instantBooking: true,
       minRentalDays: 1,
     });
-    await addVehicleImage(vehicleId, ownerId, file(JPEG, "image/jpeg", "front.jpg"));
+    // Front first: the remaining views and one extra photo come after the first submit attempt.
+    await addVehicleImage(vehicleId, ownerId, file(JPEG, "image/jpeg", "front.jpg"), "front");
     await updateVehicleArrangement(vehicleId, ownerId, {
       ownershipModel: "FULLY_MANAGED_OWNER_VEHICLE",
       ownerApprovesBookings: false,
@@ -179,6 +180,26 @@ describe("vehicle onboarding and approval", () => {
       });
     }
     await acceptOwnerAgreement(ownerId, "fr", { ipAddress: "127.0.0.1", userAgent: "vitest" });
+
+    // All four views (front, back, side, interior) are required before submitting.
+    await expect(submitVehicle(vehicleId, ownerId)).rejects.toMatchObject({
+      code: "INCOMPLETE",
+      details: ["photos"],
+    });
+    await addVehicleImage(vehicleId, ownerId, file(JPEG, "image/jpeg", "extra.jpg"));
+    for (const view of ["back", "side", "interior"] as const)
+      await addVehicleImage(vehicleId, ownerId, file(JPEG, "image/jpeg", `${view}.jpg`), view);
+    // Replacing a view keeps a single photo in that slot.
+    const before = await db.vehicleImage.findFirstOrThrow({ where: { vehicleId, sortOrder: 0 } });
+    await addVehicleImage(vehicleId, ownerId, file(JPEG, "image/jpeg", "front-2.jpg"), "front");
+    const images = await db.vehicleImage.findMany({
+      where: { vehicleId },
+      orderBy: { sortOrder: "asc" },
+    });
+    expect(images.map((i) => i.sortOrder)).toEqual([0, 1, 2, 3, 4]);
+    expect(images[0].id).not.toBe(before.id);
+    expect(images.filter((i) => i.isPrimary).map((i) => i.sortOrder)).toEqual([0]);
+
     const submitted = await submitVehicle(vehicleId, ownerId);
     expect(submitted.status).toBe("SUBMITTED");
     const contract = await db.generatedContract.findFirst({

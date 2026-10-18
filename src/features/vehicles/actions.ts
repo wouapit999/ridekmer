@@ -7,6 +7,7 @@ import { FileRejectedError, StorageUnavailableError } from "@/server/files/servi
 import { getCurrentSession } from "@/server/auth/session";
 
 import {
+  PHOTO_VIEWS,
   arrangementSchema,
   availabilityBlockSchema,
   basicsSchema,
@@ -162,7 +163,11 @@ export async function uploadImageAction(
       .getAll("files")
       .filter((f): f is File => f instanceof File && f.size > 0);
     if (files.length === 0) return { ok: false, errors: { files: "required" } };
-    for (const file of files) await addVehicleImage(vehicleId, userId, file);
+    // A view slot (front, back, side, interior) takes one photo; extras may come several at once.
+    const rawView = String(formData.get("view") ?? "");
+    const view = PHOTO_VIEWS.find((v) => v === rawView);
+    if (view) await addVehicleImage(vehicleId, userId, files[0], view);
+    else for (const file of files) await addVehicleImage(vehicleId, userId, file);
     revalidate(vehicleId);
     return { ok: true, vehicleId };
   } catch (error) {

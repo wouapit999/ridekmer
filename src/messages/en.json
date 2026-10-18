@@ -213,7 +213,17 @@
       "mileage": "{km} km",
       "doors": "{count} doors",
       "existingDamage": "Known existing damage",
-      "notBookable": "This vehicle is not available for booking at the moment."
+      "notBookable": "This vehicle is not available for booking at the moment.",
+      "gallery": {
+        "label": "Photos of the {name}",
+        "position": "Photo {index} of {count}. Drag or use the arrow keys to turn the car.",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "dragHint": "Drag to turn the car",
+        "play": "Play",
+        "pause": "Pause",
+        "photo": "Photo {index}"
+      }
     },
     "quote": {
       "title": "Price breakdown",
@@ -861,12 +871,31 @@
         "commissionNote": "RideKmer's commission is deducted from these prices according to your arrangement."
       },
       "photos": {
-        "intro": "Add at least one photo. Clear exterior and interior shots help customers choose. Max 12 photos, 5 MB each.",
+        "intro": "Optional: add more photos (dashboard, boot, wheels…). Up to 12 photos in total, 5 MB each.",
         "files": "Photos",
         "upload": "Upload photos",
         "primary": "Main photo",
         "remove": "Remove",
-        "count": "{count, plural, =0 {No photo} one {# photo} other {# photos}}"
+        "count": "{count, plural, =0 {No photo} one {# photo} other {# photos}}",
+        "viewsTitle": "The 4 required photos",
+        "viewsCount": "{count}/{total} added",
+        "viewsIntro": "Customers turn through these 4 photos on your listing. Take them in daylight, with the whole car in the frame. The front photo is the main photo.",
+        "views": {
+          "front": "Front",
+          "back": "Back",
+          "side": "Side",
+          "interior": "Interior"
+        },
+        "hints": {
+          "front": "The whole car from the front, number plate visible",
+          "back": "The whole car from the back",
+          "side": "The full side of the car, from bumper to bumper",
+          "interior": "The seats and dashboard, doors open"
+        },
+        "add": "Add photo",
+        "replace": "Replace photo",
+        "uploading": "Uploading…",
+        "extraTitle": "More photos (optional)"
       },
       "documents": {
         "intro": "Upload the mandatory documents. Each is reviewed by our team; expiring documents trigger alerts and expired ones make the vehicle unavailable.",
@@ -891,7 +920,7 @@
         "missing": "Before submitting, complete:",
         "items": {
           "pricing": "Pricing",
-          "photos": "At least one photo",
+          "photos": "The 4 photos: front, back, side and interior",
           "arrangement": "Management arrangement",
           "ownerAgreement": "Owner agreement acceptance",
           "document": "Document: {type}"
