@@ -213,7 +213,17 @@
       "mileage": "{km} km",
       "doors": "{count} portes",
       "existingDamage": "Dommages existants connus",
-      "notBookable": "Ce véhicule n'est pas réservable pour le moment."
+      "notBookable": "Ce véhicule n'est pas réservable pour le moment.",
+      "gallery": {
+        "label": "Photos de la {name}",
+        "position": "Photo {index} sur {count}. Faites glisser ou utilisez les flèches pour tourner la voiture.",
+        "previous": "Photo précédente",
+        "next": "Photo suivante",
+        "dragHint": "Faites glisser pour tourner la voiture",
+        "play": "Lecture",
+        "pause": "Pause",
+        "photo": "Photo {index}"
+      }
     },
     "quote": {
       "title": "Détail du prix",
@@ -861,12 +871,31 @@
         "commissionNote": "La commission RideKmer est déduite de ces prix selon votre arrangement."
       },
       "photos": {
-        "intro": "Ajoutez au moins une photo. Des vues extérieures et intérieures nettes aident les clients à choisir. 12 photos maximum, 5 Mo chacune.",
+        "intro": "Facultatif : ajoutez d'autres photos (tableau de bord, coffre, jantes…). Jusqu'à 12 photos au total, 5 Mo chacune.",
         "files": "Photos",
         "upload": "Téléverser les photos",
         "primary": "Photo principale",
         "remove": "Supprimer",
-        "count": "{count, plural, =0 {Aucune photo} one {# photo} other {# photos}}"
+        "count": "{count, plural, =0 {Aucune photo} one {# photo} other {# photos}}",
+        "viewsTitle": "Les 4 photos obligatoires",
+        "viewsCount": "{count}/{total} ajoutées",
+        "viewsIntro": "Les clients font défiler ces 4 photos sur votre annonce. Prenez-les à la lumière du jour, la voiture entière dans le cadre. La photo de face est la photo principale.",
+        "views": {
+          "front": "Face",
+          "back": "Arrière",
+          "side": "Profil",
+          "interior": "Intérieur"
+        },
+        "hints": {
+          "front": "La voiture entière de face, plaque visible",
+          "back": "La voiture entière de l'arrière",
+          "side": "Tout le côté de la voiture, d'un pare-chocs à l'autre",
+          "interior": "Les sièges et le tableau de bord, portières ouvertes"
+        },
+        "add": "Ajouter la photo",
+        "replace": "Remplacer la photo",
+        "uploading": "Envoi…",
+        "extraTitle": "Autres photos (facultatif)"
       },
       "documents": {
         "intro": "Téléversez les documents obligatoires. Chacun est vérifié par notre équipe ; les documents proches de l'expiration déclenchent des alertes et les documents expirés rendent le véhicule indisponible.",
@@ -891,7 +920,7 @@
         "missing": "Avant de soumettre, complétez :",
         "items": {
           "pricing": "Tarifs",
-          "photos": "Au moins une photo",
+          "photos": "Les 4 photos : face, arrière, profil et intérieur",
           "arrangement": "Arrangement de gestion",
           "ownerAgreement": "Acceptation du contrat propriétaire",
           "document": "Document : {type}"

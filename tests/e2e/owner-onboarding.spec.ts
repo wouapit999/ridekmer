@@ -80,10 +80,11 @@ test.describe("owner onboarding and vehicle approval", () => {
     await page.getByRole("button", { name: "Enregistrer et continuer" }).click();
     await expect(page).toHaveURL(/step=photos/);
 
-    // 8. Photo
-    await page.getByLabel("Photos", { exact: true }).setInputFiles(fixture("sample.jpg"));
-    await page.getByRole("button", { name: "Téléverser les photos" }).click();
-    await expect(page.getByText("1 photo")).toBeVisible();
+    // 8. The four required photos: each slot uploads as soon as a file is picked.
+    for (const [index, view] of ["front", "back", "side", "interior"].entries()) {
+      await page.locator(`#photo-${view}`).setInputFiles(fixture("sample.jpg"));
+      await expect(page.getByText(`${index + 1}/4 ajoutées`)).toBeVisible();
+    }
 
     // 9. Documents (all mandatory vehicle documents)
     await page.goto(page.url().replace(/step=\w+/, "step=documents"));

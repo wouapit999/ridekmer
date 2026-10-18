@@ -52,6 +52,19 @@ export const ONBOARDING_STEPS = [
 ] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
+/**
+ * The four views every listing shows, so customers see the whole car. They are kept in
+ * VehicleImage.sortOrder 0–3 (in this order); optional extra photos follow from 4.
+ */
+export const PHOTO_VIEWS = ["front", "back", "side", "interior"] as const;
+export type PhotoView = (typeof PHOTO_VIEWS)[number];
+export const EXTRA_PHOTO_START = PHOTO_VIEWS.length;
+
+/** The view a photo fills, from its position (null for an extra photo). */
+export function photoViewAt(sortOrder: number): PhotoView | null {
+  return PHOTO_VIEWS[sortOrder] ?? null;
+}
+
 const currentYear = new Date().getFullYear();
 const intField = (min: number, max: number) => z.coerce.number().int().min(min).max(max);
 const optionalInt = (min: number, max: number) =>
