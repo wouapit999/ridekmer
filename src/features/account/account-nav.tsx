@@ -5,7 +5,8 @@ import { Link } from "@/i18n/navigation";
 export function AccountNav({
   current,
 }: {
-  current: "overview" | "profile" | "security" | "documents" | "bookings" | "privacy";
+  current:
+    "overview" | "profile" | "security" | "documents" | "bookings" | "notifications" | "privacy";
 }) {
   const t = useTranslations("account.nav");
   const items = [
@@ -14,6 +15,7 @@ export function AccountNav({
     { key: "security", href: "/account/security" },
     { key: "documents", href: "/account/documents" },
     { key: "bookings", href: "/account/bookings" },
+    { key: "notifications", href: "/account/notifications" },
     { key: "privacy", href: "/account/privacy" },
   ] as const;
   return (

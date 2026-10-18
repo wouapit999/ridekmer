@@ -2742,5 +2742,23 @@
       "EXTERNAL": "Vehicle power",
       "BATTERY": "Backup battery"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "intro": "Everything that needs your attention, with a link to where you can act.",
+    "bell": "Notifications",
+    "bellUnread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "unreadCount": "{count, plural, =0 {All caught up} one {# unread} other {# unread}}",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet. When something needs your attention, it appears here and we e-mail you.",
+    "untitled": "Notification",
+    "new": "new",
+    "open": "Open",
+    "markRead": "Mark as read",
+    "emailTitle": "E-mail alerts",
+    "emailOn": "We e-mail you when something needs your attention (a booking to pay, a document to fix, a request to approve…).",
+    "emailOff": "E-mail alerts are off: you only see them here.",
+    "emailDisable": "Turn off e-mail alerts",
+    "emailEnable": "Turn on e-mail alerts"
   }
 }

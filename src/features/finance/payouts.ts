@@ -8,6 +8,7 @@ import { maskPhoneForDisplay } from "@/lib/phone";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 import { getPaymentProvider } from "@/server/payments/registry";
 
 import type { PayoutMethod, PayoutStatus } from "@/generated/prisma/enums";
@@ -104,6 +105,21 @@ export async function requestPayout(input: {
     },
   });
   await notifyPayout(payout.id);
+  const ownerUser = await db.user.findUnique({
+    where: { id: owner.userId },
+    select: { name: true },
+  });
+  await alertStaff("payout.approve", {
+    templateKey: "staff_payout_approval",
+    variables: (locale) => ({
+      amount: formatXaf(payout.amountXaf, locale),
+      owner: ownerUser?.name ?? "",
+    }),
+    entityType: "OwnerPayout",
+    entityId: payout.id,
+    dedupeKey: `payout_requested:${payout.id}`,
+    exceptUserId: input.requestedById,
+  });
   return payout;
 }
 

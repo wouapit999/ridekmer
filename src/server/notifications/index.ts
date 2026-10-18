@@ -91,6 +91,11 @@ interface SendTemplatedInput {
   prerendered?: { subject?: string; body: string };
   /** Set to false to send without creating a Notification row (retries update the original). */
   persist?: boolean;
+  /**
+   * E-mails to a known user are also listed under their notification bell when the template
+   * has an in-app version. Set to false when the caller records the in-app copy itself.
+   */
+  mirrorInApp?: boolean;
 }
 
 async function resolveTemplate(
@@ -166,5 +171,44 @@ export async function sendTemplatedNotification(input: SendTemplatedInput) {
     // A duplicate dedupeKey is expected when a job retries; anything else is logged.
     logger.warn("notification.persist_failed", { templateKey: input.templateKey, error });
   }
+  if (
+    input.channel === "EMAIL" &&
+    input.userId &&
+    !input.sensitive &&
+    !input.prerendered &&
+    input.mirrorInApp !== false
+  )
+    await mirrorInApp(input);
   return result;
+}
+
+/** In-app copy of an e-mail, so the user also finds it under the notification bell. */
+async function mirrorInApp(input: SendTemplatedInput) {
+  let template: { subject?: string; body: string };
+  try {
+    template = await resolveTemplate(input.templateKey, "IN_APP", input.locale);
+  } catch {
+    return; // No in-app version of this template.
+  }
+  await db.notification
+    .create({
+      data: {
+        userId: input.userId,
+        channel: "IN_APP",
+        templateKey: input.templateKey,
+        locale: input.locale,
+        recipient: input.to,
+        subject: template.subject ? renderTemplate(template.subject, input.variables) : undefined,
+        body: renderTemplate(template.body, input.variables),
+        status: "SENT",
+        provider: "in-app",
+        entityType: input.entityType,
+        entityId: input.entityId,
+        dedupeKey: input.dedupeKey ? `${input.dedupeKey}:in-app` : undefined,
+        sentAt: new Date(),
+      },
+    })
+    .catch((error: unknown) =>
+      logger.warn("notification.mirror_failed", { templateKey: input.templateKey, error }),
+    );
 }
