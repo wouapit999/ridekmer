@@ -89,7 +89,8 @@
       "title": "The car you need, when you need it.",
       "subtitle": "Self-drive or chauffeur-driven, by the day, week or month. Verified vehicles, transparent prices in XAF, MTN Mobile Money and Orange Money accepted.",
       "cta": "Find a car",
-      "ctaSecondary": "List your vehicle"
+      "ctaSecondary": "List your vehicle",
+      "photoCredit": "Photo:"
     },
     "search": {
       "title": "Search for a vehicle",
@@ -142,6 +143,20 @@
       "title": "Own a car that sits idle?",
       "body": "Entrust it to RideKmer or list it yourself. Track bookings, earnings and maintenance from your owner space.",
       "cta": "Become a vehicle partner"
+    },
+    "stats": {
+      "cars": "Cars available",
+      "cities": "Cities",
+      "payments": "Pay with",
+      "paymentsValue": "MTN · Orange Money"
+    },
+    "featured": {
+      "title": "Available right now",
+      "subtitle": "Verified cars, ready for your trips. Hover to pause.",
+      "all": "All cars",
+      "from": "From",
+      "perDay": "/ day",
+      "illustrative": "Illustrative photo"
     }
   },
   "cars": {
@@ -2760,5 +2775,11 @@
     "emailOff": "E-mail alerts are off: you only see them here.",
     "emailDisable": "Turn off e-mail alerts",
     "emailEnable": "Turn on e-mail alerts"
+  },
+  "festive": {
+    "ribbon": "Happy holidays! Christmas {christmas} and New Year {newYear} with family: book your car now.",
+    "ribbonCta": "See the cars",
+    "close": "Hide the holiday message",
+    "eyebrow": "Festive season · Douala · Yaoundé"
   }
 }

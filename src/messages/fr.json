@@ -89,7 +89,8 @@
       "title": "La voiture qu'il vous faut, quand il vous la faut.",
       "subtitle": "Avec ou sans chauffeur, à la journée, à la semaine ou au mois. Véhicules vérifiés, prix transparents en XAF, MTN Mobile Money et Orange Money acceptés.",
       "cta": "Trouver une voiture",
-      "ctaSecondary": "Confier mon véhicule"
+      "ctaSecondary": "Confier mon véhicule",
+      "photoCredit": "Photo :"
     },
     "search": {
       "title": "Rechercher un véhicule",
@@ -142,6 +143,20 @@
       "title": "Votre voiture dort au garage ?",
       "body": "Confiez-la à RideKmer ou mettez-la en location vous-même. Suivez réservations, revenus et entretien depuis votre espace propriétaire.",
       "cta": "Devenir partenaire"
+    },
+    "stats": {
+      "cars": "Voitures disponibles",
+      "cities": "Villes",
+      "payments": "Payez avec",
+      "paymentsValue": "MTN · Orange Money"
+    },
+    "featured": {
+      "title": "Disponibles maintenant",
+      "subtitle": "Des voitures vérifiées, prêtes pour vos trajets. Survolez pour mettre en pause.",
+      "all": "Toutes les voitures",
+      "from": "Dès",
+      "perDay": "/ jour",
+      "illustrative": "Photo d'illustration"
     }
   },
   "cars": {
@@ -2760,5 +2775,11 @@
     "emailOff": "Les alertes par e-mail sont désactivées : vous les voyez seulement ici.",
     "emailDisable": "Désactiver les alertes par e-mail",
     "emailEnable": "Activer les alertes par e-mail"
+  },
+  "festive": {
+    "ribbon": "Joyeuses fêtes ! Noël {christmas} et Nouvel An {newYear} en famille : réservez votre voiture dès maintenant.",
+    "ribbonCta": "Voir les voitures",
+    "close": "Masquer le message des fêtes",
+    "eyebrow": "Saison des fêtes · Douala · Yaoundé"
   }
 }
