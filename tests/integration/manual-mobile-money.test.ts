@@ -70,6 +70,14 @@ beforeAll(async () => {
   ]);
   customerId = customer.id;
   financeId = finance.id;
+  // Finance staff (payment.record_manual) are alerted when a transfer is announced.
+  const financeRole = await db.role.findFirstOrThrow({
+    where: {
+      key: { not: "super_administrator" },
+      rolePermissions: { some: { permission: { key: "payment.record_manual" } } },
+    },
+  });
+  await db.userRole.create({ data: { userId: finance.id, roleId: financeRole.id } });
   // No MTN API yet: the registry falls back to the hand-made transfer.
   await saveProviderConfig({
     provider: "MTN_MOMO",
@@ -140,6 +148,16 @@ describe("Mobile Money sent by hand while the operator API is not integrated", (
     });
     expect(corrected.id).toBe(payment.id);
     expect(paymentTransactionId(corrected.metadata)).toBe(`MP240101.1234.${txId}`);
+
+    // Finance is alerted in-app and by e-mail, with a link to the payment, once per transaction ID.
+    const alerts = await db.notification.findMany({
+      where: { userId: financeId, templateKey: "staff_payment_to_confirm", entityId: payment.id },
+    });
+    expect(alerts.map((a) => a.channel).sort()).toEqual(["EMAIL", "EMAIL", "IN_APP", "IN_APP"]);
+    expect(alerts.some((a) => a.body.includes(`MP240101.1234.${txId}`))).toBe(true);
+    expect(alerts.find((a) => a.channel === "EMAIL")?.body).toContain(
+      `/admin/payments/${payment.id}`,
+    );
 
     // Nothing to poll: the payment stays pending until finance confirms it.
     expect((await refreshPaymentStatus(payment.id)).status).toBe("PENDING");

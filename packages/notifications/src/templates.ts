@@ -399,6 +399,211 @@ export const NOTIFICATION_TEMPLATES: TemplateDefinition[] = [
       en: { title: "Incident {{status}}", body: "{{reference}} · {{vehicle}}" },
     },
   },
+  // Action alerts: something now needs this person's attention ({{url}} opens it).
+  {
+    key: "staff_vehicle_review",
+    variables: ["vehicle", "owner", "url"],
+    email: {
+      fr: {
+        subject: "Véhicule à vérifier : {{vehicle}}",
+        body: "{{owner}} a soumis {{vehicle}}. Vérifiez les informations, les photos et les documents, puis approuvez ou refusez.\n\n{{url}}",
+      },
+      en: {
+        subject: "Vehicle to review: {{vehicle}}",
+        body: "{{owner}} submitted {{vehicle}}. Check the details, photos and documents, then approve or reject it.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Véhicule à vérifier", body: "{{vehicle}} soumis par {{owner}}" },
+      en: { title: "Vehicle to review", body: "{{vehicle}} submitted by {{owner}}" },
+    },
+  },
+  {
+    key: "staff_payment_to_confirm",
+    variables: ["reference", "amount", "method", "transactionId", "url"],
+    email: {
+      fr: {
+        subject: "Paiement à confirmer : {{reference}}",
+        body: "Le client annonce un paiement de {{amount}} par {{method}} pour la réservation {{reference}} (ID de transaction : {{transactionId}}). Vérifiez qu'il est arrivé sur le compte, puis confirmez-le.\n\n{{url}}",
+      },
+      en: {
+        subject: "Payment to confirm: {{reference}}",
+        body: "The customer reports a {{amount}} payment by {{method}} for booking {{reference}} (transaction ID: {{transactionId}}). Check it reached the account, then confirm it.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: {
+        title: "Paiement à confirmer",
+        body: "{{reference}} · {{amount}} · {{method}} · {{transactionId}}",
+      },
+      en: {
+        title: "Payment to confirm",
+        body: "{{reference}} · {{amount}} · {{method}} · {{transactionId}}",
+      },
+    },
+  },
+  {
+    key: "staff_document_review",
+    variables: ["document", "subject", "url"],
+    email: {
+      fr: {
+        subject: "Document à vérifier : {{document}}",
+        body: "{{subject}} a envoyé le document « {{document}} ». Vérifiez-le, puis acceptez-le ou refusez-le.\n\n{{url}}",
+      },
+      en: {
+        subject: "Document to verify: {{document}}",
+        body: "{{subject}} uploaded the document “{{document}}”. Check it, then accept or reject it.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Document à vérifier", body: "{{document}} · {{subject}}" },
+      en: { title: "Document to verify", body: "{{document}} · {{subject}}" },
+    },
+  },
+  {
+    key: "staff_refund_approval",
+    variables: ["amount", "reference", "reason", "url"],
+    email: {
+      fr: {
+        subject: "Remboursement à approuver : {{amount}}",
+        body: "Un remboursement de {{amount}} est demandé pour {{reference}}. Motif : {{reason}}.\n\n{{url}}",
+      },
+      en: {
+        subject: "Refund to approve: {{amount}}",
+        body: "A {{amount}} refund was requested for {{reference}}. Reason: {{reason}}.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Remboursement à approuver", body: "{{amount}} · {{reference}}" },
+      en: { title: "Refund to approve", body: "{{amount}} · {{reference}}" },
+    },
+  },
+  {
+    key: "staff_payout_approval",
+    variables: ["amount", "owner", "url"],
+    email: {
+      fr: {
+        subject: "Versement à approuver : {{amount}}",
+        body: "Un versement de {{amount}} à {{owner}} attend une approbation.\n\n{{url}}",
+      },
+      en: {
+        subject: "Payout to approve: {{amount}}",
+        body: "A {{amount}} payout to {{owner}} is waiting for approval.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Versement à approuver", body: "{{amount}} · {{owner}}" },
+      en: { title: "Payout to approve", body: "{{amount}} · {{owner}}" },
+    },
+  },
+  {
+    key: "staff_expense_approval",
+    variables: ["amount", "vehicle", "description", "url"],
+    email: {
+      fr: {
+        subject: "Dépense à approuver : {{amount}}",
+        body: "Une dépense de {{amount}} pour {{vehicle}} ({{description}}) attend une approbation.\n\n{{url}}",
+      },
+      en: {
+        subject: "Expense to approve: {{amount}}",
+        body: "A {{amount}} expense for {{vehicle}} ({{description}}) is waiting for approval.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Dépense à approuver", body: "{{amount}} · {{vehicle}} · {{description}}" },
+      en: { title: "Expense to approve", body: "{{amount}} · {{vehicle}} · {{description}}" },
+    },
+  },
+  {
+    key: "staff_incident",
+    variables: ["reference", "vehicle", "type", "url"],
+    email: {
+      fr: {
+        subject: "Incident signalé : {{vehicle}}",
+        body: "Un incident ({{type}}) a été signalé sur {{vehicle}} pour la réservation {{reference}}. Prenez-le en charge.\n\n{{url}}",
+      },
+      en: {
+        subject: "Incident reported: {{vehicle}}",
+        body: "An incident ({{type}}) was reported on {{vehicle}} for booking {{reference}}. Please handle it.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Incident signalé", body: "{{type}} · {{vehicle}} · {{reference}}" },
+      en: { title: "Incident reported", body: "{{type}} · {{vehicle}} · {{reference}}" },
+    },
+  },
+  {
+    key: "staff_extension_request",
+    variables: ["reference", "newEnd", "url"],
+    email: {
+      fr: {
+        subject: "Prolongation demandée : {{reference}}",
+        body: "Le client demande de prolonger la réservation {{reference}} jusqu'au {{newEnd}}. Acceptez-la ou refusez-la.\n\n{{url}}",
+      },
+      en: {
+        subject: "Extension requested: {{reference}}",
+        body: "The customer asks to extend booking {{reference}} until {{newEnd}}. Accept or decline it.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Prolongation demandée", body: "{{reference}} · jusqu'au {{newEnd}}" },
+      en: { title: "Extension requested", body: "{{reference}} · until {{newEnd}}" },
+    },
+  },
+  {
+    key: "staff_vehicle_change_request",
+    variables: ["vehicle", "request", "url"],
+    email: {
+      fr: {
+        subject: "Demande du propriétaire : {{vehicle}}",
+        body: "Le propriétaire de {{vehicle}} demande : {{request}}. Traitez la demande.\n\n{{url}}",
+      },
+      en: {
+        subject: "Owner request: {{vehicle}}",
+        body: "The owner of {{vehicle}} asks for: {{request}}. Please handle the request.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Demande du propriétaire", body: "{{vehicle}} · {{request}}" },
+      en: { title: "Owner request", body: "{{vehicle}} · {{request}}" },
+    },
+  },
+  {
+    key: "staff_immobilisation_approval",
+    variables: ["vehicle", "url"],
+    email: {
+      fr: {
+        subject: "Immobilisation à approuver : {{vehicle}}",
+        body: "Une demande d'immobilisation de {{vehicle}} attend une seconde approbation.\n\n{{url}}",
+      },
+      en: {
+        subject: "Immobilisation to approve: {{vehicle}}",
+        body: "An immobilisation request for {{vehicle}} is waiting for a second approval.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Immobilisation à approuver", body: "{{vehicle}}" },
+      en: { title: "Immobilisation to approve", body: "{{vehicle}}" },
+    },
+  },
+  {
+    key: "vehicle_changes_requested",
+    variables: ["ownerName", "vehicle", "comment", "url"],
+    email: {
+      fr: {
+        subject: "Corrections demandées : {{vehicle}}",
+        body: "Bonjour {{ownerName}}, notre équipe demande des corrections sur {{vehicle}} : {{comment}}. Modifiez l'annonce puis soumettez-la de nouveau.\n\n{{url}}",
+      },
+      en: {
+        subject: "Changes requested: {{vehicle}}",
+        body: "Hello {{ownerName}}, our team asks for changes on {{vehicle}}: {{comment}}. Update the listing, then submit it again.\n\n{{url}}",
+      },
+    },
+    inApp: {
+      fr: { title: "Corrections demandées", body: "{{vehicle}} · {{comment}}" },
+      en: { title: "Changes requested", body: "{{vehicle}} · {{comment}}" },
+    },
+  },
 ];
 
 export function renderTemplate(

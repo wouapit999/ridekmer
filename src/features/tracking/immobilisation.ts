@@ -2,6 +2,7 @@ import { isStationary, type ImmobilisationProvider } from "@ridekmer/tracking";
 
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
+import { alertStaff } from "@/server/notifications/alerts";
 
 import type { ImmobilisationStatus } from "@/generated/prisma/enums";
 
@@ -88,6 +89,20 @@ export async function confirmStationary(input: { requestId: string; actorId: str
     entityType: "ImmobilisationRequest",
     entityId: request.id,
     after: { lastLocationAt: fix!.recordedAt },
+  });
+  const vehicle = await db.vehicle.findUnique({
+    where: { id: request.vehicleId },
+    select: { make: true, model: true, registrationNumber: true },
+  });
+  await alertStaff("immobilisation.approve", {
+    templateKey: "staff_immobilisation_approval",
+    variables: {
+      vehicle: vehicle ? `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})` : "",
+    },
+    entityType: "ImmobilisationRequest",
+    entityId: request.id,
+    dedupeKey: `immobilisation_stationary:${request.id}`,
+    exceptUserId: request.requestedById,
   });
   return updated;
 }

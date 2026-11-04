@@ -6,6 +6,7 @@ import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { deleteStoredFile, storeFile } from "@/server/files/service";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff, alertUser } from "@/server/notifications/alerts";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { VehicleStatus } from "@/generated/prisma/enums";
@@ -436,6 +437,17 @@ export async function submitVehicle(vehicleId: string, userId: string) {
       entityId: vehicleId,
     });
   }
+  await alertStaff("vehicle.review", {
+    templateKey: "staff_vehicle_review",
+    variables: {
+      vehicle: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+      owner: owner?.name ?? "",
+    },
+    entityType: "Vehicle",
+    entityId: vehicleId,
+    dedupeKey: `vehicle_submitted:${vehicleId}:${updated.submittedAt?.getTime()}`,
+    exceptUserId: userId,
+  });
   return updated;
 }
 
@@ -528,6 +540,19 @@ export async function reviewVehicle(input: {
       entityId: vehicle.id,
     });
   }
+  if (owner && input.decision === "REJECTED") {
+    await alertUser(owner, {
+      templateKey: "vehicle_changes_requested",
+      variables: {
+        ownerName: owner.name,
+        vehicle: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+        comment: input.reason ?? "",
+      },
+      entityType: "Vehicle",
+      entityId: vehicle.id,
+      dedupeKey: `vehicle_rejected:${vehicle.id}:${updated.reviewedAt?.getTime()}`,
+    });
+  }
   if (input.decision === "ACTIVE") await recomputeVehicleCompliance(vehicle.id, "reinstated");
   return updated;
 }
@@ -551,6 +576,21 @@ export async function requestVehicleChange(
     entityType: "Vehicle",
     entityId: vehicleId,
     reason,
+  });
+  const labels = {
+    SUSPENSION: { fr: "suspension temporaire", en: "temporary suspension" },
+    WITHDRAWAL: { fr: "retrait de la flotte", en: "withdrawal from the fleet" },
+  };
+  await alertStaff(type === "SUSPENSION" ? "vehicle.suspend" : "vehicle.withdraw", {
+    templateKey: "staff_vehicle_change_request",
+    variables: (locale) => ({
+      vehicle: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+      request: `${labels[type][locale]} — ${reason}`,
+    }),
+    entityType: "Vehicle",
+    entityId: vehicleId,
+    dedupeKey: `vehicle_owner_request:${vehicleId}:${updated.ownerRequestedAt?.getTime()}`,
+    exceptUserId: userId,
   });
   return updated;
 }
