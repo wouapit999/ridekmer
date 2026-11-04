@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { countUnreadNotifications } from "@/features/notifications/queries";
 import { getAccessProfile } from "@/server/auth/rbac";
 import { getCurrentSession } from "@/server/auth/session";
 
@@ -15,9 +16,12 @@ export async function GET() {
   const current = await getCurrentSession();
   const headers = { "cache-control": "private, no-store", vary: "cookie" };
   if (!current) return NextResponse.json({ viewer: null }, { headers });
-  const access = await getAccessProfile(current.user.id);
+  const [access, unread] = await Promise.all([
+    getAccessProfile(current.user.id),
+    countUnreadNotifications(current.user.id),
+  ]);
   return NextResponse.json(
-    { viewer: { name: current.user.name, isStaff: access.isStaff } },
+    { viewer: { name: current.user.name, isStaff: access.isStaff, unread } },
     { headers },
   );
 }

@@ -203,16 +203,17 @@ export default async function CarsPage({ params, searchParams }: Props) {
               {result.vehicles.map((v) => (
                 <li
                   key={v.id}
-                  className="flex flex-col overflow-hidden rounded-xl border border-sand-200 bg-white shadow-card"
+                  className="group flex flex-col overflow-hidden rounded-xl border border-sand-200 bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 >
                   <Link
                     href={`/cars/${v.id}${datesQuery ? `?${datesQuery}` : ""}`}
-                    className="block aspect-[4/3] bg-sand-100"
+                    className="block aspect-[4/3] overflow-hidden bg-sand-100"
                   >
                     <VehiclePhoto
                       photoUrl={photoUrls.get(v.id)}
                       reference={referenceImages.get(v.id)}
                       alt={`${v.make} ${v.model}`}
+                      className="transition duration-700 group-hover:scale-105"
                     />
                   </Link>
                   <div className="flex flex-1 flex-col p-4">

@@ -89,7 +89,8 @@
       "title": "The car you need, when you need it.",
       "subtitle": "Self-drive or chauffeur-driven, by the day, week or month. Verified vehicles, transparent prices in XAF, MTN Mobile Money and Orange Money accepted.",
       "cta": "Find a car",
-      "ctaSecondary": "List your vehicle"
+      "ctaSecondary": "List your vehicle",
+      "photoCredit": "Photo:"
     },
     "search": {
       "title": "Search for a vehicle",
@@ -142,6 +143,20 @@
       "title": "Own a car that sits idle?",
       "body": "Entrust it to RideKmer or list it yourself. Track bookings, earnings and maintenance from your owner space.",
       "cta": "Become a vehicle partner"
+    },
+    "stats": {
+      "cars": "Cars available",
+      "cities": "Cities",
+      "payments": "Pay with",
+      "paymentsValue": "MTN · Orange Money"
+    },
+    "featured": {
+      "title": "Available right now",
+      "subtitle": "Verified cars, ready for your trips. Hover to pause.",
+      "all": "All cars",
+      "from": "From",
+      "perDay": "/ day",
+      "illustrative": "Illustrative photo"
     }
   },
   "cars": {
@@ -2742,5 +2757,29 @@
       "EXTERNAL": "Vehicle power",
       "BATTERY": "Backup battery"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "intro": "Everything that needs your attention, with a link to where you can act.",
+    "bell": "Notifications",
+    "bellUnread": "{count, plural, one {# unread notification} other {# unread notifications}}",
+    "unreadCount": "{count, plural, =0 {All caught up} one {# unread} other {# unread}}",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet. When something needs your attention, it appears here and we e-mail you.",
+    "untitled": "Notification",
+    "new": "new",
+    "open": "Open",
+    "markRead": "Mark as read",
+    "emailTitle": "E-mail alerts",
+    "emailOn": "We e-mail you when something needs your attention (a booking to pay, a document to fix, a request to approve…).",
+    "emailOff": "E-mail alerts are off: you only see them here.",
+    "emailDisable": "Turn off e-mail alerts",
+    "emailEnable": "Turn on e-mail alerts"
+  },
+  "festive": {
+    "ribbon": "Happy holidays! Christmas {christmas} and New Year {newYear} with family: book your car now.",
+    "ribbonCta": "See the cars",
+    "close": "Hide the holiday message",
+    "eyebrow": "Festive season · Douala · Yaoundé"
   }
 }

@@ -44,6 +44,15 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     };
   }, [pathname, tick]);
 
+  // Refresh the unread count when the visitor comes back to the tab.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") setTick((n) => n + 1);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
   return (
     <ViewerContext.Provider value={{ viewer, loaded, refresh: () => setTick((n) => n + 1) }}>
       {children}

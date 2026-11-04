@@ -7,6 +7,7 @@ import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { storeFile, type StoredFile } from "@/server/files/service";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 
 import type { Prisma } from "@/generated/prisma/client";
 import type { DocumentStatus } from "@/generated/prisma/enums";
@@ -120,6 +121,23 @@ export async function uploadVehicleDocument(input: {
     after: { vehicleId: input.vehicleId, type: type.key, version: document.version },
   });
   await recomputeVehicleCompliance(input.vehicleId, "document_uploaded");
+  // Draft vehicles are reviewed as a whole on submission; later uploads (renewals) need a check.
+  const vehicle = await db.vehicle.findUnique({
+    where: { id: input.vehicleId },
+    select: { status: true, make: true, model: true, registrationNumber: true },
+  });
+  if (vehicle && vehicle.status !== "DRAFT")
+    await alertStaff("document.verify", {
+      templateKey: "staff_document_review",
+      variables: (locale) => ({
+        document: locale === "en" ? type.nameEn : type.nameFr,
+        subject: `${vehicle.make} ${vehicle.model} (${vehicle.registrationNumber})`,
+      }),
+      entityType: "VehicleDocument",
+      entityId: document.id,
+      dedupeKey: `document_uploaded:${document.id}`,
+      exceptUserId: input.actorId,
+    });
   return document;
 }
 
@@ -187,6 +205,21 @@ export async function uploadVerificationDocument(input: {
     entityType: "VerificationDocument",
     entityId: document.id,
     after: { caseId: input.verificationCaseId, type: type.key },
+  });
+  const uploader = await db.user.findUnique({
+    where: { id: input.actorId },
+    select: { name: true },
+  });
+  await alertStaff("document.verify", {
+    templateKey: "staff_document_review",
+    variables: (locale) => ({
+      document: locale === "en" ? type.nameEn : type.nameFr,
+      subject: uploader?.name ?? "",
+    }),
+    entityType: "VerificationCase",
+    entityId: input.verificationCaseId,
+    dedupeKey: `document_uploaded:${document.id}`,
+    exceptUserId: input.actorId,
   });
   return document;
 }

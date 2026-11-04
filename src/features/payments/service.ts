@@ -20,6 +20,7 @@ import { maskPhoneForDisplay, parsePhone } from "@/lib/phone";
 import { recordAudit } from "@/server/audit";
 import { db } from "@/server/db";
 import { sendTemplatedNotification } from "@/server/notifications";
+import { alertStaff } from "@/server/notifications/alerts";
 import {
   WEBHOOK_SLUGS,
   getPaymentProvider,
@@ -243,8 +244,23 @@ export async function initiatePaymentForBooking(input: {
     });
     return { payment: created, reused: false };
   });
+  // Hand-made transfers (Mobile Money, bank) wait for finance to check and confirm them.
+  const alertFinance = (paymentId: string, amountXaf: number) =>
+    alertStaff("payment.record_manual", {
+      templateKey: "staff_payment_to_confirm",
+      variables: (locale) => ({
+        reference: booking.reference,
+        amount: formatXaf(amountXaf, locale),
+        method: methodLabel(input.method),
+        transactionId: String(manualDetails?.transactionId ?? "—"),
+      }),
+      entityType: "Payment",
+      entityId: paymentId,
+      dedupeKey: `payment_announced:${paymentId}:${String(manualDetails?.transactionId ?? "bank")}`,
+    });
+
   if (payment.reused) {
-    if (manualDetails)
+    if (manualDetails) {
       await recordAudit({
         actorId: input.userId,
         action: "payment.transaction_id",
@@ -252,6 +268,8 @@ export async function initiatePaymentForBooking(input: {
         entityId: payment.payment.id,
         after: { transactionId: manualDetails.transactionId },
       });
+      await alertFinance(payment.payment.id, payment.payment.amountXaf);
+    }
     return payment.payment;
   }
 
@@ -316,6 +334,8 @@ export async function initiatePaymentForBooking(input: {
         ...(manualDetails ? { transactionId: manualDetails.transactionId } : {}),
       },
     });
+    if (manualMomo || input.method === "BANK_TRANSFER")
+      await alertFinance(record.id, record.amountXaf);
     // The "approve the request on your phone" SMS does not apply to a hand-made transfer.
     if (payerPhone && !manualMomo) {
       await sendTemplatedNotification({
