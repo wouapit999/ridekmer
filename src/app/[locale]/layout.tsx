@@ -48,7 +48,8 @@ export default async function LocaleLayout({
   const t = await getTranslations({ locale, namespace: "common" });
 
   return (
-    <html lang={locale} className="h-full antialiased">
+    // The festive boot script sets data-festive* on <html> before React hydrates.
+    <html lang={locale} className="h-full antialiased" suppressHydrationWarning>
       <body className="flex min-h-full flex-col">
         <a
           href="#main"
