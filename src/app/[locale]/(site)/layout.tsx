@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { ViewerProvider } from "@/components/layout/viewer-provider";
 import { ServiceWorkerManager } from "@/components/pwa/service-worker-manager";
+import { FestiveBootScript, FestiveRibbon } from "@/features/home/festive-decor";
 
 /**
  * The public site layout reads no request data (ADR-033): the signed-in state is fetched on
@@ -13,7 +14,9 @@ import { ServiceWorkerManager } from "@/components/pwa/service-worker-manager";
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <ViewerProvider>
+      <FestiveBootScript />
       <DemoBanner />
+      <FestiveRibbon />
       <SiteHeader />
       <main id="main" className="flex-1">
         {children}
